@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+/* Auto-generated from Figma "Webex Design" — do not edit manually */
+
+@theme {
+  /* ── Gray ── */
+  --color-gray-0:    #ffffff;
+  --color-gray-50:   #f6f6f6;
+  --color-gray-100:  #f0f0f0;
+  --color-gray-200:  #e8e8e8;
+  --color-gray-300:  #d4d4d4;
+  --color-gray-400:  #aaaaaa;
+  --color-gray-500:  #737373;
+  --color-gray-600:  #585858;
+  --color-gray-700:  #494949;
+  --color-gray-800:  #222222;
+  --color-gray-900:  #111111;
+  --color-gray-1000: #000000;
+
+  /* ── Green ── */
+  --color-green-50:  #eff5f2;
+  --color-green-100: #d9e7e2;
+  --color-green-200: #b6d6ca;
+  --color-green-300: #86c8b0;
+  --color-green-400: #4ac397;
+  --color-green-500: #2aab7d;
+  --color-green-600: #1c8160;
+  --color-green-700: #1b644d;
+  --color-green-800: #174537;
+  --color-green-900: #0d251d;
+
+  /* ── Blue ── */
+  --color-blue-50:  #eff5fb;
+  --color-blue-100: #ddecf7;
+  --color-blue-200: #baddf5;
+  --color-blue-300: #91cbf1;
+  --color-blue-400: #5cb3f0;
+  --color-blue-500: #2e95e7;
+  --color-blue-600: #116fcf;
+  --color-blue-700: #124f8f;
+  --color-blue-800: #0d3667;
+  --color-blue-900: #081d3c;
+
+  /* ── Red ── */
+  --color-red-50:  #fff0ec;
+  --color-red-100: #ffe1de;
+  --color-red-200: #ffd1cc;
+  --color-red-300: #ffb1ab;
+  --color-red-400: #fb7e78;
+  --color-red-500: #f73345;
+  --color-red-600: #de1134;
+  --color-red-700: #ba0329;
+  --color-red-800: #940e21;
+  --color-red-900: #52080f;
+
+  /* ── Yellow ── */
+  --color-yellow-50:  #fdf1db;
+  --color-yellow-100: #fae4b5;
+  --color-yellow-200: #ffd587;
+  --color-yellow-300: #f5bc2e;
+  --color-yellow-400: #d69900;
+  --color-yellow-500: #b97401;
+  --color-yellow-600: #9e6401;
+  --color-yellow-700: #835200;
+  --color-yellow-800: #6a4000;
+  --color-yellow-900: #382300;
+
+  /* ── Orange ── */
+  --color-orange-50:  #fff0e8;
+  --color-orange-100: #fee2d4;
+  --color-orange-200: #ffd3bc;
+  --color-orange-300: #ffb48b;
+  --color-orange-400: #fb813a;
+  --color-orange-500: #e65300;
+  --color-orange-600: #c44500;
+  --color-orange-700: #a23b04;
+  --color-orange-800: #812f05;
+  --color-orange-900: #451a00;
+
+  /* ── Purple ── */
+  --color-purple-50:  #f9f1ff;
+  --color-purple-100: #f1e3ff;
+  --color-purple-200: #ebd5ff;
+  --color-purple-300: #ddb9ff;
+  --color-purple-400: #c38ff9;
+  --color-purple-500: #a864f6;
+  --color-purple-600: #944de7;
+  --color-purple-700: #7c3dc2;
+  --color-purple-800: #623394;
+  --color-purple-900: #3a1658;
+
+  /* ── Magenta ── */
+  --color-magenta-50:  #feeff9;
+  --color-magenta-100: #fedef2;
+  --color-magenta-200: #ffcdf1;
+  --color-magenta-300: #ffabe4;
+  --color-magenta-400: #f777d1;
+  --color-magenta-500: #e141bc;
+  --color-magenta-600: #ca25a5;
+  --color-magenta-700: #a81a8f;
+  --color-magenta-800: #891767;
+  --color-magenta-900: #891769;
+
+  /* ── Spacing ── */
+  --spacing-000: 0px;
+  --spacing-012: 2px;
+  --spacing-025: 4px;
+  --spacing-050: 8px;
+  --spacing-060: 10px;
+  --spacing-075: 12px;
+  --spacing-085: 14px;
+  --spacing-100: 16px;
+  --spacing-112: 18px;
+  --spacing-125: 20px;
+  --spacing-135: 22px;
+  --spacing-140: 24px;
+  --spacing-160: 26px;
+  --spacing-180: 28px;
+  --spacing-200: 32px;
+  --spacing-225: 36px;
+  --spacing-250: 40px;
+  --spacing-275: 44px;
+  --spacing-300: 48px;
+  --spacing-315: 52px;
+  --spacing-400: 64px;
+  --spacing-450: 72px;
+  --spacing-500: 80px;
+
+  /* ── Border Radius ── */
+  --radius-012:  2px;
+  --radius-025:  4px;
+  --radius-050:  8px;
+  --radius-075:  12px;
+  --radius-087:  14px;
+  --radius-100:  16px;
+  --radius-110:  18px;
+  --radius-125:  20px;
+  --radius-150:  24px;
+  --radius-1000: 9999px;
+}
+
+
+/* ── Theme tokens ─────────────────────────────────────── */
+:root {
+  --bg-primary:     #111111;
+  --bg-surface:     #1E1E1E;
+  --bg-elevated:    #252525;
+  --border:         #2A2A2A;
+  --border-strong:  #494949;
+  --text-primary:   #FFFFFF;
+  --text-secondary: #CCCCCC;
+  --text-muted:     #888888;
+  --accent:         #1170CF;
+  --accent-hover:   #0E5AA8;
+  --sidebar-from:   #1E1E1E;
+  --sidebar-to:     #111111;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Dark-panel scrollbar — used in modals with dark backgrounds */
+.scrollbar-dark::-webkit-scrollbar        { width: 6px; }
+.scrollbar-dark::-webkit-scrollbar-track  { background: transparent; }
+.scrollbar-dark::-webkit-scrollbar-thumb  { background: #494949; border-radius: 9999px; }
+.scrollbar-dark::-webkit-scrollbar-thumb:hover { background: #737373; }
+
+/* Dark time input — quiet hours schedule */
+.time-input-dark {
+  background: #252525;
+  border: 1px solid #3A3A3A;
+  border-radius: 4px;
+  color: #CCCCCC;
+  font-size: 13px;
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 5px 8px;
+  cursor: pointer;
+  outline: none;
+  width: 108px;
+  color-scheme: dark;
+}
+.time-input-dark:focus {
+  border-color: #1170CF;
+}
+.time-input-dark:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
