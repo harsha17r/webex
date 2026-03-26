@@ -20,15 +20,14 @@ import { PreJoinModal } from '../meeting/PreJoinModal'
  *   3 tiles row, gap 20: each bg #494949, radius 8, padding 20px 16px, column gap 10
  * ───────────────────────────────────────────────────────── */
 
+// Fluent UI 20px icons — fill="currentColor"
 const TILES = [
   {
     key: 'schedule',
     label: 'Schedule a meeting',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="4" width="18" height="17" rx="2" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <path d="M3 9h18M8 2v4M16 2v4" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-        <path d="M12 13v4M10 15h4" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+      <svg width="20" height="20" viewBox="0 0 20 20" style={{ color: '#FFFFFF' }}>
+        <path fill="currentColor" d="M14.5 3A2.5 2.5 0 0 1 17 5.5v4.1a5.5 5.5 0 0 0-1-.393V7H4v7.5A1.5 1.5 0 0 0 5.5 16h3.707q.149.524.393 1H5.5A2.5 2.5 0 0 1 3 14.5v-9A2.5 2.5 0 0 1 5.5 3zm0 1h-9A1.5 1.5 0 0 0 4 5.5V6h12v-.5A1.5 1.5 0 0 0 14.5 4M19 14.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0m-4-2a.5.5 0 0 0-1 0V14h-1.5a.5.5 0 0 0 0 1H14v1.5a.5.5 0 0 0 1 0V15h1.5a.5.5 0 0 0 0-1H15z"/>
       </svg>
     ),
   },
@@ -36,9 +35,8 @@ const TILES = [
     key: 'join',
     label: 'Join with meeting ID',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="5" width="18" height="14" rx="2" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <path d="M7 10h2M11 10h2M15 10h2M9 14h6" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+      <svg width="20" height="20" viewBox="0 0 20 20" style={{ color: '#FFFFFF' }}>
+        <path fill="currentColor" d="M6 5a1 1 0 1 0 0-2a1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 3a1 1 0 1 1-2 0a1 1 0 0 1 2 0m3-7a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 3a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-1 5a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 3a1 1 0 1 1-2 0a1 1 0 0 1 2 0m3-11a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 3a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-1 5a1 1 0 1 0 0-2a1 1 0 0 0 0 2"/>
       </svg>
     ),
   },
@@ -46,9 +44,8 @@ const TILES = [
     key: 'launch',
     label: 'Launch a Webex Meeting',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="5" width="14" height="11" rx="1.5" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <path d="M16 9l5.5-3.5V18.5L16 15" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <svg width="20" height="20" viewBox="0 0 20 20" style={{ color: '#FFFFFF' }}>
+        <path fill="currentColor" d="M5 4a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h5a3 3 0 0 0 3-3v-.321l3.037 2.097a1.25 1.25 0 0 0 1.96-1.029V6.252a1.25 1.25 0 0 0-1.96-1.028L13 7.32V7a3 3 0 0 0-3-3zm8 4.536l3.605-2.49a.25.25 0 0 1 .392.206v7.495a.25.25 0 0 1-.392.206L13 11.463zM3 7a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
       </svg>
     ),
   },
@@ -147,9 +144,8 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
                       transition: 'background 0.15s',
                     }}
                   >
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <rect x="2" y="5" width="11" height="9" rx="1.5" stroke="#FFFFFF" strokeWidth="1.5"/>
-                      <path d="M13 8.5L18 6V14L13 11.5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg width="20" height="20" viewBox="0 0 20 20">
+                      <path fill="#FFFFFF" d="M5 4a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h5a3 3 0 0 0 3-3v-.321l3.037 2.097a1.25 1.25 0 0 0 1.96-1.029V6.252a1.25 1.25 0 0 0-1.96-1.028L13 7.32V7a3 3 0 0 0-3-3zm8 4.536l3.605-2.49a.25.25 0 0 1 .392.206v7.495a.25.25 0 0 1-.392.206L13 11.463zM3 7a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                     </svg>
                     <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Start a test meeting</span>
                   </button>
@@ -198,9 +194,8 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
                 display: 'flex', alignItems: 'center', gap: 8,
                 cursor: 'pointer',
               }}>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <rect x="3" y="3" width="14" height="14" rx="2" stroke="#FFFFFF" strokeWidth="1.5"/>
-                  <path d="M3 7h14M7 1v4M13 1v4" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+                <svg width="20" height="20" viewBox="0 0 20 20">
+                  <path fill="#FFFFFF" d="M7 11a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 2a1 1 0 1 1-2 0a1 1 0 0 1 2 0m2-2a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 2a1 1 0 1 1-2 0a1 1 0 0 1 2 0m2-2a1 1 0 1 0 0-2a1 1 0 0 0 0 2m4-5.5A2.5 2.5 0 0 0 14.5 3h-9A2.5 2.5 0 0 0 3 5.5v9A2.5 2.5 0 0 0 5.5 17h9a2.5 2.5 0 0 0 2.5-2.5zM4 7h12v7.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 4 14.5zm1.5-3h9A1.5 1.5 0 0 1 16 5.5V6H4v-.5A1.5 1.5 0 0 1 5.5 4"/>
                 </svg>
                 <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>
                   Connect your calendar

@@ -57,14 +57,14 @@ const TASK_COMPLETE = {
 
 /* ─── Data ─────────────────────────────────────────────── */
 
+// Fluent UI 20px icons
 const TASKS = [
   {
     key: 'test-call',
     label: 'Test call to check audio & video',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="6" width="13" height="11" rx="1.5" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <path d="M15 9.5L21 7V17L15 14.5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <svg width="20" height="20" viewBox="0 0 20 20">
+        <path fill="#FFFFFF" d="M5 4a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h5a3 3 0 0 0 3-3v-.321l3.037 2.097a1.25 1.25 0 0 0 1.96-1.029V6.252a1.25 1.25 0 0 0-1.96-1.028L13 7.32V7a3 3 0 0 0-3-3zm8 4.536l3.605-2.49a.25.25 0 0 1 .392.206v7.495a.25.25 0 0 1-.392.206L13 11.463zM3 7a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
       </svg>
     ),
   },
@@ -72,9 +72,8 @@ const TASKS = [
     key: 'profile',
     label: 'Set up your profile',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="8" r="4" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <path d="M4 20c0-4 3.582-6 8-6s8 2 8 6" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+      <svg width="20" height="20" viewBox="0 0 20 20">
+        <path fill="#FFFFFF" d="M10 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8M7 6a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-1.991 5A2 2 0 0 0 3 13c0 1.691.833 2.966 2.135 3.797C6.417 17.614 8.145 18 10 18s3.583-.386 4.865-1.203C16.167 15.967 17 14.69 17 13a2 2 0 0 0-2-2zM4 13c0-.553.448-1 1.009-1H15a1 1 0 0 1 1 1c0 1.309-.622 2.284-1.673 2.953C13.257 16.636 11.735 17 10 17s-3.257-.364-4.327-1.047C4.623 15.283 4 14.31 4 13"/>
       </svg>
     ),
   },
@@ -82,9 +81,8 @@ const TASKS = [
     key: 'calendar',
     label: 'Connect your Calendar',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="4" width="18" height="17" rx="2" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <path d="M3 9h18M8 2v4M16 2v4" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+      <svg width="20" height="20" viewBox="0 0 20 20">
+        <path fill="#FFFFFF" d="M7 11a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 2a1 1 0 1 1-2 0a1 1 0 0 1 2 0m2-2a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 2a1 1 0 1 1-2 0a1 1 0 0 1 2 0m2-2a1 1 0 1 0 0-2a1 1 0 0 0 0 2m4-5.5A2.5 2.5 0 0 0 14.5 3h-9A2.5 2.5 0 0 0 3 5.5v9A2.5 2.5 0 0 0 5.5 17h9a2.5 2.5 0 0 0 2.5-2.5zM4 7h12v7.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 4 14.5zm1.5-3h9A1.5 1.5 0 0 1 16 5.5V6H4v-.5A1.5 1.5 0 0 1 5.5 4"/>
       </svg>
     ),
   },
@@ -92,9 +90,8 @@ const TASKS = [
     key: 'notifications',
     label: 'Customize notification settings',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M5 14v-4a7 7 0 0 1 14 0v4l2 3H3l2-3Z" stroke="#FFFFFF" strokeWidth="1.5" strokeLinejoin="round"/>
-        <path d="M10 19a2 2 0 0 0 4 0" stroke="#FFFFFF" strokeWidth="1.5"/>
+      <svg width="20" height="20" viewBox="0 0 20 20">
+        <path fill="#FFFFFF" d="M9.998 2c3.149 0 5.744 2.335 5.984 5.355l.014.223l.004.224l-.001 3.596l.925 2.222q.034.081.053.167l.016.086l.008.132a1 1 0 0 1-.749.963l-.116.027l-.135.01l-3.501-.001l-.005.161a2.5 2.5 0 0 1-4.99 0l-.005-.161H3.999a1 1 0 0 1-.26-.034l-.124-.042a1 1 0 0 1-.603-1.052l.021-.128l.043-.128l.923-2.219L4 7.793l.004-.225C4.127 4.451 6.771 2 9.998 2M11.5 15.004h-3l.007.141a1.5 1.5 0 0 0 1.349 1.348L10 16.5a1.5 1.5 0 0 0 1.493-1.355zM9.998 3c-2.623 0-4.77 1.924-4.98 4.385l-.014.212L5 7.802V11.5l-.038.192l-.963 2.313l11.958.002l.045-.002l-.964-2.313L15 11.5V7.812l-.004-.204C14.891 5.035 12.695 3 9.998 3"/>
       </svg>
     ),
   },
@@ -102,11 +99,8 @@ const TASKS = [
     key: 'appearance',
     label: 'Adjust appearance',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M4 6h16M4 12h16M4 18h16" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-        <circle cx="8"  cy="6"  r="2" fill="#111111" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <circle cx="16" cy="12" r="2" fill="#111111" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <circle cx="10" cy="18" r="2" fill="#111111" stroke="#FFFFFF" strokeWidth="1.5"/>
+      <svg width="20" height="20" viewBox="0 0 20 20">
+        <path fill="#FFFFFF" d="M14.95 5a2.5 2.5 0 0 0-4.9 0H2.5a.5.5 0 0 0 0 1h7.55a2.5 2.5 0 0 0 4.9 0h2.55a.5.5 0 0 0 0-1zM12.5 7a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3m-2.55 7a2.5 2.5 0 0 0-4.9 0H2.5a.5.5 0 0 0 0 1h2.55a2.5 2.5 0 0 0 4.9 0h7.55a.5.5 0 0 0 0-1zM7.5 16a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3"/>
       </svg>
     ),
   },
@@ -163,8 +157,8 @@ function TaskRow({ task, done, onClick }) {
 
       {/* Right: chevron fades out when done */}
       <div style={{ flexShrink: 0, opacity: done ? 0 : 1, transition: 'opacity 0.2s' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M9 6L15 12L9 18" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg width="20" height="20" viewBox="0 0 20 20">
+          <path fill="#FFFFFF" d="M7.646 4.147a.5.5 0 0 1 .707-.001l5.484 5.465a.55.55 0 0 1 0 .779l-5.484 5.465a.5.5 0 0 1-.706-.708L12.812 10L7.647 4.854a.5.5 0 0 1-.001-.707"/>
         </svg>
       </div>
     </div>
@@ -228,12 +222,12 @@ export function OnboardingChecklist({ onCalendarConnect }) {
 
         {/* Chevron — spring rotation, not CSS transition */}
         <motion.svg
-          width="24" height="24" viewBox="0 0 24 24" fill="none"
+          width="20" height="20" viewBox="0 0 20 20"
           animate={{ rotate: open ? 180 : 0 }}
           transition={CHEVRON.spring}
           style={{ flexShrink: 0, originX: '50%', originY: '50%' }}
         >
-          <path d="M6 9L12 15L18 9" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path fill="#FFFFFF" d="M15.854 7.646a.5.5 0 0 1 .001.707l-5.465 5.484a.55.55 0 0 1-.78 0L4.147 8.353a.5.5 0 1 1 .708-.706L10 12.812l5.147-5.165a.5.5 0 0 1 .707-.001"/>
         </motion.svg>
       </div>
 

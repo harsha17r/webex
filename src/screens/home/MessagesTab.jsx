@@ -19,14 +19,14 @@ const FILTER_OPTIONS = [
   'Scheduled',
 ]
 
+// Fluent UI 20px icons
 const COMPOSE_ITEMS = [
   {
     key: 'message',
     label: 'New message',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M4 4h16v12H7.5L4 20V4Z" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M9 10h6M9 13h4" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+      <svg width="20" height="20" viewBox="0 0 20 20">
+        <path fill="#FFFFFF" d="M10 2a8 8 0 1 1-3.613 15.14l-.121-.065l-3.645.91a.5.5 0 0 1-.62-.441v-.082l.014-.083l.91-3.644l-.063-.12a8 8 0 0 1-.83-2.887l-.025-.382L2 10a8 8 0 0 1 8-8m0 1a7 7 0 0 0-6.106 10.425a.5.5 0 0 1 .063.272l-.014.094l-.756 3.021l3.024-.754a.5.5 0 0 1 .188-.01l.091.021l.087.039A7 7 0 1 0 10 3m.5 8a.5.5 0 0 1 .09.992L10.5 12h-3a.5.5 0 0 1-.09-.992L7.5 11zm2-3a.5.5 0 0 1 .09.992L12.5 9h-5a.5.5 0 0 1-.09-.992L7.5 8z"/>
       </svg>
     ),
   },
@@ -34,10 +34,8 @@ const COMPOSE_ITEMS = [
     key: 'space',
     label: 'New space',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <circle cx="9" cy="8" r="3" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <path d="M3 19c0-3.314 2.686-5 6-5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-        <path d="M17 11v6M14 14h6" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+      <svg width="20" height="20" viewBox="0 0 20 20">
+        <path fill="#FFFFFF" d="M9 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8M6 6a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-1.991 5A2 2 0 0 0 2 13c0 1.691.833 2.966 2.135 3.797C5.417 17.614 7.145 18 9 18q.617 0 1.21-.057a5.5 5.5 0 0 1-.618-.958Q9.301 17 9 17c-1.735 0-3.257-.364-4.327-1.047C3.623 15.283 3 14.31 3 13c0-.553.448-1 1.009-1h5.59q.277-.538.658-1zM14.5 19a4.5 4.5 0 1 0 0-9a4.5 4.5 0 0 0 0 9m0-7a.5.5 0 0 1 .5.5V14h1.5a.5.5 0 0 1 0 1H15v1.5a.5.5 0 0 1-1 0V15h-1.5a.5.5 0 0 1 0-1H14v-1.5a.5.5 0 0 1 .5-.5"/>
       </svg>
     ),
   },
@@ -45,9 +43,8 @@ const COMPOSE_ITEMS = [
     key: 'meeting',
     label: 'Start a new meeting',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="6" width="13" height="11" rx="1.5" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <path d="M15 9.5L21 7V17L15 14.5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <svg width="20" height="20" viewBox="0 0 20 20">
+        <path fill="#FFFFFF" d="M5 4a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h5a3 3 0 0 0 3-3v-.321l3.037 2.097a1.25 1.25 0 0 0 1.96-1.029V6.252a1.25 1.25 0 0 0-1.96-1.028L13 7.32V7a3 3 0 0 0-3-3zm8 4.536l3.605-2.49a.25.25 0 0 1 .392.206v7.495a.25.25 0 0 1-.392.206L13 11.463zM3 7a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
       </svg>
     ),
   },
@@ -55,10 +52,8 @@ const COMPOSE_ITEMS = [
     key: 'schedule',
     label: 'Schedule a meeting',
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="4" width="18" height="17" rx="2" stroke="#FFFFFF" strokeWidth="1.5"/>
-        <path d="M3 9h18M8 2v4M16 2v4" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-        <path d="M8 13h4M8 16h6" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+      <svg width="20" height="20" viewBox="0 0 20 20">
+        <path fill="#FFFFFF" d="M14.5 3A2.5 2.5 0 0 1 17 5.5v4.1a5.5 5.5 0 0 0-1-.393V7H4v7.5A1.5 1.5 0 0 0 5.5 16h3.707q.149.524.393 1H5.5A2.5 2.5 0 0 1 3 14.5v-9A2.5 2.5 0 0 1 5.5 3zm0 1h-9A1.5 1.5 0 0 0 4 5.5V6h12v-.5A1.5 1.5 0 0 0 14.5 4M19 14.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0m-4-2a.5.5 0 0 0-1 0V14h-1.5a.5.5 0 0 0 0 1H14v1.5a.5.5 0 0 0 1 0V15h1.5a.5.5 0 0 0 0-1H15z"/>
       </svg>
     ),
   },
@@ -402,10 +397,8 @@ export function MessagesTab() {
               transition: 'background 0.15s, border-color 0.15s',
               transform: invitePress ? 'scale(0.98)' : 'scale(1)',
             }}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <circle cx="7" cy="6" r="3" stroke="#FFFFFF" strokeWidth="1.4"/>
-              <path d="M1 15c0-3.314 2.686-5 6-5" stroke="#FFFFFF" strokeWidth="1.4" strokeLinecap="round"/>
-              <path d="M14 11v6M11 14h6" stroke="#FFFFFF" strokeWidth="1.4" strokeLinecap="round"/>
+            <svg width="18" height="18" viewBox="0 0 20 20">
+              <path fill="#FFFFFF" d="M9 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8M6 6a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-1.991 5A2 2 0 0 0 2 13c0 1.691.833 2.966 2.135 3.797C5.417 17.614 7.145 18 9 18q.617 0 1.21-.057a5.5 5.5 0 0 1-.618-.958Q9.301 17 9 17c-1.735 0-3.257-.364-4.327-1.047C3.623 15.283 3 14.31 3 13c0-.553.448-1 1.009-1h5.59q.277-.538.658-1zM14.5 19a4.5 4.5 0 1 0 0-9a4.5 4.5 0 0 0 0 9m0-7a.5.5 0 0 1 .5.5V14h1.5a.5.5 0 0 1 0 1H15v1.5a.5.5 0 0 1-1 0V15h-1.5a.5.5 0 0 1 0-1H14v-1.5a.5.5 0 0 1 .5-.5"/>
             </svg>
             <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF', fontFamily: "'Inter', system-ui, sans-serif" }}>
               Invite to Webex

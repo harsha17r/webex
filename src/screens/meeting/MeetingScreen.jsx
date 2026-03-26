@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProfile } from '../../context/ProfileContext'
-import { CiscoAIRail } from '../../components/layout/CiscoAIRail'
+import { MeetingAIRail } from '../../components/meeting/MeetingAIRail'
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD — MeetingScreen
@@ -191,12 +191,14 @@ export function MeetingScreen() {
     setToasts(prev => prev.filter(t => t.id !== id))
   }
   function toggleAIRail() {
-    const next = !aiRailOpen
-    setAiRailOpen(next)
-    if (next) {
-      addToast('This meeting is being transcribed. All participants have been notified.')
-      setTimeout(() => addToast('Cisco AI is generating real-time notes and action items.'), 700)
-    }
+    setAiRailOpen(v => !v)
+  }
+
+  function turnOnAI() {
+    setNudge(false)
+    setAiRailOpen(true)
+    addToast('This meeting is being transcribed. All participants have been notified.')
+    setTimeout(() => addToast('Cisco AI is generating real-time notes and action items.'), 700)
   }
 
   return (
@@ -497,13 +499,13 @@ export function MeetingScreen() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 16 }}>
               <NudgeBtn variant="cancel" onClick={() => setNudge(false)}>Skip</NudgeBtn>
-              <NudgeBtn variant="confirm" onClick={() => setNudge(false)}>Turn on</NudgeBtn>
+              <NudgeBtn variant="confirm" onClick={turnOnAI}>Turn on</NudgeBtn>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Cisco AI Rail — slides in from right ── */}
+      {/* ── Meeting AI Rail — fits between top bar and toolbar ── */}
       <AnimatePresence>
         {aiRailOpen && (
           <motion.div
@@ -513,11 +515,11 @@ export function MeetingScreen() {
             exit={{ x: 371, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 320, damping: 30 }}
             style={{
-              position: 'absolute', top: 0, right: 0, bottom: 0,
+              position: 'absolute', top: 68, right: 0, bottom: 104,
               width: 371, zIndex: 15, overflow: 'hidden',
             }}
           >
-            <CiscoAIRail onClose={() => setAiRailOpen(false)} />
+            <MeetingAIRail onClose={() => setAiRailOpen(false)} />
           </motion.div>
         )}
       </AnimatePresence>

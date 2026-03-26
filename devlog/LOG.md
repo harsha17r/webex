@@ -5,6 +5,26 @@
 
 ---
 
+### [2026-03-26 14:30] — MeetingAIRail component + icon standardization
+
+**Status:** 🟢 Done
+
+**What changed:**
+Created `src/components/meeting/MeetingAIRail.jsx` — a new meeting-specific AI panel that replaces the previous broken usage of `CiscoAIRail` in the meeting screen. The old rail used `top: 0, bottom: 0` (full viewport height), which caused it to render behind the top bar (zIndex 20) and toolbar (zIndex 20). The new component is positioned via its wrapper at `top: 68, bottom: 104` in `MeetingScreen.jsx`, sitting precisely in the video tile area. It features a header with Cisco AI icon + "Live" badge + close button, three tabs (Transcript / Notes / Actions) with appropriate content for an active meeting, and a footer input for asking AI questions. The "Turn on" NudgeBtn now calls both `setNudge(false)` and `toggleAIRail()` so clicking it opens the rail. Also completed full icon standardization across `Sidebar.jsx`, `MeetingsTab.jsx`, `MessagesTab.jsx`, and `OnboardingChecklist.jsx` — all icons are now Fluent UI 20px regular/filled pairs from Iconify.
+
+**Files touched:**
+- `src/components/meeting/MeetingAIRail.jsx` (new)
+- `src/screens/meeting/MeetingScreen.jsx`
+- `src/components/layout/Sidebar.jsx`
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/home/MessagesTab.jsx`
+- `src/components/OnboardingChecklist.jsx`
+
+**Next up:**
+Review the MeetingAIRail in the browser — check that it slides in cleanly from the right, sits within the tile bounds, and the close button works. Consider whether the Transcript tab should animate new lines in or whether the Notes/Actions content needs to be more Figma-accurate.
+
+---
+
 ### [2026-03-25] — Cisco AI Rail + toast notifications in MeetingScreen
 
 **Status:** 🟢 Done
