@@ -5,6 +5,69 @@
 
 ---
 
+### [2026-03-25] — Cisco AI Rail + toast notifications in MeetingScreen
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added the Cisco AI Rail panel to `MeetingScreen.jsx` — clicking the "Cisco AI" pill button in the top bar now slides the `CiscoAIRail` component in from the right using a spring animation (`stiffness: 320, damping: 30`, `x: 371 → 0`). The button turns blue/highlighted when active. The rail closes via its internal close button, which calls `setAiRailOpen(false)`. Video tiles animate their right edge (`right: 20 → 383`) using a CSS cubic-bezier transition so they shrink to make room for the rail. Added a toast notification system: opening the rail fires two stacked toasts — "transcription started" and "Cisco AI generating notes" — which drop in from the top (`y: -20 → 0`, spring), auto-dismiss after 5s, and can be manually dismissed. Toast container shifts right to stay clear of the rail when open. The nudge panel also shifts right. Added `PillButton` onClick + active props, new state (`aiRailOpen`, `toasts`), refs (`toastIdRef`, `toastTimersRef`), and the `ToastNotification` component.
+
+**Files touched:**
+- `src/screens/meeting/MeetingScreen.jsx`
+
+**Next up:**
+Verify toast stacking and auto-dismiss in the browser. Consider adding more meeting-specific content to the AI Rail when in meeting context (e.g., transcript, action items, live summary).
+
+---
+
+### [2026-03-25] — MeetingScreen polish + post-meeting summary card
+
+**Status:** 🟢 Done
+
+**What changed:**
+Major polish pass on `MeetingScreen.jsx`: auto-hide top bar + toolbar after 15s idle (mouse move resets timer), tiles keep 40px padding when UI is hidden. Storyboard refactored with separate HIDE/SHOW spring configs — show is instant (stiffness 500), hide is graceful (stiffness 220), entrance delays only fire once via `entered` state. Toolbar buttons unified to 80px width with centered content. Updated all toolbar icons from Iconify (ri:mic-line, tabler:video, material-symbols:upload, mdi:hand-back-left-outline, fluent:emoji-sparkle, material-symbols:call-end-outline). Mic/camera off-state now shows grey icon + red diagonal slash overlay; NamePill mic uses full red off-icon. AI nudge panel appears at 2s, auto-dismisses at 15s, slides down from top-right, button renamed to "Skip". Post-meeting flow: `handleEnd` passes `{ fromMeeting, elapsed }` to `/home`; `MeetingsTab` hides welcome banner (AnimatePresence exit) and shows `PastMeetingCard` with avatar, date, duration, and Summary/Transcript/Chat chips.
+
+**Files touched:**
+- `src/screens/meeting/MeetingScreen.jsx`
+- `src/screens/home/HomeScreen.jsx`
+- `src/screens/home/MeetingsTab.jsx`
+
+**Next up:**
+Wire up the chip buttons on `PastMeetingCard` (Meeting Summary, View Transcript, Show Chat Messages) to open relevant panels or modals. Consider adding the Cisco AI right rail response after a meeting ends.
+
+---
+
+### [2026-03-25] — VAD cleanup + green speaking border fix
+
+**Status:** 🟢 Done
+
+**What changed:**
+Simplified `MeetingScreen.jsx` VAD (Voice Activity Detection) after multiple failed approaches. Removed the muted-while-speaking toast feature entirely (state, effect, and JSX) — the `AudioContext` was silently suspended by Chrome, preventing detection. Removed the debug indicator dot. The root fix: added a `document.addEventListener('click', resumeCtx)` effect that resumes the `AudioContext` on the first user gesture — Chrome requires this. Restored proper `t.enabled` toggling in `toggleMic` so the audio track is correctly muted/unmuted at the hardware level. Green `box-shadow` border on the user video tile still triggers on `userSpeaking && micOn`, so it only appears when the mic is live and speech is detected.
+
+**Files touched:**
+- `src/screens/meeting/MeetingScreen.jsx`
+
+**Next up:**
+Confirm green speaking border works in-browser (the AudioContext resume-on-click fix should resolve the grey indicator issue). Then: Cisco AI panel — clicking "Turn on" in the nudge or the top-right Cisco AI button should open a side panel with a transcript/summary UI.
+
+---
+
+### [2026-03-24] — MeetingScreen + PreJoinModal dropdown polish
+
+**Status:** 🟢 Done
+
+**What changed:**
+Built the full `MeetingScreen.jsx` matching Figma node 1413-37649. Full-screen layout with: top bar (meeting info, live timer, wifi icon, Layout + Cisco AI pills), two video tiles side-by-side (user tile with real camera feed + avatar fallback; Cisco AI tile with gradient border using linear-gradient 180deg #81CF62→#00BCF4), bottom-center toolbar (Mic, Video w/ chevrons, Share, Raise, React, More, End), right-side Participants + Chat buttons, and a bottom-left Cisco AI pill. AI nudge panel slides in from the right after 1.8s with Cancel/Turn on buttons. All entrance animations use the Interface Craft storyboard pattern with spring physics. Mic and Camera toggles pass through from PreJoinModal state. Also fixed PreJoinModal device dropdowns: added `onMouseLeave` to close on cursor exit (in addition to existing click-outside handler).
+
+**Files touched:**
+- `src/screens/meeting/MeetingScreen.jsx`
+- `src/screens/meeting/PreJoinModal.jsx`
+
+**Next up:**
+Show Cisco AI in action — clicking "Turn on" in the nudge panel or the Cisco AI button should open a side panel or expand a transcript/summary UI inside the meeting. Also consider the actual Cisco AI icon — currently approximated with SVG gradients; could download from Figma.
+
+---
+
 ### [2026-03-24 —] — Fix duplicate OnboardingChecklist + AI Rail overlap
 
 **Status:** 🟢 Done

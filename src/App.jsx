@@ -5,6 +5,7 @@ import { WelcomeScreen } from './screens/onboarding/WelcomeScreen'
 import { VerifyScreen } from './screens/onboarding/VerifyScreen'
 import { SetPasswordScreen } from './screens/onboarding/SetPasswordScreen'
 import { HomeScreen } from './screens/home/HomeScreen'
+import { MeetingScreen } from './screens/meeting/MeetingScreen'
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -15,6 +16,7 @@ function AnimatedRoutes() {
         <Route path="/verify" element={<VerifyScreen />} />
         <Route path="/set-password" element={<SetPasswordScreen />} />
         <Route path="/home" element={<HomeScreen />} />
+        <Route path="/meeting" element={<MeetingScreen />} />
       </Routes>
     </AnimatePresence>
   )

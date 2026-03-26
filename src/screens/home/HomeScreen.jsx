@@ -15,6 +15,7 @@ export function HomeScreen() {
   const [calendarConnected, setCalendar]  = useState(false)
   const location = useLocation()
   const { updateProfile } = useProfile()
+  const { fromMeeting = false, elapsed: meetingElapsed = 0 } = location.state ?? {}
 
   // Always apply name + email coming from the onboarding flow
   useEffect(() => {
@@ -55,7 +56,7 @@ export function HomeScreen() {
             {/* Scrollable tab content */}
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {activeTab === 'message' && <MessagesTab />}
-              {activeTab === 'meet'    && <MeetingsTab calendarConnected={calendarConnected} />}
+              {activeTab === 'meet'    && <MeetingsTab calendarConnected={calendarConnected} fromMeeting={fromMeeting} meetingElapsed={meetingElapsed} />}
             </div>
 
             {/* Checklist — persists across tab switches, anchored to content area only */}

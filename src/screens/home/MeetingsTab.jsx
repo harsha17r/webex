@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useProfile } from '../../context/ProfileContext'
+import { PreJoinModal } from '../meeting/PreJoinModal'
 
 /* ─────────────────────────────────────────────────────────
  * Figma content column spec:
@@ -52,13 +54,15 @@ const TILES = [
   },
 ]
 
-export function MeetingsTab({ calendarConnected }) {
+export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingElapsed = 0 }) {
   const [tileHover, setTileHover] = useState(null)
-  const [btnHover, setBtnHover]   = useState(false)
+  const [btnHover, setBtnHover]     = useState(false)
+  const [preJoinOpen, setPreJoinOpen] = useState(false)
   const { profile } = useProfile()
 
   return (
-    /* Full-area card — fills the scrollable column, small padding all sides */
+    <>
+    {/* Full-area card — fills the scrollable column, small padding all sides */}
     <div style={{
       margin: 4,
       minHeight: 'calc(100% - 8px)',
@@ -75,92 +79,85 @@ export function MeetingsTab({ calendarConnected }) {
       {/* Inner content column — max 960px, centered */}
       <div style={{ width: 'clamp(560px, 85%, 960px)', display: 'flex', flexDirection: 'column', gap: 64 }}>
 
-        {/* ── Section 1 — Welcome ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <h1 style={{
-            fontSize: 20, fontWeight: 600, color: '#FFFFFF',
-            margin: 0, lineHeight: '28px',
-          }}>
-            Welcome, {profile.name}!
-          </h1>
+        {/* ── Section 1 — Welcome banner (hidden after first meeting) ── */}
+        <AnimatePresence>
+          {!fromMeeting && (
+            <motion.div
+              key="welcome-banner"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
+            >
+              <h1 style={{
+                fontSize: 20, fontWeight: 600, color: '#FFFFFF',
+                margin: 0, lineHeight: '28px',
+              }}>
+                Welcome, {profile.name}!
+              </h1>
 
-          {/* Banner row */}
-          <div style={{ display: 'flex', width: '100%', minHeight: 200 }}>
-
-            {/* RIGHT — image panel (Figma: LEFT is image, RIGHT is text — but spec says
-                LEFT=image, RIGHT=text with radius 12px 0 0 12px on image side.
-                Per spec: LEFT=image panel, borderRadius 12px 0 0 12px;
-                          RIGHT=text panel, borderRadius 0 8px 8px 0) */}
-            <div style={{
-              width: 320, flexShrink: 0,
-              background: '#494949',
-              borderRadius: '12px 0 0 12px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: 24, boxSizing: 'border-box',
-            }}>
-              <svg width="160" height="110" viewBox="0 0 160 110" fill="none">
-                <rect x="0"  y="0"  width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
-                <rect x="0"  y="60" width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
-                <rect x="85" y="0"  width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
-                <rect x="85" y="60" width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
-                <circle cx="37"  cy="20" r="10" fill="#555555"/>
-                <circle cx="122" cy="20" r="10" fill="#555555"/>
-                <circle cx="37"  cy="80" r="10" fill="#555555"/>
-                <circle cx="122" cy="80" r="10" fill="#555555"/>
-              </svg>
-            </div>
-
-            {/* LEFT — text panel */}
-            <div style={{
-              flex: 1,
-              background: '#494949',
-              borderRadius: '0 8px 8px 0',
-              padding: '32px 40px',
-              display: 'flex', flexDirection: 'column',
-              justifyContent: 'center', gap: 32,
-              boxSizing: 'border-box',
-            }}>
-              {/* Text group */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <h2 style={{
-                  fontSize: 20, fontWeight: 600, color: '#FFFFFF',
-                  margin: 0, lineHeight: '28px',
+              {/* Banner row */}
+              <div style={{ display: 'flex', width: '100%', minHeight: 200 }}>
+                <div style={{
+                  width: 320, flexShrink: 0,
+                  background: '#494949',
+                  borderRadius: '12px 0 0 12px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: 24, boxSizing: 'border-box',
                 }}>
-                  Try a quick test meeting
-                </h2>
-                <p style={{
-                  fontSize: 14, fontWeight: 500, color: '#AAAAAA',
-                  margin: 0, maxWidth: 325, lineHeight: '20px',
+                  <svg width="160" height="110" viewBox="0 0 160 110" fill="none">
+                    <rect x="0"  y="0"  width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
+                    <rect x="0"  y="60" width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
+                    <rect x="85" y="0"  width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
+                    <rect x="85" y="60" width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
+                    <circle cx="37"  cy="20" r="10" fill="#555555"/>
+                    <circle cx="122" cy="20" r="10" fill="#555555"/>
+                    <circle cx="37"  cy="80" r="10" fill="#555555"/>
+                    <circle cx="122" cy="80" r="10" fill="#555555"/>
+                  </svg>
+                </div>
+
+                <div style={{
+                  flex: 1,
+                  background: '#494949',
+                  borderRadius: '0 8px 8px 0',
+                  padding: '32px 40px',
+                  display: 'flex', flexDirection: 'column',
+                  justifyContent: 'center', gap: 32,
+                  boxSizing: 'border-box',
                 }}>
-                  Experience how your meetings will look and feel.
-                </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <h2 style={{ fontSize: 20, fontWeight: 600, color: '#FFFFFF', margin: 0, lineHeight: '28px' }}>
+                      Try a quick test meeting
+                    </h2>
+                    <p style={{ fontSize: 14, fontWeight: 500, color: '#AAAAAA', margin: 0, maxWidth: 325, lineHeight: '20px' }}>
+                      Experience how your meetings will look and feel.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setPreJoinOpen(true)}
+                    onMouseEnter={() => setBtnHover(true)}
+                    onMouseLeave={() => setBtnHover(false)}
+                    style={{
+                      background: btnHover ? '#2BAB7E' : '#1D8160',
+                      border: 'none', borderRadius: 9999,
+                      height: 48, padding: '0 24px',
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      cursor: 'pointer', width: 'fit-content',
+                      transition: 'background 0.15s',
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <rect x="2" y="5" width="11" height="9" rx="1.5" stroke="#FFFFFF" strokeWidth="1.5"/>
+                      <path d="M13 8.5L18 6V14L13 11.5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Start a test meeting</span>
+                  </button>
+                </div>
               </div>
-
-              {/* CTA button */}
-              <button
-                onMouseEnter={() => setBtnHover(true)}
-                onMouseLeave={() => setBtnHover(false)}
-                style={{
-                  background: btnHover ? '#2BAB7E' : '#1D8160',
-                  border: 'none', borderRadius: 9999,
-                  height: 48, padding: '0 24px',
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  cursor: 'pointer', width: 'fit-content',
-                  transition: 'background 0.15s',
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <rect x="2" y="5" width="11" height="9" rx="1.5" stroke="#FFFFFF" strokeWidth="1.5"/>
-                  <path d="M13 8.5L18 6V14L13 11.5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>
-                  Start a test meeting
-                </span>
-              </button>
-            </div>
-
-          </div>
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ── Section 2 — Meetings ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -235,10 +232,173 @@ export function MeetingsTab({ calendarConnected }) {
             ))}
           </div>
 
+          {/* Past meeting card — appears after returning from a meeting */}
+          <AnimatePresence>
+            {fromMeeting && (
+              <motion.div
+                key="past-meeting"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 28, delay: 0.1 }}
+              >
+                <PastMeetingCard elapsed={meetingElapsed} profile={profile} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
         </div>
 
       </div>
 
+
+    </div>
+
+    <AnimatePresence>
+      {preJoinOpen && (
+        <PreJoinModal onClose={() => setPreJoinOpen(false)} />
+      )}
+    </AnimatePresence>
+    </>
+  )
+}
+
+const CHIPS = ['Meeting Summary', 'View Transcript', 'Show Chat Messages']
+
+function PastMeetingCard({ elapsed, profile }) {
+  const [chipHover, setChipHover] = useState(null)
+  const [activeSeg, setActiveSeg] = useState('Day')
+
+  const mins    = Math.max(1, Math.floor(elapsed / 60))
+  const now     = new Date()
+  const navDate = now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' })
+  const cardDate = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const initial = profile.name?.charAt(0).toUpperCase() || 'U'
+  const segments = ['Day', 'Week', 'Calendar']
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, fontFamily: "'Inter', system-ui, sans-serif" }}>
+
+      {/* ── Date Navigation Bar ── */}
+      <div style={{
+        display: 'flex', alignItems: 'center',
+        padding: '12px 0', gap: 0,
+      }}>
+        {/* Left group */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Arrow buttons */}
+          {['‹', '›'].map(arrow => (
+            <button key={arrow} style={{
+              width: 28, height: 28, borderRadius: 6,
+              background: '#494949', border: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: '#FFFFFF', fontSize: 16, fontWeight: 400,
+              fontFamily: "'Inter', system-ui, sans-serif",
+            }}>{arrow}</button>
+          ))}
+          {/* Date label */}
+          <span style={{ fontSize: 18, fontWeight: 600, color: '#FFFFFF', lineHeight: '28px' }}>
+            {navDate}
+          </span>
+          {/* Return to today */}
+          <span style={{ fontSize: 13, fontWeight: 400, color: '#2E96E8', opacity: 0.6, cursor: 'pointer' }}>
+            Return to today
+          </span>
+        </div>
+
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
+
+        {/* Right group */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Segmented control */}
+          <div style={{
+            display: 'flex', alignItems: 'center',
+            background: '#494949', border: '1px solid #737373',
+            borderRadius: 8, padding: 2,
+          }}>
+            {segments.map(seg => (
+              <button
+                key={seg}
+                onClick={() => setActiveSeg(seg)}
+                style={{
+                  padding: '7px 16px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                  background: activeSeg === seg ? '#92CBF2' : 'transparent',
+                  boxShadow: activeSeg === seg ? '0px 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  outline: activeSeg === seg ? '2px solid #1170CF' : 'none',
+                  fontSize: 13, fontWeight: activeSeg === seg ? 500 : 400,
+                  color: activeSeg === seg ? '#0E3668' : '#E9E9E9',
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                  transition: 'background 0.15s',
+                }}
+              >{seg}</button>
+            ))}
+          </div>
+
+          {/* Avatar pill */}
+          <div style={{
+            display: 'flex', alignItems: 'center',
+            background: '#222222', borderRadius: 9999,
+            padding: 8,
+          }}>
+            <div style={{
+              width: 24, height: 24, borderRadius: '50%',
+              background: '#7C3EC3',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 11, fontWeight: 600, color: '#FFFFFF',
+            }}>{initial}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Meeting Card ── */}
+      <div style={{
+        display: 'flex', alignItems: 'flex-start', gap: 12,
+        padding: '16px 20px',
+        background: '#222222',
+        borderBottom: '1px solid #737373',
+      }}>
+        {/* Avatar */}
+        <div style={{
+          width: 40, height: 40, borderRadius: '50%',
+          background: '#7C3EC3', flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 15, fontWeight: 600, color: '#FFFFFF',
+        }}>{initial}</div>
+
+        {/* Content */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Title */}
+          <span style={{ fontSize: 16, fontWeight: 500, color: '#FFFFFF', lineHeight: '24px' }}>
+            Test call with {profile.name}
+          </span>
+
+          {/* Date · duration */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 14, fontWeight: 500, color: '#999CA2', lineHeight: '20px' }}>{cardDate}</span>
+            <span style={{ fontSize: 12, color: '#999CA2' }}>·</span>
+            <span style={{ fontSize: 14, fontWeight: 500, color: '#999CA2', lineHeight: '20px' }}>{mins} min</span>
+          </div>
+
+          {/* Chips */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {CHIPS.map(chip => (
+              <button
+                key={chip}
+                onMouseEnter={() => setChipHover(chip)}
+                onMouseLeave={() => setChipHover(null)}
+                style={{
+                  background: chipHover === chip ? '#595959' : '#494949',
+                  border: '1px solid #737373',
+                  borderRadius: 5, padding: '4px 10px',
+                  fontSize: 14, fontWeight: 500, color: '#D1D1D9', lineHeight: '20px',
+                  cursor: 'pointer', transition: 'background 0.15s',
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                }}
+              >{chip}</button>
+            ))}
+          </div>
+        </div>
+      </div>
 
     </div>
   )
