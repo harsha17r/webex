@@ -65,9 +65,13 @@ export function MeetingScreen() {
   const [entered,      setEntered]      = useState(false)  // true after entrance settles
   const [aiRailOpen,   setAiRailOpen]   = useState(false)
   const [toasts,       setToasts]       = useState([])
+  const [shareOpen,    setShareOpen]    = useState(false)
+  const [sharing,      setSharing]      = useState(false)
+  const [audioShare,   setAudioShare]   = useState(false)
   const audioCtxRef    = useRef(null)
   const toastIdRef     = useRef(0)
   const toastTimersRef = useRef({})
+  const shareStreamRef = useRef(null)
   const hideTimerRef = useRef(null)
   const analyserRef  = useRef(null)
   const rafRef       = useRef(null)
@@ -176,6 +180,7 @@ export function MeetingScreen() {
     setCameraOn(v => !v)
   }
   function handleEnd() {
+    shareStreamRef.current?.getTracks().forEach(t => t.stop())
     streamRef.current?.getTracks().forEach(t => t.stop())
     navigate('/home', { state: { fromMeeting: true, elapsed } })
   }
@@ -199,6 +204,28 @@ export function MeetingScreen() {
     setAiRailOpen(true)
     addToast('This meeting is being transcribed. All participants have been notified.')
     setTimeout(() => addToast('Cisco AI is generating real-time notes and action items.'), 700)
+  }
+
+  async function startSharing() {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: 'always' },
+        audio: audioShare,
+      })
+      shareStreamRef.current = stream
+      stream.getVideoTracks()[0]?.addEventListener('ended', () => {
+        setSharing(false)
+        shareStreamRef.current = null
+      })
+      setSharing(true)
+      setShareOpen(false)
+    } catch { /* user cancelled native picker */ }
+  }
+
+  function stopSharing() {
+    shareStreamRef.current?.getTracks().forEach(t => t.stop())
+    shareStreamRef.current = null
+    setSharing(false)
   }
 
   return (
@@ -405,9 +432,9 @@ export function MeetingScreen() {
           <ToolbarBtn label="Video" hasChevron onClick={toggleCamera}>
             <CamIcon on={cameraOn} size={24} />
           </ToolbarBtn>
-          <ToolbarBtn label="Share">
+          <ToolbarBtn label={sharing ? 'Stop share' : 'Share'} onClick={sharing ? stopSharing : () => setShareOpen(true)}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path fill="#FFFFFF" d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45l-2.6-2.6V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"/>
+              <path fill={sharing ? '#2BAB7E' : '#FFFFFF'} d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45l-2.6-2.6V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"/>
             </svg>
           </ToolbarBtn>
           <ToolbarBtn label="Raise">
@@ -502,6 +529,55 @@ export function MeetingScreen() {
               <NudgeBtn variant="confirm" onClick={turnOnAI}>Turn on</NudgeBtn>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Sharing indicator banner ── */}
+      <AnimatePresence>
+        {sharing && (
+          <motion.div
+            key="sharing-banner"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={SPRING}
+            style={{
+              position: 'absolute', top: 76,
+              left: '50%', transform: 'translateX(-50%)',
+              display: 'flex', alignItems: 'center', gap: 10,
+              background: 'rgba(17,17,17,0.92)',
+              border: '1px solid #2BAB7E',
+              borderRadius: 9999, padding: '7px 14px 7px 16px',
+              zIndex: 22, whiteSpace: 'nowrap',
+              fontFamily: "'Inter', system-ui, sans-serif",
+            }}
+          >
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2BAB7E', boxShadow: '0 0 6px #2BAB7E', flexShrink: 0 }}/>
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#FFFFFF' }}>Sharing your screen</span>
+            <button
+              onClick={stopSharing}
+              style={{
+                background: 'rgba(220,50,50,0.15)', border: '1px solid rgba(220,50,50,0.35)',
+                borderRadius: 9999, padding: '2px 12px', cursor: 'pointer', marginLeft: 2,
+                fontSize: 11, fontWeight: 500, color: '#FF7070',
+                fontFamily: "'Inter', system-ui, sans-serif",
+              }}
+            >
+              Stop
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Share screen modal ── */}
+      <AnimatePresence>
+        {shareOpen && (
+          <ShareModal
+            audioShare={audioShare}
+            onAudioToggle={() => setAudioShare(v => !v)}
+            onShare={startSharing}
+            onClose={() => setShareOpen(false)}
+          />
         )}
       </AnimatePresence>
 
@@ -786,5 +862,216 @@ function CiscoAIIcon({ size = 20 }) {
       {/* Top lens (radial fade) */}
       <ellipse cx="64" cy="30" rx="22" ry="18" fill="url(#cisco-top)"/>
     </svg>
+  )
+}
+
+/* ── Toggle switch ───────────────────────────────────────── */
+function Toggle({ on, onChange }) {
+  return (
+    <button
+      onClick={onChange}
+      style={{
+        width: 44, height: 24, borderRadius: 12, border: 'none',
+        background: on ? '#2E96E8' : '#3A3A3A',
+        cursor: 'pointer', position: 'relative', flexShrink: 0,
+        transition: 'background 0.2s',
+      }}
+    >
+      <span style={{
+        position: 'absolute', top: 3,
+        left: on ? 23 : 3,
+        width: 18, height: 18, borderRadius: '50%',
+        background: '#FFFFFF',
+        transition: 'left 0.2s',
+        display: 'block',
+      }}/>
+    </button>
+  )
+}
+
+/* ── Share screen modal ──────────────────────────────────── */
+function ShareModal({ audioShare, onAudioToggle, onShare, onClose }) {
+  return (
+    <motion.div
+      key="share-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+      style={{
+        position: 'absolute', inset: 0, zIndex: 50,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'rgba(0,0,0,0.72)',
+        backdropFilter: 'blur(6px)',
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 14 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+        style={{
+          width: 480,
+          background: '#1A1A1A',
+          border: '1px solid #494949',
+          borderRadius: 16,
+          padding: '24px 24px 28px',
+          boxSizing: 'border-box',
+          display: 'flex', flexDirection: 'column',
+          fontFamily: "'Inter', system-ui, sans-serif",
+          boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <span style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF' }}>Share your screen</span>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 3L13 13M13 3L3 13" stroke="#888888" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Screen option card */}
+        <div style={{
+          background: '#1C2B3A',
+          border: '2px solid #2E96E8',
+          borderRadius: 12,
+          padding: '20px',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
+          marginBottom: 20, position: 'relative',
+          cursor: 'default',
+        }}>
+          {/* Selected checkmark */}
+          <div style={{
+            position: 'absolute', top: 10, right: 10,
+            width: 20, height: 20, borderRadius: '50%',
+            background: '#2E96E8',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+              <path d="M1.5 4L4 6.5L9.5 1" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+
+          {/* Monitor illustration */}
+          <div style={{ width: '100%', maxWidth: 320 }}>
+            <div style={{
+              width: '100%', aspectRatio: '16/9',
+              background: '#0D1117',
+              border: '2px solid #2E3A4A',
+              borderRadius: 8, overflow: 'hidden',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              position: 'relative',
+            }}>
+              {/* Simulated desktop preview */}
+              <svg width="100%" height="100%" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice">
+                <rect width="320" height="180" fill="#0D1117"/>
+                {/* Taskbar */}
+                <rect x="0" y="164" width="320" height="16" fill="#1A1A2A"/>
+                {/* App 1 */}
+                <rect x="12" y="12" width="140" height="92" rx="4" fill="#141822" stroke="#2E96E8" strokeWidth="1.5" opacity="0.9"/>
+                <rect x="20" y="20" width="60" height="5" rx="2" fill="#2E96E8" opacity="0.7"/>
+                <rect x="20" y="30" width="90" height="3" rx="1.5" fill="#3A4A5A" opacity="0.6"/>
+                <rect x="20" y="37" width="75" height="3" rx="1.5" fill="#3A4A5A" opacity="0.4"/>
+                <rect x="20" y="44" width="80" height="3" rx="1.5" fill="#3A4A5A" opacity="0.4"/>
+                <rect x="20" y="56" width="110" height="36" rx="3" fill="#1E2D3D" stroke="#2E4A6A" strokeWidth="1" opacity="0.8"/>
+                {/* App 2 */}
+                <rect x="168" y="12" width="140" height="92" rx="4" fill="#141822" stroke="#383838" strokeWidth="1" opacity="0.7"/>
+                <rect x="176" y="20" width="50" height="5" rx="2" fill="#555566" opacity="0.7"/>
+                <rect x="176" y="30" width="80" height="3" rx="1.5" fill="#3A3A4A" opacity="0.5"/>
+                <rect x="176" y="37" width="65" height="3" rx="1.5" fill="#3A3A4A" opacity="0.35"/>
+                {/* Dock */}
+                <rect x="95" y="118" width="130" height="34" rx="8" fill="#1E1E2E" stroke="#383848" strokeWidth="1" opacity="0.9"/>
+                <rect x="106" y="125" width="20" height="20" rx="5" fill="#2E96E8" opacity="0.8"/>
+                <rect x="132" y="125" width="20" height="20" rx="5" fill="#1D8160" opacity="0.8"/>
+                <rect x="158" y="125" width="20" height="20" rx="5" fill="#7C3EC3" opacity="0.8"/>
+                <rect x="184" y="125" width="20" height="20" rx="5" fill="#E03A3A" opacity="0.8"/>
+              </svg>
+            </div>
+            {/* Monitor stand */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ width: 32, height: 10, background: '#2A3040', borderRadius: '0 0 3px 3px' }}/>
+              <div style={{ width: 56, height: 4, background: '#333848', borderRadius: 2 }}/>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF' }}>Your entire screen</span>
+            <span style={{ fontSize: 12, color: '#767676' }}>The full display will be visible to others</span>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: 1, background: '#2E2E2E', marginBottom: 16 }}/>
+
+        {/* Audio toggle row */}
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          marginBottom: 20, padding: '0 2px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path fill="#AAAAAA" d="M3 9v6h4l5 5V4L7 9zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77"/>
+            </svg>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 400, color: '#FFFFFF', lineHeight: '20px' }}>
+                Include computer audio
+              </div>
+              <div style={{ fontSize: 12, color: '#595959', lineHeight: '16px' }}>
+                Others will hear system sounds and music
+              </div>
+            </div>
+          </div>
+          <Toggle on={audioShare} onChange={onAudioToggle} />
+        </div>
+
+        {/* Share CTA */}
+        <ShareModalBtn onClick={onShare} />
+
+        {/* Cancel */}
+        <button
+          onClick={onClose}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: 13, color: '#595959', marginTop: 12, padding: '4px 0',
+            alignSelf: 'center', fontFamily: "'Inter', system-ui, sans-serif",
+          }}
+        >
+          Cancel
+        </button>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function ShareModalBtn({ onClick }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: hovered ? '#2E8FE8' : '#0073E6',
+        border: 'none', borderRadius: 10,
+        height: 48, width: '100%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        cursor: 'pointer', transition: 'background 0.15s',
+        fontFamily: "'Inter', system-ui, sans-serif",
+      }}
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path fill="#FFFFFF" d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45l-2.6-2.6V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"/>
+      </svg>
+      <span style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF' }}>Share Screen</span>
+    </button>
   )
 }
