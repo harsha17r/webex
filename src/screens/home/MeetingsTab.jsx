@@ -257,61 +257,409 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
   )
 }
 
-const CHIPS = ['Meeting Summary', 'View Transcript', 'Show Chat Messages']
+/* ── Calendar helpers ─────────────────────────────────── */
 
+function getWeekStart(d) {
+  const date = new Date(d)
+  date.setHours(0, 0, 0, 0)
+  const day = date.getDay() // 0 = Sun
+  date.setDate(date.getDate() - (day === 0 ? 6 : day - 1)) // Monday-first
+  return date
+}
+
+function addDays(d, n) {
+  const r = new Date(d)
+  r.setDate(r.getDate() + n)
+  return r
+}
+
+function isSameDay(a, b) {
+  return a.toDateString() === b.toDateString()
+}
+
+function fmt12(d) {
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+}
+
+const DAY_ABBR  = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const CHIPS     = ['Meeting Summary', 'View Transcript', 'Show Chat Messages']
+const SEGMENTS  = ['Day', 'Week']
+
+/* ── Shared card primitives ────────────────────────────── */
+
+function StateLabel({ children }) {
+  return (
+    <div style={{
+      fontSize: 10, fontWeight: 600, color: '#383838',
+      textTransform: 'uppercase', letterSpacing: '0.08em',
+      padding: '8px 0 2px',
+      fontFamily: "'Inter', system-ui, sans-serif",
+    }}>{children}</div>
+  )
+}
+
+function CardShell({ children, accent = '#2E2E2E' }) {
+  return (
+    <div style={{
+      background: '#1E1E1E',
+      border: '1px solid #2E2E2E',
+      borderLeft: `3px solid ${accent}`,
+      borderRadius: 8,
+      padding: '12px 14px',
+      display: 'flex', flexDirection: 'column', gap: 6,
+      fontFamily: "'Inter', system-ui, sans-serif",
+    }}>{children}</div>
+  )
+}
+
+function Badge({ color, bg, dot, children }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 4,
+      fontSize: 10, fontWeight: 600, color,
+      background: bg, borderRadius: 4, padding: '2px 7px',
+      letterSpacing: '0.03em', flexShrink: 0,
+    }}>
+      {dot && <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, boxShadow: `0 0 4px ${color}` }}/>}
+      {children}
+    </span>
+  )
+}
+
+function SmallJoinBtn({ label, bg, hoverBg }) {
+  const [h, setH] = useState(false)
+  return (
+    <button
+      onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{
+        background: h ? hoverBg : bg,
+        border: 'none', borderRadius: 6,
+        padding: '5px 14px', cursor: 'pointer', flexShrink: 0,
+        fontSize: 12, fontWeight: 500, color: '#FFFFFF',
+        fontFamily: "'Inter', system-ui, sans-serif",
+        transition: 'background 0.15s',
+      }}
+    >{label}</button>
+  )
+}
+
+/* ── State 1: Upcoming ─────────────────────────────────── */
+function UpcomingCard() {
+  return (
+    <CardShell accent="#2E96E8">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <span style={{ fontSize: 15, fontWeight: 500, color: '#FFFFFF' }}>Weekly design sync</span>
+        <SmallJoinBtn label="Join" bg="#1A2E40" hoverBg="#1D4A7A" />
+      </div>
+      <span style={{ fontSize: 13, color: '#767676' }}>5:00 – 5:45 PM · In 2 hrs · Organizer: Sarah Kim</span>
+    </CardShell>
+  )
+}
+
+/* ── State 2: Starting soon ────────────────────────────── */
+function StartingSoonCard() {
+  return (
+    <CardShell accent="#F0A500">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <span style={{ fontSize: 15, fontWeight: 500, color: '#FFFFFF' }}>Weekly design sync</span>
+          <Badge color="#F0A500" bg="rgba(240,165,0,0.12)">Starting soon</Badge>
+        </div>
+        <SmallJoinBtn label="Join now" bg="#1170CF" hoverBg="#2E96E8" />
+      </div>
+      <span style={{ fontSize: 13, color: '#767676' }}>Starting in 8 min · 5:00 PM · Organizer: Sarah Kim</span>
+    </CardShell>
+  )
+}
+
+/* ── State 3: Live ─────────────────────────────────────── */
+function LiveCard() {
+  return (
+    <CardShell accent="#2BAB7E">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <span style={{ fontSize: 15, fontWeight: 500, color: '#FFFFFF' }}>Weekly design sync</span>
+          <Badge color="#2BAB7E" bg="rgba(43,171,126,0.12)" dot>Live</Badge>
+        </div>
+        <SmallJoinBtn label="Join" bg="#1D8160" hoverBg="#2BAB7E" />
+      </div>
+      <span style={{ fontSize: 13, color: '#767676' }}>In progress · 14:32 elapsed · 4 joined</span>
+    </CardShell>
+  )
+}
+
+/* ── State 4: Past ─────────────────────────────────────── */
+function MeetingRow({ elapsed, profile, chipHover, setChipHover }) {
+  const mins      = Math.max(1, Math.floor(elapsed / 60))
+  const endTime   = new Date()
+  const startTime = new Date(endTime - elapsed * 1000)
+  const timeRange = `${fmt12(startTime)} – ${fmt12(endTime)}`
+
+  return (
+    <CardShell accent="#494949">
+      <span style={{ fontSize: 15, fontWeight: 500, color: '#FFFFFF' }}>
+        Test call with {profile.name}
+      </span>
+      <span style={{ fontSize: 13, color: '#767676' }}>
+        {timeRange} · {mins} min duration
+      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+        {CHIPS.map(chip => (
+          <button
+            key={chip}
+            onMouseEnter={() => setChipHover(chip)}
+            onMouseLeave={() => setChipHover(null)}
+            style={{
+              background: chipHover === chip ? '#383838' : '#2A2A2A',
+              border: '1px solid #3A3A3A',
+              borderRadius: 5, padding: '3px 10px',
+              fontSize: 12, fontWeight: 500, color: '#AAAAAA', lineHeight: '18px',
+              cursor: 'pointer', transition: 'background 0.15s',
+              fontFamily: "'Inter', system-ui, sans-serif",
+            }}
+          >{chip}</button>
+        ))}
+      </div>
+    </CardShell>
+  )
+}
+
+/* ── Week view ─────────────────────────────────────────── */
+function WeekView({ viewDate, meetingDate, elapsed, profile }) {
+  const weekStart = getWeekStart(viewDate)
+  const today     = new Date()
+  const endTime   = new Date(meetingDate)
+  const startTime = new Date(endTime - elapsed * 1000)
+  const mins      = Math.max(1, Math.floor(elapsed / 60))
+
+  return (
+    <div style={{
+      display: 'flex',
+      border: '1px solid #2E2E2E',
+      borderRadius: 8,
+      overflow: 'hidden',
+    }}>
+      {DAY_ABBR.map((abbr, i) => {
+        const day       = addDays(weekStart, i)
+        const isToday   = isSameDay(day, today)
+        const hasMeeting = isSameDay(day, meetingDate)
+        const isWeekend = i >= 5
+
+        return (
+          <div key={abbr} style={{
+            flex: 1,
+            borderRight: i < 6 ? '1px solid #2E2E2E' : 'none',
+            display: 'flex', flexDirection: 'column',
+            background: isWeekend ? 'rgba(0,0,0,0.18)' : 'transparent',
+          }}>
+
+            {/* Column header */}
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              padding: '10px 4px 8px', gap: 4,
+              borderBottom: '1px solid #2E2E2E',
+              background: '#1E1E1E',
+            }}>
+              <span style={{
+                fontSize: 11, fontWeight: 500, letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                color: isToday ? '#2E96E8' : '#767676',
+              }}>{abbr}</span>
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%',
+                background: isToday ? '#2E96E8' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span style={{
+                  fontSize: 13,
+                  fontWeight: isToday ? 600 : 400,
+                  color: isToday ? '#FFFFFF' : (isWeekend ? '#595959' : '#E9E9E9'),
+                }}>{day.getDate()}</span>
+              </div>
+            </div>
+
+            {/* Day content */}
+            <div style={{ flex: 1, padding: '8px 6px', minHeight: 160 }}>
+              {hasMeeting && (
+                <div style={{
+                  borderLeft: '3px solid #2E96E8',
+                  background: 'rgba(46,150,232,0.1)',
+                  borderRadius: '0 4px 4px 0',
+                  padding: '6px 8px',
+                  display: 'flex', flexDirection: 'column', gap: 2,
+                }}>
+                  <span style={{
+                    fontSize: 11, fontWeight: 600, color: '#FFFFFF',
+                    lineHeight: '16px', overflow: 'hidden',
+                    textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    Test call with {profile.name}
+                  </span>
+                  <span style={{ fontSize: 10, color: '#92CBF2', lineHeight: '14px' }}>
+                    {fmt12(startTime)} – {fmt12(endTime)}
+                  </span>
+                  <span style={{ fontSize: 10, color: '#767676' }}>{mins} min</span>
+                </div>
+              )}
+            </div>
+
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ── Calendar (month) view ─────────────────────────────── */
+function CalendarView({ viewDate, meetingDate }) {
+  const today      = new Date()
+  const firstOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1)
+  const gridStart  = getWeekStart(firstOfMonth)
+  const cells      = Array.from({ length: 42 }, (_, i) => addDays(gridStart, i))
+
+  return (
+    <div style={{
+      border: '1px solid #2E2E2E', borderRadius: 8, overflow: 'hidden',
+    }}>
+      {/* Day name header */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
+        borderBottom: '1px solid #2E2E2E', background: '#1E1E1E',
+      }}>
+        {DAY_ABBR.map(d => (
+          <div key={d} style={{ padding: '8px 0', textAlign: 'center' }}>
+            <span style={{ fontSize: 11, fontWeight: 500, color: '#595959', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{d}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Date cells */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+        {cells.map((day, i) => {
+          const inMonth   = day.getMonth() === viewDate.getMonth()
+          const isToday   = isSameDay(day, today)
+          const hasMeeting = isSameDay(day, meetingDate) && inMonth
+          const isWeekend = day.getDay() === 0 || day.getDay() === 6
+          const isLast    = i >= 35
+
+          return (
+            <div key={i} style={{
+              minHeight: 52,
+              borderRight: (i + 1) % 7 !== 0 ? '1px solid #2E2E2E' : 'none',
+              borderBottom: !isLast ? '1px solid #2E2E2E' : 'none',
+              padding: '6px 0',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+              background: isWeekend && inMonth ? 'rgba(0,0,0,0.18)' : 'transparent',
+            }}>
+              <div style={{
+                width: 26, height: 26, borderRadius: '50%',
+                background: isToday ? '#2E96E8' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span style={{
+                  fontSize: 12,
+                  fontWeight: isToday ? 600 : 400,
+                  color: isToday ? '#FFFFFF' : (inMonth ? (isWeekend ? '#595959' : '#E9E9E9') : '#383838'),
+                }}>{day.getDate()}</span>
+              </div>
+              {hasMeeting && (
+                <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#2E96E8' }} />
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* ── PastMeetingCard ───────────────────────────────────── */
 function PastMeetingCard({ elapsed, profile }) {
-  const [chipHover, setChipHover] = useState(null)
-  const [activeSeg, setActiveSeg] = useState('Day')
+  const [chipHover,  setChipHover]  = useState(null)
+  const [activeSeg,  setActiveSeg]  = useState('Day')
+  const [viewDate,   setViewDate]   = useState(new Date())
+  const [meetingDate]               = useState(() => new Date()) // captured once on mount
 
-  const mins    = Math.max(1, Math.floor(elapsed / 60))
-  const now     = new Date()
-  const navDate = now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' })
-  const cardDate = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-  const initial = profile.name?.charAt(0).toUpperCase() || 'U'
-  const segments = ['Day', 'Week', 'Calendar']
+  const today = new Date()
+
+  /* ── Navigation helpers ── */
+  function isOnToday() {
+    if (activeSeg === 'Day')      return isSameDay(viewDate, today)
+    if (activeSeg === 'Week')     return isSameDay(getWeekStart(viewDate), getWeekStart(today))
+    return viewDate.getMonth() === today.getMonth() && viewDate.getFullYear() === today.getFullYear()
+  }
+
+  function navLabel() {
+    if (activeSeg === 'Day') {
+      return viewDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
+    }
+    if (activeSeg === 'Week') {
+      const start = getWeekStart(viewDate)
+      const end   = addDays(start, 6)
+      return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${end.getFullYear()}`
+    }
+    return viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  }
+
+  function navPrev() {
+    setViewDate(d => {
+      if (activeSeg === 'Week') return addDays(d, -7)
+      if (activeSeg === 'Calendar') { const n = new Date(d); n.setMonth(n.getMonth() - 1); return n }
+      return addDays(d, -1)
+    })
+  }
+
+  function navNext() {
+    setViewDate(d => {
+      if (activeSeg === 'Week') return addDays(d, 7)
+      if (activeSeg === 'Calendar') { const n = new Date(d); n.setMonth(n.getMonth() + 1); return n }
+      return addDays(d, 1)
+    })
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20, fontFamily: "'Inter', system-ui, sans-serif" }}>
 
-      {/* ── Date Navigation Bar ── */}
-      <div style={{
-        display: 'flex', alignItems: 'center',
-        padding: '12px 0', gap: 0,
-      }}>
-        {/* Left group */}
+      {/* ── Date navigation bar ── */}
+      <div style={{ display: 'flex', alignItems: 'center', padding: '12px 0' }}>
+
+        {/* Left: arrows + label + return to today */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Arrow buttons */}
-          {['‹', '›'].map(arrow => (
-            <button key={arrow} style={{
-              width: 28, height: 28, borderRadius: 6,
-              background: '#494949', border: 'none',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: '#FFFFFF', fontSize: 16, fontWeight: 400,
-              fontFamily: "'Inter', system-ui, sans-serif",
-            }}>{arrow}</button>
-          ))}
-          {/* Date label */}
+          <button onClick={navPrev} style={{
+            width: 28, height: 28, borderRadius: 6, background: '#494949', border: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: '#FFFFFF', fontSize: 16,
+            fontFamily: "'Inter', system-ui, sans-serif",
+          }}>‹</button>
+          <button onClick={navNext} style={{
+            width: 28, height: 28, borderRadius: 6, background: '#494949', border: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: '#FFFFFF', fontSize: 16,
+            fontFamily: "'Inter', system-ui, sans-serif",
+          }}>›</button>
           <span style={{ fontSize: 18, fontWeight: 600, color: '#FFFFFF', lineHeight: '28px' }}>
-            {navDate}
+            {navLabel()}
           </span>
-          {/* Return to today */}
-          <span style={{ fontSize: 13, fontWeight: 400, color: '#2E96E8', opacity: 0.6, cursor: 'pointer' }}>
-            Return to today
-          </span>
+          {!isOnToday() && (
+            <span
+              onClick={() => setViewDate(new Date())}
+              style={{ fontSize: 13, fontWeight: 400, color: '#2E96E8', cursor: 'pointer' }}
+            >
+              Return to today
+            </span>
+          )}
         </div>
 
-        {/* Spacer */}
         <div style={{ flex: 1 }} />
 
-        {/* Right group */}
+        {/* Right: segment control + avatar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Segmented control */}
           <div style={{
             display: 'flex', alignItems: 'center',
             background: '#494949', border: '1px solid #737373',
             borderRadius: 8, padding: 2,
           }}>
-            {segments.map(seg => (
+            {SEGMENTS.map(seg => (
               <button
                 key={seg}
                 onClick={() => setActiveSeg(seg)}
@@ -329,71 +677,48 @@ function PastMeetingCard({ elapsed, profile }) {
             ))}
           </div>
 
-          {/* Avatar pill */}
+        </div>
+      </div>
+
+      {/* ── View content ── */}
+
+      {activeSeg === 'Day' && (
+        isSameDay(viewDate, meetingDate) ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <StateLabel>Upcoming</StateLabel>
+            <UpcomingCard />
+            <StateLabel>Starting soon</StateLabel>
+            <StartingSoonCard />
+            <StateLabel>Live</StateLabel>
+            <LiveCard />
+            <StateLabel>Past</StateLabel>
+            <MeetingRow elapsed={elapsed} profile={profile} chipHover={chipHover} setChipHover={setChipHover} />
+          </div>
+        ) : (
           <div style={{
-            display: 'flex', alignItems: 'center',
-            background: '#222222', borderRadius: 9999,
-            padding: 8,
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', padding: '52px 0', gap: 10,
           }}>
-            <div style={{
-              width: 24, height: 24, borderRadius: '50%',
-              background: '#7C3EC3',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 11, fontWeight: 600, color: '#FFFFFF',
-            }}>{initial}</div>
+            <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
+              <path fill="#383838" d="M7 11a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 2a1 1 0 1 1-2 0a1 1 0 0 1 2 0m2-2a1 1 0 1 0 0-2a1 1 0 0 0 0 2m4-5.5A2.5 2.5 0 0 0 14.5 3h-9A2.5 2.5 0 0 0 3 5.5v9A2.5 2.5 0 0 0 5.5 17h9a2.5 2.5 0 0 0 2.5-2.5zM4 7h12v7.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 4 14.5zm1.5-3h9A1.5 1.5 0 0 1 16 5.5V6H4v-.5A1.5 1.5 0 0 1 5.5 4"/>
+            </svg>
+            <span style={{ fontSize: 14, color: '#595959' }}>No meetings scheduled</span>
           </div>
-        </div>
-      </div>
+        )
+      )}
 
-      {/* ── Meeting Card ── */}
-      <div style={{
-        display: 'flex', alignItems: 'flex-start', gap: 12,
-        padding: '16px 20px',
-        background: '#222222',
-        borderBottom: '1px solid #737373',
-      }}>
-        {/* Avatar */}
-        <div style={{
-          width: 40, height: 40, borderRadius: '50%',
-          background: '#7C3EC3', flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 15, fontWeight: 600, color: '#FFFFFF',
-        }}>{initial}</div>
+      {activeSeg === 'Week' && (
+        <WeekView
+          viewDate={viewDate}
+          meetingDate={meetingDate}
+          elapsed={elapsed}
+          profile={profile}
+        />
+      )}
 
-        {/* Content */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {/* Title */}
-          <span style={{ fontSize: 16, fontWeight: 500, color: '#FFFFFF', lineHeight: '24px' }}>
-            Test call with {profile.name}
-          </span>
-
-          {/* Date · duration */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 14, fontWeight: 500, color: '#999CA2', lineHeight: '20px' }}>{cardDate}</span>
-            <span style={{ fontSize: 12, color: '#999CA2' }}>·</span>
-            <span style={{ fontSize: 14, fontWeight: 500, color: '#999CA2', lineHeight: '20px' }}>{mins} min</span>
-          </div>
-
-          {/* Chips */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {CHIPS.map(chip => (
-              <button
-                key={chip}
-                onMouseEnter={() => setChipHover(chip)}
-                onMouseLeave={() => setChipHover(null)}
-                style={{
-                  background: chipHover === chip ? '#595959' : '#494949',
-                  border: '1px solid #737373',
-                  borderRadius: 5, padding: '4px 10px',
-                  fontSize: 14, fontWeight: 500, color: '#D1D1D9', lineHeight: '20px',
-                  cursor: 'pointer', transition: 'background 0.15s',
-                  fontFamily: "'Inter', system-ui, sans-serif",
-                }}
-              >{chip}</button>
-            ))}
-          </div>
-        </div>
-      </div>
+      {activeSeg === 'Calendar' && (
+        <CalendarView viewDate={viewDate} meetingDate={meetingDate} />
+      )}
 
     </div>
   )

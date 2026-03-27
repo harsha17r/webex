@@ -5,6 +5,38 @@
 
 ---
 
+### [2026-03-27 02:30] — Week view, all card states, compact card redesign
+
+**Status:** 🟢 Done
+
+**What changed:**
+Rebuilt the `PastMeetingCard` section of `MeetingsTab.jsx` into a full scheduling component. Added calendar helpers (`getWeekStart`, `addDays`, `isSameDay`, `fmt12`) and wired all navigation controls — prev/next arrows, date label, "Return to today", and the Day/Week segment toggle — to a `viewDate` state. The Week view (`WeekView`) renders a 7-column Mon–Sun grid with today highlighted by a blue circle and the meeting block in its correct column. Removed the Calendar segment and the avatar pill from the nav bar header. Built all 4 meeting card states: `UpcomingCard` (blue accent), `StartingSoonCard` (amber), `LiveCard` (green with live dot badge), and `MeetingRow` (Past). After user feedback that the cards were too large, redesigned all states with a compact `CardShell` primitive: left accent border, `12px 14px` padding, title + action on row 1, info string on row 2. The Past card was refactored last — removed the 40px avatar, collapsed 3 rows into a `CardShell` with title, time range + duration, and compact AI chips (12px, `#2A2A2A` bg).
+
+**Files touched:**
+- `src/screens/home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+User will likely want to clean up the 4-state "all states" debug view into just the real post-meeting state (Past only). Could also explore click interactions on the chips (Meeting Summary, View Transcript, Show Chat Messages) — wiring them to an AI rail or modal.
+
+---
+
+### [2026-03-27] — MeetingAIRail Figma rebuild + toast behavior fix
+
+**Status:** 🟢 Done
+
+**What changed:**
+Rebuilt `MeetingAIRail.jsx` from scratch to match the Figma design (node 1434-3370). Previous version had tabs and fake transcript data that didn't reflect the actual design. New version matches the Figma exactly: header with "Cisco AI  Assistant" + ⓘ on the left and gear/external-link/close icons on the right; body with empty space pushing down to the Cisco AI logo + "Try these to get started" label + 4 meeting-specific suggestion chips; last chip ("What all can Cisco AI do?") has a gradient green-to-cyan border. Footer is identical to `CiscoAIRail.jsx` — input with paperclip, blue send button, and disclaimer. Component sizing now matches `CiscoAIRail` (371px wide, same margins and background). Also fixed toast notification behavior: toasts now only fire when "Turn on" is clicked in the AI nudge modal (via new `turnOnAI()` function), not when toggling the Cisco AI pill button in the top bar.
+
+**Files touched:**
+- `src/components/meeting/MeetingAIRail.jsx`
+- `src/screens/meeting/MeetingScreen.jsx`
+
+**Next up:**
+Test the rail in the browser — verify slide-in animation, gradient border on last chip, toast behavior on "Turn on" vs pill button, and that the rail closes correctly from the × button.
+
+---
+
 ### [2026-03-26 14:30] — MeetingAIRail component + icon standardization
 
 **Status:** 🟢 Done
