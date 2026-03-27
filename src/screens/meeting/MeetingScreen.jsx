@@ -206,9 +206,9 @@ export function MeetingScreen() {
     setTimeout(() => addToast('Cisco AI is generating real-time notes and action items.'), 700)
   }
 
-  async function startSharing() {
+  async function startSharing(existingStream) {
     try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
+      const stream = existingStream ?? await navigator.mediaDevices.getDisplayMedia({
         video: { cursor: 'always' },
         audio: audioShare,
       })
@@ -890,7 +890,91 @@ function Toggle({ on, onChange }) {
 }
 
 /* ── Share screen modal ──────────────────────────────────── */
+
+const SHARE_TABS = ['Screen', 'Application', 'File', 'Camera']
+
+const SIMULATED_APPS = [
+  { id: 'webex',   name: 'Webex',         window: 'Meeting (2 windows)', color: '#0073E6', abbr: 'W' },
+  { id: 'brave',   name: 'Brave Browser', window: 'New Tab — Brave',     color: '#E14B26', abbr: 'B' },
+  { id: 'figma',   name: 'Figma',         window: 'Untitled — Figma',    color: '#7C3EC3', abbr: 'F' },
+  { id: 'outlook', name: 'Outlook',       window: 'Inbox — Outlook',     color: '#0A66C2', abbr: 'O' },
+  { id: 'zoom',    name: 'Zoom',          window: 'Zoom Meeting',         color: '#2D8CFF', abbr: 'Z' },
+  { id: 'vscode',  name: 'VS Code',       window: 'project — VS Code',   color: '#23A9F2', abbr: '</>' },
+]
+
 function ShareModal({ audioShare, onAudioToggle, onShare, onClose }) {
+  const [activeTab,      setActiveTab]      = useState('Screen')
+  const [selectedApp,    setSelectedApp]    = useState(null)
+  const [optionsOpen,    setOptionsOpen]    = useState(false)
+  const [previewStream,  setPreviewStream]  = useState(null)
+  const [previewLoading, setPreviewLoading] = useState(true)
+  const videoRef         = useRef(null)
+  const previewStreamRef = useRef(null)
+
+  /* ── Capture screen on mount for live preview ── */
+  useEffect(() => {
+    let cancelled = false
+    async function startPreview() {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({ video: { cursor: 'always' } })
+        if (cancelled) { stream.getTracks().forEach(t => t.stop()); return }
+        previewStreamRef.current = stream
+        setPreviewStream(stream)
+        setPreviewLoading(false)
+        stream.getVideoTracks()[0]?.addEventListener('ended', () => {
+          setPreviewStream(null)
+          previewStreamRef.current = null
+        })
+      } catch {
+        if (!cancelled) setPreviewLoading(false)
+      }
+    }
+    startPreview()
+    return () => {
+      cancelled = true
+      // Stop preview only if we're not in the middle of sharing
+      previewStreamRef.current?.getTracks().forEach(t => t.stop())
+      previewStreamRef.current = null
+    }
+  }, [])
+
+  /* Sync video element when stream arrives */
+  useEffect(() => {
+    if (videoRef.current && previewStream) {
+      videoRef.current.srcObject = previewStream
+    }
+  }, [previewStream])
+
+  function retryPreview() {
+    setPreviewLoading(true)
+    navigator.mediaDevices.getDisplayMedia({ video: { cursor: 'always' } })
+      .then(stream => {
+        previewStreamRef.current?.getTracks().forEach(t => t.stop())
+        previewStreamRef.current = stream
+        setPreviewStream(stream)
+        setPreviewLoading(false)
+        stream.getVideoTracks()[0]?.addEventListener('ended', () => {
+          setPreviewStream(null)
+          previewStreamRef.current = null
+        })
+      })
+      .catch(() => setPreviewLoading(false))
+  }
+
+  function handleShare() {
+    const stream = previewStreamRef.current
+    previewStreamRef.current = null // transfer ownership — skip cleanup on unmount
+    onShare(stream)
+  }
+
+  const shareLabel =
+    activeTab === 'Application' && selectedApp ? `Share "${selectedApp.name}"` :
+    activeTab === 'File'                        ? 'Share File'                  :
+    activeTab === 'Camera'                      ? 'Share Camera'                :
+                                                  'Share Screen'
+
+  const shareDisabled = activeTab === 'Application' && !selectedApp
+
   return (
     <motion.div
       key="share-overlay"
@@ -907,171 +991,403 @@ function ShareModal({ audioShare, onAudioToggle, onShare, onClose }) {
       }}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 14 }}
+        initial={{ opacity: 0, scale: 0.96, y: 14 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        exit={{ opacity: 0, scale: 0.96, y: 8 }}
         transition={{ type: 'spring', stiffness: 420, damping: 32 }}
         style={{
-          width: 480,
+          width: 640,
           background: '#1A1A1A',
           border: '1px solid #494949',
           borderRadius: 16,
-          padding: '24px 24px 28px',
           boxSizing: 'border-box',
           display: 'flex', flexDirection: 'column',
           fontFamily: "'Inter', system-ui, sans-serif",
           boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
+          overflow: 'hidden',
         }}
       >
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <span style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF' }}>Share your screen</span>
+
+        {/* ── Header ── */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '18px 20px 0',
+        }}>
+          <span style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF' }}>Share</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <button
+              onClick={() => setOptionsOpen(v => !v)}
+              title="Sharing options"
+              style={{
+                background: optionsOpen ? '#2A2A2A' : 'none',
+                border: 'none', borderRadius: 6, padding: 6,
+                cursor: 'pointer', display: 'flex', alignItems: 'center',
+                color: optionsOpen ? '#FFFFFF' : '#767676',
+                transition: 'background 0.15s, color 0.15s',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                <circle cx="9" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.3"/>
+                <path d="M7.4 2.4l-.4 1.3a5.5 5.5 0 00-1.1.65l-1.3-.43-1.6 1.6.43 1.3a5.5 5.5 0 00-.65 1.1L1.4 8.4v2.2l1.33.4c.16.4.38.76.65 1.1l-.43 1.3 1.6 1.6 1.3-.43c.34.27.7.49 1.1.65l.4 1.33h2.2l.4-1.33a5.5 5.5 0 001.1-.65l1.3.43 1.6-1.6-.43-1.3c.27-.34.49-.7.65-1.1l1.33-.4V8.4l-1.33-.4a5.5 5.5 0 00-.65-1.1l.43-1.3-1.6-1.6-1.3.43a5.5 5.5 0 00-1.1-.65L10.6 2.4H7.4z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              onClick={onClose}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                padding: 6, display: 'flex', alignItems: 'center',
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M3 3L13 13M13 3L3 13" stroke="#888888" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* ── Tab bar ── */}
+        <div style={{
+          display: 'flex',
+          padding: '12px 20px 0',
+          borderBottom: '1px solid #2A2A2A',
+          gap: 4,
+        }}>
+          {SHARE_TABS.map(tab => (
+            <button
+              key={tab}
+              onClick={() => { setActiveTab(tab); setSelectedApp(null) }}
+              style={{
+                background: 'none', border: 'none',
+                borderBottom: activeTab === tab ? '2px solid #2E96E8' : '2px solid transparent',
+                padding: '8px 14px 10px',
+                cursor: 'pointer', marginBottom: -1,
+                fontSize: 13, fontWeight: activeTab === tab ? 500 : 400,
+                color: activeTab === tab ? '#FFFFFF' : '#767676',
+                fontFamily: "'Inter', system-ui, sans-serif",
+                transition: 'color 0.15s, border-color 0.15s',
+              }}
+            >{tab}</button>
+          ))}
+        </div>
+
+        {/* ── Options drawer ── */}
+        <AnimatePresence>
+          {optionsOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 36 }}
+              style={{ overflow: 'hidden' }}
+            >
+              <div style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '12px 20px',
+                borderBottom: '1px solid #222222',
+                background: '#161616',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path fill="#AAAAAA" d="M3 9v6h4l5 5V4L7 9zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77"/>
+                  </svg>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 400, color: '#FFFFFF', lineHeight: '18px' }}>Include computer audio</div>
+                    <div style={{ fontSize: 11, color: '#595959', lineHeight: '16px' }}>Others will hear system sounds</div>
+                  </div>
+                </div>
+                <Toggle on={audioShare} onChange={onAudioToggle} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Tab content ── */}
+        <div style={{ padding: '20px 20px 0', minHeight: 280 }}>
+
+          {/* Screen Tab */}
+          {activeTab === 'Screen' && (
+            <div style={{
+              background: '#111111',
+              border: `2px solid ${previewStream ? '#2E96E8' : '#2E2E2E'}`,
+              borderRadius: 12,
+              overflow: 'hidden',
+              position: 'relative',
+              transition: 'border-color 0.3s',
+            }}>
+              {/* Live preview / loading / error */}
+              <div style={{ width: '100%', aspectRatio: '16/9', position: 'relative', background: '#0D0D0D' }}>
+
+                {/* Real screen preview */}
+                <video
+                  ref={videoRef}
+                  autoPlay muted
+                  style={{
+                    width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+                    opacity: previewStream ? 1 : 0,
+                    transition: 'opacity 0.3s',
+                  }}
+                />
+
+                {/* Loading state — waiting for picker */}
+                {previewLoading && (
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center', gap: 10,
+                  }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                      <rect x="2" y="3" width="20" height="14" rx="2" stroke="#3A3A3A" strokeWidth="1.5"/>
+                      <path d="M8 21h8M12 17v4" stroke="#3A3A3A" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    <span style={{ fontSize: 12, color: '#595959', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                      Select your screen in the picker…
+                    </span>
+                  </div>
+                )}
+
+                {/* Error / cancelled state */}
+                {!previewLoading && !previewStream && (
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center', gap: 12,
+                  }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                      <rect x="2" y="3" width="20" height="14" rx="2" stroke="#3A3A3A" strokeWidth="1.5"/>
+                      <path d="M8 21h8M12 17v4" stroke="#3A3A3A" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    <span style={{ fontSize: 12, color: '#595959', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                      No preview — screen picker was cancelled
+                    </span>
+                    <button
+                      onClick={retryPreview}
+                      style={{
+                        background: '#222222', border: '1px solid #383838',
+                        borderRadius: 7, padding: '6px 16px', cursor: 'pointer',
+                        fontSize: 12, fontWeight: 500, color: '#AAAAAA',
+                        fontFamily: "'Inter', system-ui, sans-serif",
+                      }}
+                    >
+                      Load preview
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Card footer */}
+              <div style={{
+                padding: '11px 14px',
+                background: previewStream ? '#1C2B3A' : '#161616',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                borderTop: `1px solid ${previewStream ? '#253545' : '#222222'}`,
+                transition: 'background 0.3s',
+              }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: '#FFFFFF' }}>Entire screen</div>
+                  <div style={{ fontSize: 11, color: previewStream ? '#6A8AA8' : '#595959' }}>
+                    {previewStream ? 'Live preview — your display is ready to share' : 'Your full display will be visible to participants'}
+                  </div>
+                </div>
+                {previewStream && (
+                  <div style={{
+                    width: 20, height: 20, borderRadius: '50%',
+                    background: '#2E96E8',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  }}>
+                    <svg width="10" height="8" viewBox="0 0 11 8" fill="none">
+                      <path d="M1.5 4L4 6.5L9.5 1" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Application Tab */}
+          {activeTab === 'Application' && (
+            <div>
+              <div style={{
+                fontSize: 11, fontWeight: 500, color: '#595959',
+                textTransform: 'uppercase', letterSpacing: '0.06em',
+                marginBottom: 12,
+              }}>
+                Running applications
+              </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 10,
+              }}>
+                {SIMULATED_APPS.map(app => (
+                  <AppCard
+                    key={app.id}
+                    app={app}
+                    selected={selectedApp?.id === app.id}
+                    onSelect={() => setSelectedApp(prev => prev?.id === app.id ? null : app)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* File Tab */}
+          {activeTab === 'File' && (
+            <div style={{
+              border: '2px dashed #2E2E2E',
+              borderRadius: 12,
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              gap: 12, minHeight: 260,
+            }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path stroke="#3A3A3A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                  d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5-5 5 5m-5-5v12"/>
+              </svg>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#AAAAAA' }}>Drop files here</span>
+                <span style={{ fontSize: 12, color: '#595959' }}>PDF, PPT, images, and more</span>
+              </div>
+              <button style={{
+                background: '#222222', border: '1px solid #383838',
+                borderRadius: 8, padding: '8px 20px', cursor: 'pointer', marginTop: 4,
+                fontSize: 13, fontWeight: 500, color: '#FFFFFF',
+                fontFamily: "'Inter', system-ui, sans-serif",
+              }}>
+                Browse files
+              </button>
+            </div>
+          )}
+
+          {/* Camera Tab */}
+          {activeTab === 'Camera' && (
+            <div style={{
+              background: '#111111', borderRadius: 12, overflow: 'hidden',
+              aspectRatio: '16/9', minHeight: 260,
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', gap: 10,
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <path stroke="#3A3A3A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                  d="m15 10 4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14zM3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              </svg>
+              <span style={{ fontSize: 13, color: '#595959' }}>Camera preview</span>
+            </div>
+          )}
+
+        </div>
+
+        {/* ── Footer ── */}
+        <div style={{ padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 0 }}>
+          <ShareModalBtn onClick={handleShare} label={shareLabel} disabled={shareDisabled} />
           <button
             onClick={onClose}
             style={{
-              background: 'none', border: 'none', cursor: 'pointer', padding: 4,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 13, color: '#595959', marginTop: 10, padding: '4px 0',
+              alignSelf: 'center', fontFamily: "'Inter', system-ui, sans-serif",
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 3L13 13M13 3L3 13" stroke="#888888" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
+            Cancel
           </button>
         </div>
 
-        {/* Screen option card */}
-        <div style={{
-          background: '#1C2B3A',
-          border: '2px solid #2E96E8',
-          borderRadius: 12,
-          padding: '20px',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
-          marginBottom: 20, position: 'relative',
-          cursor: 'default',
-        }}>
-          {/* Selected checkmark */}
-          <div style={{
-            position: 'absolute', top: 10, right: 10,
-            width: 20, height: 20, borderRadius: '50%',
-            background: '#2E96E8',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
-              <path d="M1.5 4L4 6.5L9.5 1" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-
-          {/* Monitor illustration */}
-          <div style={{ width: '100%', maxWidth: 320 }}>
-            <div style={{
-              width: '100%', aspectRatio: '16/9',
-              background: '#0D1117',
-              border: '2px solid #2E3A4A',
-              borderRadius: 8, overflow: 'hidden',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              position: 'relative',
-            }}>
-              {/* Simulated desktop preview */}
-              <svg width="100%" height="100%" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice">
-                <rect width="320" height="180" fill="#0D1117"/>
-                {/* Taskbar */}
-                <rect x="0" y="164" width="320" height="16" fill="#1A1A2A"/>
-                {/* App 1 */}
-                <rect x="12" y="12" width="140" height="92" rx="4" fill="#141822" stroke="#2E96E8" strokeWidth="1.5" opacity="0.9"/>
-                <rect x="20" y="20" width="60" height="5" rx="2" fill="#2E96E8" opacity="0.7"/>
-                <rect x="20" y="30" width="90" height="3" rx="1.5" fill="#3A4A5A" opacity="0.6"/>
-                <rect x="20" y="37" width="75" height="3" rx="1.5" fill="#3A4A5A" opacity="0.4"/>
-                <rect x="20" y="44" width="80" height="3" rx="1.5" fill="#3A4A5A" opacity="0.4"/>
-                <rect x="20" y="56" width="110" height="36" rx="3" fill="#1E2D3D" stroke="#2E4A6A" strokeWidth="1" opacity="0.8"/>
-                {/* App 2 */}
-                <rect x="168" y="12" width="140" height="92" rx="4" fill="#141822" stroke="#383838" strokeWidth="1" opacity="0.7"/>
-                <rect x="176" y="20" width="50" height="5" rx="2" fill="#555566" opacity="0.7"/>
-                <rect x="176" y="30" width="80" height="3" rx="1.5" fill="#3A3A4A" opacity="0.5"/>
-                <rect x="176" y="37" width="65" height="3" rx="1.5" fill="#3A3A4A" opacity="0.35"/>
-                {/* Dock */}
-                <rect x="95" y="118" width="130" height="34" rx="8" fill="#1E1E2E" stroke="#383848" strokeWidth="1" opacity="0.9"/>
-                <rect x="106" y="125" width="20" height="20" rx="5" fill="#2E96E8" opacity="0.8"/>
-                <rect x="132" y="125" width="20" height="20" rx="5" fill="#1D8160" opacity="0.8"/>
-                <rect x="158" y="125" width="20" height="20" rx="5" fill="#7C3EC3" opacity="0.8"/>
-                <rect x="184" y="125" width="20" height="20" rx="5" fill="#E03A3A" opacity="0.8"/>
-              </svg>
-            </div>
-            {/* Monitor stand */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ width: 32, height: 10, background: '#2A3040', borderRadius: '0 0 3px 3px' }}/>
-              <div style={{ width: 56, height: 4, background: '#333848', borderRadius: 2 }}/>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF' }}>Your entire screen</span>
-            <span style={{ fontSize: 12, color: '#767676' }}>The full display will be visible to others</span>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div style={{ height: 1, background: '#2E2E2E', marginBottom: 16 }}/>
-
-        {/* Audio toggle row */}
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginBottom: 20, padding: '0 2px',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path fill="#AAAAAA" d="M3 9v6h4l5 5V4L7 9zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77"/>
-            </svg>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 400, color: '#FFFFFF', lineHeight: '20px' }}>
-                Include computer audio
-              </div>
-              <div style={{ fontSize: 12, color: '#595959', lineHeight: '16px' }}>
-                Others will hear system sounds and music
-              </div>
-            </div>
-          </div>
-          <Toggle on={audioShare} onChange={onAudioToggle} />
-        </div>
-
-        {/* Share CTA */}
-        <ShareModalBtn onClick={onShare} />
-
-        {/* Cancel */}
-        <button
-          onClick={onClose}
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: 13, color: '#595959', marginTop: 12, padding: '4px 0',
-            alignSelf: 'center', fontFamily: "'Inter', system-ui, sans-serif",
-          }}
-        >
-          Cancel
-        </button>
       </motion.div>
     </motion.div>
   )
 }
 
-function ShareModalBtn({ onClick }) {
+function AppCard({ app, selected, onSelect }) {
   const [hovered, setHovered] = useState(false)
   return (
-    <button
-      onClick={onClick}
+    <div
+      onClick={onSelect}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: hovered ? '#2E8FE8' : '#0073E6',
+        background: selected ? 'rgba(46,150,232,0.07)' : (hovered ? '#222222' : '#1E1E1E'),
+        border: `2px solid ${selected ? '#2E96E8' : (hovered ? '#383838' : '#2A2A2A')}`,
+        borderRadius: 10, overflow: 'hidden', cursor: 'pointer', position: 'relative',
+        transition: 'border-color 0.15s, background 0.15s',
+      }}
+    >
+      {/* Thumbnail */}
+      <div style={{
+        width: '100%', aspectRatio: '16/9',
+        background: app.color + '18',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative',
+      }}>
+        <div style={{
+          width: '78%', height: '72%',
+          background: '#0D0D0D',
+          borderRadius: 4,
+          border: `1.5px solid ${app.color}33`,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: 5,
+        }}>
+          <div style={{
+            width: 26, height: 26, borderRadius: 6,
+            background: app.color,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 10, fontWeight: 700, color: '#FFFFFF',
+            fontFamily: "'Inter', system-ui, sans-serif", letterSpacing: '-0.01em',
+          }}>
+            {app.abbr}
+          </div>
+          <div style={{ width: '55%', height: 3, borderRadius: 2, background: app.color + '44' }}/>
+          <div style={{ width: '38%', height: 2, borderRadius: 1, background: '#383838' }}/>
+        </div>
+      </div>
+      {/* Name row */}
+      <div style={{ padding: '8px 10px', background: '#161616' }}>
+        <div style={{
+          fontSize: 12, fontWeight: 500, color: '#FFFFFF',
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        }}>{app.name}</div>
+        <div style={{
+          fontSize: 10, color: '#595959',
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 1,
+        }}>{app.window}</div>
+      </div>
+      {/* Checkmark */}
+      {selected && (
+        <div style={{
+          position: 'absolute', top: 7, right: 7,
+          width: 18, height: 18, borderRadius: '50%',
+          background: '#2E96E8',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <svg width="10" height="8" viewBox="0 0 11 8" fill="none">
+            <path d="M1.5 4L4 6.5L9.5 1" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ShareModalBtn({ onClick, label = 'Share Screen', disabled = false }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <button
+      onClick={disabled ? undefined : onClick}
+      onMouseEnter={() => !disabled && setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: disabled ? '#252525' : (hovered ? '#2E8FE8' : '#0073E6'),
         border: 'none', borderRadius: 10,
         height: 48, width: '100%',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-        cursor: 'pointer', transition: 'background 0.15s',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        transition: 'background 0.15s',
         fontFamily: "'Inter', system-ui, sans-serif",
+        opacity: disabled ? 0.45 : 1,
       }}
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <path fill="#FFFFFF" d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45l-2.6-2.6V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"/>
       </svg>
-      <span style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF' }}>Share Screen</span>
+      <span style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF' }}>{label}</span>
     </button>
   )
 }
