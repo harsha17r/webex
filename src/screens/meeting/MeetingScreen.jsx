@@ -63,15 +63,36 @@ export function MeetingScreen() {
   const [userSpeaking, setUserSpeaking] = useState(false)
   const [uiVisible,    setUiVisible]    = useState(true)
   const [entered,      setEntered]      = useState(false)  // true after entrance settles
-  const [aiRailOpen,     setAiRailOpen]     = useState(false)
-  const [summaryActive,  setSummaryActive]  = useState(false)
+  const [aiRailOpen,      setAiRailOpen]      = useState(false)
+  const [summaryActive,   setSummaryActive]   = useState(false)
+  const [meetingInfoOpen, setMeetingInfoOpen] = useState(false)
+  const [steppedAway,     setSteppedAway]     = useState(false)
+  const prevStateRef = useRef({ micOn: true, cameraOn: true })
   const [toasts,       setToasts]       = useState([])
   const audioCtxRef    = useRef(null)
   const toastIdRef     = useRef(0)
   const toastTimersRef = useRef({})
-  const hideTimerRef = useRef(null)
-  const analyserRef  = useRef(null)
-  const rafRef       = useRef(null)
+  const hideTimerRef         = useRef(null)
+  const analyserRef          = useRef(null)
+  const rafRef               = useRef(null)
+  const [tileMenuOpen,  setTileMenuOpen]  = useState(false)
+  const tileMenuBtnRef  = useRef(null)
+  const tileMenuRef     = useRef(null)
+  const [reactOpen,    setReactOpen]    = useState(false)
+  const reactBtnRef    = useRef(null)
+  const reactMenuRef   = useRef(null)
+  const meetingInfoBtnRef    = useRef(null)
+  const meetingInfoPanelRef  = useRef(null)
+  const meetingInfoTimerRef  = useRef(null)
+  const moreBtnRef           = useRef(null)
+  const moreMenuRef          = useRef(null)
+  const [moreOpen, setMoreOpen] = useState(false)
+  const micBtnRef            = useRef(null)
+  const audioMenuRef         = useRef(null)
+  const [audioMenuOpen, setAudioMenuOpen] = useState(false)
+  const videoBtnRef          = useRef(null)
+  const videoMenuRef         = useRef(null)
+  const [videoMenuOpen, setVideoMenuOpen] = useState(false)
 
   const initial = profile.name?.charAt(0).toUpperCase() || 'U'
 
@@ -192,20 +213,138 @@ export function MeetingScreen() {
     setToasts(prev => prev.filter(t => t.id !== id))
   }
   function toggleAIRail() {
+    setAiRailOpen(v => !v)
+  }
+
+  function toggleSummary() {
     if (!summaryActive) {
-      // User hasn't turned on AI yet — show the confirmation modal
-      setNudge(true)
+      setSummaryActive(true)
+      addToast('AI Assistant is now transcribing and taking notes. All participants have been notified.')
     } else {
-      setAiRailOpen(v => !v)
+      setSummaryActive(false)
     }
   }
+
+  /* ── Meeting Info: click-outside to close ── */
+  useEffect(() => {
+    if (!meetingInfoOpen) return
+    function handleClickOutside(e) {
+      const insideBtn   = meetingInfoBtnRef.current?.contains(e.target)
+      const insidePanel = meetingInfoPanelRef.current?.contains(e.target)
+      if (!insideBtn && !insidePanel) setMeetingInfoOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [meetingInfoOpen])
+
+  /* ── Meeting Info: auto-dismiss after 15s idle ── */
+  useEffect(() => {
+    if (!meetingInfoOpen) return
+    function resetTimer() {
+      clearTimeout(meetingInfoTimerRef.current)
+      meetingInfoTimerRef.current = setTimeout(() => setMeetingInfoOpen(false), 15000)
+    }
+    resetTimer()
+    const panel = meetingInfoPanelRef.current
+    panel?.addEventListener('mousemove', resetTimer)
+    return () => {
+      clearTimeout(meetingInfoTimerRef.current)
+      panel?.removeEventListener('mousemove', resetTimer)
+    }
+  }, [meetingInfoOpen])
+
+  /* ── React panel: click-outside to close ── */
+  useEffect(() => {
+    if (!reactOpen) return
+    function handleClickOutside(e) {
+      const insideBtn  = reactBtnRef.current?.contains(e.target)
+      const insideMenu = reactMenuRef.current?.contains(e.target)
+      if (!insideBtn && !insideMenu) setReactOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [reactOpen])
+
+  /* ── Tile menu: click-outside to close ── */
+  useEffect(() => {
+    if (!tileMenuOpen) return
+    function handleClickOutside(e) {
+      const insideBtn  = tileMenuBtnRef.current?.contains(e.target)
+      const insideMenu = tileMenuRef.current?.contains(e.target)
+      if (!insideBtn && !insideMenu) setTileMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [tileMenuOpen])
+
+  /* ── Step away / back ── */
+  function stepAway() {
+    prevStateRef.current = { micOn, cameraOn }
+    setSteppedAway(true)
+    setMicOn(false)
+    setCameraOn(false)
+    if (streamRef.current) {
+      streamRef.current.getAudioTracks().forEach(t => { t.enabled = false })
+      streamRef.current.getVideoTracks().forEach(t => { t.enabled = false })
+    }
+  }
+  function backToMeeting() {
+    const prev = prevStateRef.current
+    setSteppedAway(false)
+    setMicOn(prev.micOn)
+    setCameraOn(prev.cameraOn)
+    if (streamRef.current) {
+      streamRef.current.getAudioTracks().forEach(t => { t.enabled = prev.micOn })
+      streamRef.current.getVideoTracks().forEach(t => { t.enabled = prev.cameraOn })
+    }
+  }
+
+  /* ── More menu: close when toolbar hides ── */
+  useEffect(() => {
+    if (!uiVisible) setMoreOpen(false)
+  }, [uiVisible])
+
+  /* ── More menu: click-outside to close ── */
+  useEffect(() => {
+    if (!moreOpen) return
+    function handleClickOutside(e) {
+      const insideBtn  = moreBtnRef.current?.contains(e.target)
+      const insideMenu = moreMenuRef.current?.contains(e.target)
+      if (!insideBtn && !insideMenu) setMoreOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [moreOpen])
+
+  /* ── Audio menu: click-outside to close ── */
+  useEffect(() => {
+    if (!audioMenuOpen) return
+    function handleClickOutside(e) {
+      const insideBtn  = micBtnRef.current?.contains(e.target)
+      const insideMenu = audioMenuRef.current?.contains(e.target)
+      if (!insideBtn && !insideMenu) setAudioMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [audioMenuOpen])
+
+  /* ── Video menu: click-outside to close ── */
+  useEffect(() => {
+    if (!videoMenuOpen) return
+    function handleClickOutside(e) {
+      const insideBtn  = videoBtnRef.current?.contains(e.target)
+      const insideMenu = videoMenuRef.current?.contains(e.target)
+      if (!insideBtn && !insideMenu) setVideoMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [videoMenuOpen])
 
   function turnOnAI() {
     setNudge(false)
     setSummaryActive(true)
     setAiRailOpen(true)
-    addToast('This meeting is being transcribed. All participants have been notified.')
-    setTimeout(() => addToast('Cisco AI is generating real-time notes and action items.'), 700)
+    addToast('AI Assistant is now transcribing and taking notes. All participants have been notified.')
   }
 
   return (
@@ -245,27 +384,20 @@ export function MeetingScreen() {
       >
         {/* Left: meeting info + timer */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M10 2C6.13 2 3 5.13 3 9s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7z" stroke="#FFFFFF" strokeWidth="1.5"/>
-              <path d="M10 9v4M10 7v.5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <span style={{ fontSize: 12, fontWeight: 500, color: '#FFFFFF' }}>Meeting info</span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M6 4l4 4-4 4" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
+          <div ref={meetingInfoBtnRef}>
+            <MeetingInfoBtn
+              open={meetingInfoOpen}
+              onClick={() => setMeetingInfoOpen(o => !o)}
+            />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <span style={{ fontSize: 14, fontWeight: 400, color: '#FFFFFF' }}>{fmt(elapsed)}</span>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M2 6.5C5.5 3 14.5 3 18 6.5"             stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M4.5 9C7 6.5 13 6.5 15.5 9"             stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M7.5 11.5C8.8 10.2 11.2 10.2 12.5 11.5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-              <circle cx="10" cy="14.5" r="1.5" fill="#FFFFFF"/>
+            <span style={{ fontSize: 14, fontWeight: 400, color: '#FFFFFF', fontVariantNumeric: 'tabular-nums', display: 'inline-block', minWidth: 44 }}>{fmt(elapsed)}</span>
+            {/* Signal strength — green = good, yellow = degraded */}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={navigator.onLine ? '#4DB848' : '#F5A623'}>
+              <path d="M1 20v-6h3v6zm4.75 0v-8h3v8zm4.75 0V9h3v11zm4.75 0V7h3v13zM20 20V4h3v16z"/>
             </svg>
+            {summaryActive && <AIStatusIcon />}
           </div>
         </div>
 
@@ -293,7 +425,7 @@ export function MeetingScreen() {
               <rect x="11" y="11" width="7" height="7" rx="1" stroke="#FFFFFF" strokeWidth="1.5"/>
             </svg>
           </PillButton>
-          <PillButton label="Cisco AI" onClick={toggleAIRail} active={aiRailOpen}>
+          <PillButton label="AI Assistant" onClick={toggleAIRail} active={aiRailOpen}>
             <CiscoAIIcon size={20} />
           </PillButton>
         </div>
@@ -318,7 +450,7 @@ export function MeetingScreen() {
           flex: 1, position: 'relative',
           borderRadius: 16, overflow: 'hidden',
           background: 'radial-gradient(circle at 50% 50%, #FEC432 0%, #A64B20 100%)',
-          boxShadow: userSpeaking && micOn ? '0 0 0 3px #2BAB7E' : '0 0 0 3px transparent',
+          boxShadow: !steppedAway && userSpeaking && micOn ? '0 0 0 3px #2BAB7E' : '0 0 0 3px transparent',
           transition: 'box-shadow 0.15s ease',
         }}>
           <video
@@ -337,7 +469,7 @@ export function MeetingScreen() {
           <div style={{
             position: 'absolute', inset: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            opacity: cameraOn && !permDenied ? 0 : 1,
+            opacity: (cameraOn && !permDenied) || steppedAway ? 0 : 1,
             transition: 'opacity 0.2s',
             pointerEvents: 'none',
           }}>
@@ -350,6 +482,93 @@ export function MeetingScreen() {
               {initial}
             </div>
           </div>
+          {/* Stepped-away overlay */}
+          <AnimatePresence>
+            {steppedAway && (
+              <motion.div
+                key="stepped-away-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                style={{
+                  position: 'absolute', inset: 0,
+                  background: 'rgba(10,10,10,0.78)',
+                  backdropFilter: 'blur(2px)',
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: 14,
+                  padding: 24, boxSizing: 'border-box',
+                  borderRadius: 16,
+                }}
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
+                  <path d="M17 11.6V15a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6v-3.4a.6.6 0 0 1 .6-.6h12.8a.6.6 0 0 1 .6.6"/>
+                  <path d="M12 9c0-1 .714-2 2.143-2A2.857 2.857 0 0 0 17 4.143V3.5M8 9v-.5a3 3 0 0 1 3-3 2 2 0 0 0 2-2V3"/>
+                  <path d="M16 11h2.5a2.5 2.5 0 0 1 0 5H17"/>
+                </svg>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 18, fontWeight: 500, color: '#E9E9E9', margin: '0 0 4px', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                    You've stepped away
+                  </p>
+                  <p style={{ fontSize: 14, color: '#C0C0C0', margin: 0, lineHeight: '18px', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                    You're muted and your video is off.
+                  </p>
+                </div>
+                <button
+                  onClick={backToMeeting}
+                  style={{
+                    marginTop: 16,
+                    background: '#FFFFFF', color: '#111111',
+                    border: 'none', borderRadius: 8,
+                    padding: '8px 16px',
+                    fontSize: 14, fontWeight: 500,
+                    fontFamily: "'Inter', system-ui, sans-serif",
+                    cursor: 'pointer',
+                  }}
+                >
+                  Back to meeting
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Bottom-right action buttons */}
+          <div style={{
+            position: 'absolute', bottom: 12, right: 12,
+            display: 'flex', gap: 8,
+            opacity: steppedAway ? 0 : 1,
+            pointerEvents: steppedAway ? 'none' : 'auto',
+            transition: 'opacity 0.2s',
+          }}>
+            <TileIconBtn title="Step away from meeting" onClick={stepAway}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
+                <path fill="none" d="M17 11.6V15a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6v-3.4a.6.6 0 0 1 .6-.6h12.8a.6.6 0 0 1 .6.6"/>
+                <path fill="none" d="M12 9c0-1 .714-2 2.143-2A2.857 2.857 0 0 0 17 4.143V3.5M8 9v-.5a3 3 0 0 1 3-3 2 2 0 0 0 2-2V3"/>
+                <path fill="none" d="M16 11h2.5a2.5 2.5 0 0 1 0 5H17"/>
+              </svg>
+            </TileIconBtn>
+            <div ref={tileMenuBtnRef}>
+              <TileIconBtn title="More options" onClick={() => setTileMenuOpen(o => !o)} active={tileMenuOpen}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <circle cx="5"  cy="12" r="1.5" fill="#FFFFFF"/>
+                  <circle cx="12" cy="12" r="1.5" fill="#FFFFFF"/>
+                  <circle cx="19" cy="12" r="1.5" fill="#FFFFFF"/>
+                </svg>
+              </TileIconBtn>
+            </div>
+          </div>
+
+          {/* Tile more-options menu */}
+          <AnimatePresence>
+            {tileMenuOpen && (
+              <TileMenu
+                menuRef={tileMenuRef}
+                btnRef={tileMenuBtnRef}
+                onClose={() => setTileMenuOpen(false)}
+              />
+            )}
+          </AnimatePresence>
+
           {/* Name pill */}
           <NamePill label={`You (${profile.name})`} micOn={micOn} />
         </div>
@@ -406,12 +625,20 @@ export function MeetingScreen() {
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
           display: 'flex', alignItems: 'center', gap: 12,
         }}>
-          <ToolbarBtn label="Mic" hasChevron onClick={toggleMic}>
-            <MicIcon on={micOn} size={20} />
-          </ToolbarBtn>
-          <ToolbarBtn label="Video" hasChevron onClick={toggleCamera}>
-            <CamIcon on={cameraOn} size={24} />
-          </ToolbarBtn>
+          <MicSplitBtn
+            micBtnRef={micBtnRef}
+            micOn={micOn}
+            audioMenuOpen={audioMenuOpen}
+            onToggleMic={toggleMic}
+            onOpenAudio={() => setAudioMenuOpen(o => !o)}
+          />
+          <VideoSplitBtn
+            videoBtnRef={videoBtnRef}
+            cameraOn={cameraOn}
+            videoMenuOpen={videoMenuOpen}
+            onToggleCamera={toggleCamera}
+            onOpenVideo={() => setVideoMenuOpen(o => !o)}
+          />
           <ToolbarBtn label="Share">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path fill="#FFFFFF" d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45l-2.6-2.6V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"/>
@@ -422,18 +649,22 @@ export function MeetingScreen() {
               <path fill="#FFFFFF" d="M3 16c0 4.42 3.58 8 8 8c3.43 0 6.5-2.09 7.77-5.27l2.56-6.43c.25-.64.23-1.38-.15-1.95A2 2 0 0 0 19 9.5l-.78.23c-.46.12-.88.35-1.22.66V4.5A2.5 2.5 0 0 0 14.5 2c-.19 0-.37 0-.54.06A2.5 2.5 0 0 0 11.5 0c-1.06 0-1.96.66-2.33 1.59A2.5 2.5 0 0 0 6 4v.55c-.16-.05-.33-.05-.5-.05A2.5 2.5 0 0 0 3 7zm2-9c0-.28.22-.5.5-.5s.5.22.5.5v5h2V4c0-.28.22-.5.5-.5s.5.22.5.5v8h2V2.5c0-.28.22-.5.5-.5s.5.22.5.5V12h2V4.5c0-.28.22-.5.5-.5s.5.22.5.5V15h2l1-2.5c.15-.45.5-.79 1-.91l.5-.14L16.91 18c-.96 2.41-3.3 4-5.91 4c-3.31 0-6-2.69-6-6z"/>
             </svg>
           </ToolbarBtn>
-          <ToolbarBtn label="React">
+          <div ref={reactBtnRef}>
+          <ToolbarBtn label="React" onClick={() => setReactOpen(o => !o)} active={reactOpen}>
             <svg width="24" height="24" viewBox="0 0 16 16" fill="none">
               <path fill="#FFFFFF" d="m13.798 2.217l-.015-.004l-.765-.248a1.58 1.58 0 0 1-1-.999L11.77.202a.302.302 0 0 0-.57 0l-.25.764a1.58 1.58 0 0 1-.983.999l-.594.193H9.37l-.172.055a.3.3 0 0 0-.146.111a.3.3 0 0 0 .146.459l.767.249l.083.03l.008.002a1.58 1.58 0 0 1 .88.889l.03.08l.248.765A.3.3 0 0 0 11.5 5h.004a.3.3 0 0 0 .281-.202l.249-.764a1.58 1.58 0 0 1 .999-.999l.765-.248a.303.303 0 0 0 0-.57m1.416 3.355l.612.199l.013.003a.242.242 0 0 1 0 .455l-.613.2a1.26 1.26 0 0 0-.799.798l-.199.612a.24.24 0 0 1-.235.16a.24.24 0 0 1-.224-.16l-.2-.612a1.26 1.26 0 0 0-.8-.8l-.024-.008l-.001-.003l-.583-.19a.242.242 0 0 1 0-.455l.613-.2a1.26 1.26 0 0 0 .787-.798l.199-.612a.242.242 0 0 1 .456 0l.199.612a1.26 1.26 0 0 0 .799.799M8.059 2.893a1 1 0 0 0 .04.108L8 3a5 5 0 1 0 4.98 5.455q.125.185.31.317a1.24 1.24 0 0 0 .628.225A6.002 6.002 0 0 1 2 8a6 6 0 0 1 6.097-6a1.3 1.3 0 0 0-.038.893M6.25 7.75a.75.75 0 1 0 0-1.5a.75.75 0 0 0 0 1.5m-.114 1.917a.5.5 0 1 0-.745.667A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 2.609-1.166a.5.5 0 0 0-.745-.667A2.5 2.5 0 0 1 8 10.5c-.74 0-1.405-.321-1.864-.833M10.5 7A.75.75 0 1 1 9 7a.75.75 0 0 1 1.5 0"/>
             </svg>
           </ToolbarBtn>
-          <ToolbarBtn label="More">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <circle cx="5"  cy="12" r="1.5" fill="#FFFFFF"/>
-              <circle cx="12" cy="12" r="1.5" fill="#FFFFFF"/>
-              <circle cx="19" cy="12" r="1.5" fill="#FFFFFF"/>
-            </svg>
-          </ToolbarBtn>
+          </div>
+          <div ref={moreBtnRef}>
+            <ToolbarBtn label="More" onClick={() => setMoreOpen(o => !o)} active={moreOpen}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle cx="5"  cy="12" r="1.5" fill="#FFFFFF"/>
+                <circle cx="12" cy="12" r="1.5" fill="#FFFFFF"/>
+                <circle cx="19" cy="12" r="1.5" fill="#FFFFFF"/>
+              </svg>
+            </ToolbarBtn>
+          </div>
           <EndBtn onClick={handleEnd} />
         </div>
 
@@ -529,9 +760,69 @@ export function MeetingScreen() {
             <MeetingAIRail
               onClose={() => setAiRailOpen(false)}
               summaryActive={summaryActive}
-              onStopSummary={() => setSummaryActive(false)}
+              onSummaryToggle={toggleSummary}
             />
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Meeting Info Panel ── */}
+      <AnimatePresence>
+        {meetingInfoOpen && (
+          <motion.div
+            ref={meetingInfoPanelRef}
+            key="meeting-info"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+            style={{ position: 'absolute', top: 62, left: 40, zIndex: 30 }}
+          >
+            <MeetingInfoPanel profile={profile} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── React Panel ── */}
+      <AnimatePresence>
+        {reactOpen && (
+          <ReactPanel
+            menuRef={reactMenuRef}
+            btnRef={reactBtnRef}
+            onClose={() => setReactOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── More Menu ── */}
+      <AnimatePresence>
+        {moreOpen && (
+          <MoreMenu
+            menuRef={moreMenuRef}
+            btnRef={moreBtnRef}
+            onClose={() => setMoreOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Audio Menu ── */}
+      <AnimatePresence>
+        {audioMenuOpen && (
+          <AudioMenu
+            menuRef={audioMenuRef}
+            btnRef={micBtnRef}
+            onClose={() => setAudioMenuOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Video Menu ── */}
+      <AnimatePresence>
+        {videoMenuOpen && (
+          <VideoMenu
+            menuRef={videoMenuRef}
+            btnRef={videoBtnRef}
+          />
         )}
       </AnimatePresence>
 
@@ -539,7 +830,1008 @@ export function MeetingScreen() {
   )
 }
 
+/* ── React Panel ────────────────────────────────────────── */
+
+const REACTIONS = [
+  { emoji: '👍', shortcut: true  },
+  { emoji: '👏', shortcut: true  },
+  { emoji: '🙌', shortcut: true  },
+  { emoji: '👎', shortcut: true  },
+  { emoji: '🙏', shortcut: true  },
+  { emoji: '😊', shortcut: false },
+  { emoji: '😂', shortcut: false },
+  { emoji: '😮', shortcut: false },
+  { emoji: '😢', shortcut: false },
+  { emoji: '🎉', shortcut: false },
+  { emoji: '❤️', shortcut: true  },
+  { emoji: '🐇', shortcut: false },
+  { emoji: '🐢', shortcut: false },
+  { emoji: '🔥', shortcut: false },
+]
+
+function ReactPanel({ menuRef, btnRef, onClose }) {
+  const [gestureOn, setGestureOn] = useState(true)
+  const [hovered,   setHovered]   = useState(null)
+
+  const rect       = btnRef.current?.getBoundingClientRect()
+  const panelWidth = 272
+  const left       = rect ? Math.max(8, rect.left + rect.width / 2 - panelWidth / 2) : 0
+  const bottom     = rect ? window.innerHeight - rect.top + 16 : 0
+  const notchLeft  = rect
+    ? (rect.left + rect.width / 2) - Math.max(8, rect.left + rect.width / 2 - panelWidth / 2) - 5
+    : panelWidth / 2 - 5
+
+  return (
+    <motion.div
+      ref={menuRef}
+      key="react-panel"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 8 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+      style={{ position: 'fixed', left, bottom, width: panelWidth, zIndex: 50, fontFamily: "'Inter', system-ui, sans-serif" }}
+    >
+      {/* Panel content */}
+      <div style={{
+        background: '#111111',
+        border: '1px solid #2A2A2A',
+        borderRadius: 16,
+        overflow: 'hidden',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+      }}>
+        {/* Emoji grid */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 4, padding: 12,
+        }}>
+          {REACTIONS.map(r => (
+            <button
+              key={r.emoji}
+              onClick={onClose}
+              onMouseEnter={() => setHovered(r.emoji)}
+              onMouseLeave={() => setHovered(null)}
+              style={{
+                background: hovered === r.emoji ? '#222222' : 'transparent',
+                border: r.shortcut ? '1.5px dashed rgba(255,255,255,0.12)' : '1.5px solid transparent',
+                borderRadius: 10,
+                padding: '10px 0',
+                cursor: 'pointer',
+                fontSize: 28, lineHeight: 1,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background 0.12s',
+              }}
+            >
+              {r.emoji}
+            </button>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: 1, background: '#2A2A2A', margin: '0 0' }} />
+
+        {/* Recognize hand gestures */}
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          padding: '14px 16px',
+        }}>
+          <span style={{ flex: 1, fontSize: 15, color: '#FFFFFF', fontWeight: 400 }}>
+            Recognize hand gestures
+          </span>
+          <button onClick={() => setGestureOn(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            <div style={{
+              width: 42, height: 24, borderRadius: 12,
+              background: gestureOn ? '#0073E6' : '#4A4A4A',
+              position: 'relative', transition: 'background 0.2s',
+            }}>
+              <div style={{
+                position: 'absolute', top: 4, left: gestureOn ? 21 : 3,
+                width: 16, height: 16, borderRadius: '50%',
+                background: '#FFFFFF', transition: 'left 0.2s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+              }} />
+            </div>
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: 1, background: '#2A2A2A' }} />
+
+        {/* Customize reaction shortcuts */}
+        <ReactPanelRow label="Customize reaction shortcuts" onClose={onClose} />
+      </div>
+
+      {/* Arrow notch */}
+      <div style={{ position: 'relative' }}>
+        <div style={{
+          position: 'absolute', bottom: -5, left: notchLeft,
+          width: 10, height: 10,
+          background: '#111111',
+          border: '1px solid #2A2A2A',
+          borderTopColor: 'transparent', borderLeftColor: 'transparent',
+          borderRadius: '0 0 3px 0',
+          transform: 'rotate(45deg)', zIndex: 2,
+        }} />
+      </div>
+    </motion.div>
+  )
+}
+
+function ReactPanelRow({ label, onClose }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onClick={onClose}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        padding: '14px 16px',
+        background: hovered ? '#1A1A1A' : 'transparent',
+        cursor: 'pointer', transition: 'background 0.12s',
+      }}
+    >
+      <span style={{ fontSize: 15, color: '#FFFFFF', fontWeight: 400 }}>{label}</span>
+    </div>
+  )
+}
+
+/* ── Mic Split Button ────────────────────────────────────── */
+
+function MicSplitBtn({ micBtnRef, micOn, audioMenuOpen, onToggleMic, onOpenAudio }) {
+  const [hovMain, setHovMain] = useState(false)
+  const [hovChev, setHovChev] = useState(false)
+
+  const baseBg    = 'rgba(34,34,34,0.5)'
+  const hoverBg   = 'rgba(50,50,50,0.7)'
+  const activeBg  = 'rgba(60,60,60,0.85)'
+
+  const chevBg = audioMenuOpen ? activeBg : hovChev ? hoverBg : baseBg
+
+  const shared = {
+    border: 'none', cursor: 'pointer', backdropFilter: 'blur(24px)',
+    fontFamily: "'Inter', system-ui, sans-serif",
+    transition: 'background 0.15s',
+  }
+
+  return (
+    <div ref={micBtnRef} style={{ display: 'flex', alignItems: 'stretch', borderRadius: 4, overflow: 'hidden', width: 90 }}>
+      {/* Main: mic toggle — flex:1 fills all available width */}
+      <button
+        onClick={onToggleMic}
+        onMouseEnter={() => setHovMain(true)}
+        onMouseLeave={() => setHovMain(false)}
+        style={{
+          ...shared,
+          flex: 1,
+          background: hovMain ? hoverBg : baseBg,
+          padding: '10px 0',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+        }}
+      >
+        <MicIcon on={micOn} size={20} />
+        <span style={{ fontSize: 11, fontWeight: 400, color: '#AAAAAA', whiteSpace: 'nowrap' }}>Mic</span>
+      </button>
+
+      {/* Separator */}
+      <div style={{ width: 1, background: 'rgba(255,255,255,0.1)', alignSelf: 'stretch', margin: '10px 0' }} />
+
+      {/* Chevron: fixed 24px tap target */}
+      <button
+        onClick={onOpenAudio}
+        onMouseEnter={() => setHovChev(true)}
+        onMouseLeave={() => setHovChev(false)}
+        style={{
+          ...shared,
+          background: chevBg,
+          width: 24,
+          flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M3 5l3 3 3-3" stroke={audioMenuOpen ? '#FFFFFF' : '#AAAAAA'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  )
+}
+
+/* ── Video Split Button ──────────────────────────────────── */
+
+function VideoSplitBtn({ videoBtnRef, cameraOn, videoMenuOpen, onToggleCamera, onOpenVideo }) {
+  const [hovMain, setHovMain] = useState(false)
+  const [hovChev, setHovChev] = useState(false)
+
+  const baseBg   = 'rgba(34,34,34,0.5)'
+  const hoverBg  = 'rgba(50,50,50,0.7)'
+  const activeBg = 'rgba(60,60,60,0.85)'
+  const chevBg   = videoMenuOpen ? activeBg : hovChev ? hoverBg : baseBg
+
+  const shared = {
+    border: 'none', cursor: 'pointer', backdropFilter: 'blur(24px)',
+    fontFamily: "'Inter', system-ui, sans-serif",
+    transition: 'background 0.15s',
+  }
+
+  return (
+    <div ref={videoBtnRef} style={{ display: 'flex', alignItems: 'stretch', borderRadius: 4, overflow: 'hidden', width: 90 }}>
+      <button
+        onClick={onToggleCamera}
+        onMouseEnter={() => setHovMain(true)}
+        onMouseLeave={() => setHovMain(false)}
+        style={{
+          ...shared,
+          flex: 1,
+          background: hovMain ? hoverBg : baseBg,
+          padding: '10px 0',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+        }}
+      >
+        <CamIcon on={cameraOn} size={24} />
+        <span style={{ fontSize: 11, fontWeight: 400, color: '#AAAAAA', whiteSpace: 'nowrap' }}>Video</span>
+      </button>
+
+      <div style={{ width: 1, background: 'rgba(255,255,255,0.1)', alignSelf: 'stretch', margin: '10px 0' }} />
+
+      <button
+        onClick={onOpenVideo}
+        onMouseEnter={() => setHovChev(true)}
+        onMouseLeave={() => setHovChev(false)}
+        style={{
+          ...shared,
+          background: chevBg,
+          width: 24,
+          flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M3 5l3 3 3-3" stroke={videoMenuOpen ? '#FFFFFF' : '#AAAAAA'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  )
+}
+
+/* ── Audio Menu ──────────────────────────────────────────── */
+
+const SPEAKER_DEVICES = [
+  { label: 'Follow system setting', sub: 'MacBook Air Speakers (Built-in)', selected: false },
+  { label: 'MacBook Air Speakers (Built-in)',   selected: true  },
+  { label: 'Microsoft Teams Audio (Virtual)',   selected: false },
+]
+
+const MIC_DEVICES = [
+  { label: 'Follow system setting', sub: 'MacBook Air Microphone (Built-in)', selected: false },
+  { label: 'MacBook Air Microphone (Built-in)', selected: true  },
+  { label: 'Microsoft Teams Audio (Virtual)',   selected: false },
+]
+
+function AudioSectionHeader({ label }) {
+  return (
+    <div style={{ padding: '12px 16px 6px' }}>
+      <span style={{ fontSize: 13, fontWeight: 500, color: '#666666' }}>{label}</span>
+    </div>
+  )
+}
+
+function AudioDeviceRow({ label, sub, selected }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'flex-start',
+        padding: '8px 16px',
+        background: hovered ? '#1A1A1A' : 'transparent',
+        cursor: 'pointer', gap: 10,
+      }}
+    >
+      <div style={{ width: 20, flexShrink: 0, paddingTop: 2 }}>
+        {selected && (
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M2 8l4 4 8-8" stroke="#0073E6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )}
+      </div>
+      <div>
+        <div style={{ fontSize: 15, fontWeight: selected ? 500 : 400, color: '#FFFFFF', lineHeight: '22px' }}>{label}</div>
+        {sub && <div style={{ fontSize: 12, color: '#666666', marginTop: 1 }}>{sub}</div>}
+      </div>
+    </div>
+  )
+}
+
+function AudioExpandRow({ label }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '10px 16px',
+        background: hovered ? '#1A1A1A' : 'transparent',
+        cursor: 'pointer',
+      }}
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+        <rect x="9" y="2" width="6" height="11" rx="3" stroke="#AAAAAA" strokeWidth="1.5"/>
+        <path d="M5 10a7 7 0 0 0 14 0" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M12 19v3" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+      <span style={{ flex: 1, fontSize: 15, color: '#FFFFFF', fontWeight: 400 }}>{label}</span>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M5 7l3 3 3-3" stroke="#666666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </div>
+  )
+}
+
+function AudioActionRow({ iconType, label }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '10px 16px',
+        background: hovered ? '#1A1A1A' : 'transparent',
+        cursor: 'pointer',
+      }}
+    >
+      {iconType === 'gear' && (
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ flexShrink: 0 }}>
+          <path d="M9 11.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="#AAAAAA" strokeWidth="1.3"/>
+          <path d="M7.4 2.4l-.4 1.3a5.5 5.5 0 00-1.1.65l-1.3-.43-1.6 1.6.43 1.3c-.27.34-.49.7-.65 1.1L1.4 8.4v2.2l1.33.4c.16.4.38.76.65 1.1l-.43 1.3 1.6 1.6 1.3-.43c.34.27.7.49 1.1.65l.4 1.33h2.2l.4-1.33a5.5 5.5 0 001.1-.65l1.3.43 1.6-1.6-.43-1.3c.27-.34.49-.7.65-1.1l1.33-.4V8.4l-1.33-.4a5.5 5.5 0 00-.65-1.1l.43-1.3-1.6-1.6-1.3.43a5.5 5.5 0 00-1.1-.65L10.6 2.4H7.4z" stroke="#AAAAAA" strokeWidth="1.3" strokeLinejoin="round"/>
+        </svg>
+      )}
+      {iconType === 'phone' && (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+          <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C10.37 21 3 13.63 3 4.5a1 1 0 011-1H7.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.24 1.01z" stroke="#AAAAAA" strokeWidth="1.4" strokeLinejoin="round"/>
+        </svg>
+      )}
+      <span style={{ flex: 1, fontSize: 15, color: '#FFFFFF', fontWeight: 400 }}>{label}</span>
+    </div>
+  )
+}
+
+function AudioDivider() {
+  return <div style={{ height: 1, background: '#2A2A2A', margin: '4px 0' }} />
+}
+
+function AudioMenu({ menuRef, btnRef }) {
+  const rect      = btnRef.current?.getBoundingClientRect()
+  const panelWidth = 320
+  const left      = rect ? Math.max(8, rect.left + rect.width / 2 - panelWidth / 2) : 0
+  const bottom    = rect ? window.innerHeight - rect.top + 16 : 0
+  const notchLeft = rect
+    ? (rect.left + rect.width / 2) - Math.max(8, rect.left + rect.width / 2 - panelWidth / 2) - 5
+    : panelWidth / 2 - 5
+
+  return (
+    <motion.div
+      ref={menuRef}
+      key="audio-menu"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 8 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+      style={{ position: 'fixed', left, bottom, width: panelWidth, zIndex: 50, fontFamily: "'Inter', system-ui, sans-serif" }}
+    >
+      {/* Panel */}
+      <div style={{
+        background: '#111111',
+        border: '1px solid #2A2A2A',
+        borderRadius: 12,
+        overflow: 'hidden',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+        maxHeight: rect ? rect.top - 32 : '80vh',
+        overflowY: 'auto',
+      }}>
+
+        {/* Speaker */}
+        <AudioSectionHeader label="Speaker" />
+        {SPEAKER_DEVICES.map(d => <AudioDeviceRow key={d.label} {...d} />)}
+
+        <AudioDivider />
+
+        {/* Microphone */}
+        <AudioSectionHeader label="Microphone" />
+        {MIC_DEVICES.map(d => <AudioDeviceRow key={d.label} {...d} />)}
+
+        <AudioDivider />
+
+        {/* Smart audio */}
+        <AudioSectionHeader label="Smart audio•microphone" />
+        <AudioExpandRow label="Noise removal" />
+
+        <AudioDivider />
+
+        {/* Audio Settings */}
+        <AudioActionRow iconType="gear" label="Audio Settings..." />
+
+        <AudioDivider />
+
+        {/* Footer */}
+        <div style={{ padding: '10px 16px 2px' }}>
+          <p style={{ fontSize: 12, color: '#666666', margin: 0, fontWeight: 400 }}>
+            You're using your computer for audio
+          </p>
+        </div>
+        <AudioActionRow iconType="phone" label="Switch audio" />
+        <div style={{ height: 6 }} />
+      </div>
+
+      {/* Arrow notch pointing down */}
+      <div style={{
+        position: 'absolute',
+        bottom: -5,
+        left: notchLeft,
+        width: 10, height: 10,
+        background: '#111111',
+        border: '1px solid #2A2A2A',
+        borderTopColor: 'transparent',
+        borderLeftColor: 'transparent',
+        borderRadius: '0 0 3px 0',
+        transform: 'rotate(45deg)',
+        zIndex: 2,
+      }} />
+    </motion.div>
+  )
+}
+
+/* ── Video Menu ──────────────────────────────────────────── */
+
+const CAMERA_DEVICES = [
+  { label: 'Use last connected camera (MacBook Air C...)', selected: false },
+  { label: 'MacBook Air Camera', selected: true },
+]
+
+function VideoMenu({ menuRef, btnRef }) {
+  const rect       = btnRef.current?.getBoundingClientRect()
+  const panelWidth = 300
+  const left       = rect ? Math.max(8, rect.left + rect.width / 2 - panelWidth / 2) : 0
+  const bottom     = rect ? window.innerHeight - rect.top + 16 : 0
+  const notchLeft  = rect
+    ? (rect.left + rect.width / 2) - Math.max(8, rect.left + rect.width / 2 - panelWidth / 2) - 5
+    : panelWidth / 2 - 5
+
+  return (
+    <motion.div
+      ref={menuRef}
+      key="video-menu"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 8 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+      style={{ position: 'fixed', left, bottom, width: panelWidth, zIndex: 50, fontFamily: "'Inter', system-ui, sans-serif" }}
+    >
+      <div style={{
+        background: '#111111',
+        border: '1px solid #2A2A2A',
+        borderRadius: 12,
+        overflow: 'hidden',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+        maxHeight: rect ? rect.top - 32 : '80vh',
+        overflowY: 'auto',
+      }}>
+
+        {/* Camera devices */}
+        <AudioSectionHeader label="Camera" />
+        {CAMERA_DEVICES.map(d => <AudioDeviceRow key={d.label} {...d} />)}
+
+        <AudioDivider />
+
+        {/* Actions */}
+        <VideoActionRow iconType="background" label="Change virtual background" />
+        <VideoActionRow iconType="selfview"   label="Self-view location..." />
+
+        <AudioDivider />
+
+        <VideoActionRow iconType="gear" label="Video Settings..." />
+        <div style={{ height: 6 }} />
+      </div>
+
+      {/* Arrow notch pointing down */}
+      <div style={{
+        position: 'absolute',
+        bottom: -5,
+        left: notchLeft,
+        width: 10, height: 10,
+        background: '#111111',
+        border: '1px solid #2A2A2A',
+        borderTopColor: 'transparent',
+        borderLeftColor: 'transparent',
+        borderRadius: '0 0 3px 0',
+        transform: 'rotate(45deg)',
+        zIndex: 2,
+      }} />
+    </motion.div>
+  )
+}
+
+function VideoActionRow({ iconType, label }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '10px 16px',
+        background: hovered ? '#1A1A1A' : 'transparent',
+        cursor: 'pointer',
+      }}
+    >
+      {iconType === 'background' && (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+          <path d="M12 2l1.5 4H18l-3.5 2.5 1.5 4L12 10l-4 2.5 1.5-4L6 6h4.5z" stroke="#AAAAAA" strokeWidth="1.4" strokeLinejoin="round"/>
+          <path d="M5 20h14M8 17l4-6 4 6" stroke="#AAAAAA" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
+      {iconType === 'selfview' && (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+          <rect x="2" y="4" width="20" height="16" rx="2" stroke="#AAAAAA" strokeWidth="1.4"/>
+          <rect x="14" y="12" width="7" height="5" rx="1" stroke="#AAAAAA" strokeWidth="1.2"/>
+        </svg>
+      )}
+      {iconType === 'gear' && (
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ flexShrink: 0 }}>
+          <path d="M9 11.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="#AAAAAA" strokeWidth="1.3"/>
+          <path d="M7.4 2.4l-.4 1.3a5.5 5.5 0 00-1.1.65l-1.3-.43-1.6 1.6.43 1.3c-.27.34-.49.7-.65 1.1L1.4 8.4v2.2l1.33.4c.16.4.38.76.65 1.1l-.43 1.3 1.6 1.6 1.3-.43c.34.27.7.49 1.1.65l.4 1.33h2.2l.4-1.33a5.5 5.5 0 001.1-.65l1.3.43 1.6-1.6-.43-1.3c.27-.34.49-.7.65-1.1l1.33-.4V8.4l-1.33-.4a5.5 5.5 0 00-.65-1.1l.43-1.3-1.6-1.6-1.3.43a5.5 5.5 0 00-1.1-.65L10.6 2.4H7.4z" stroke="#AAAAAA" strokeWidth="1.3" strokeLinejoin="round"/>
+        </svg>
+      )}
+      <span style={{ flex: 1, fontSize: 15, color: '#FFFFFF', fontWeight: 400 }}>{label}</span>
+    </div>
+  )
+}
+
+/* ── More Menu ───────────────────────────────────────────── */
+
+function MoreMenuIcon({ type }) {
+  const s = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', flexShrink: 0 }
+  switch (type) {
+    case 'device': return (
+      <svg {...s}><path fill="#AAAAAA" d="M2 19v-2h2V5h16v12h2v2zm5-2h10V7H5v10h2zM5 7h14H5z"/></svg>
+    )
+    case 'audio': return (
+      <svg {...s}><path fill="#AAAAAA" d="M12 3a4 4 0 0 1 4 4v4a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v4a2 2 0 0 0 4 0V7a2 2 0 0 0-2-2zm-7 8h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.93V21h4v2H9v-2h4v-2.07A7 7 0 0 1 5 13z"/></svg>
+    )
+    case 'lock': return (
+      <svg {...s}><path fill="#AAAAAA" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg>
+    )
+    case 'invite': return (
+      <svg {...s}><path fill="#AAAAAA" d="M18 14v-3h-3V9h3V6h2v3h3v2h-3v3zM6.175 10.825Q5 9.65 5 8t1.175-2.825T9 4t2.825 1.175T13 8t-1.175 2.825T9 12t-2.825-1.175M1 20v-2.8q0-.85.438-1.562T2.6 14.55q1.55-.775 3.15-1.162T9 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T17 17.2V20zm2-2h12v-.8q0-.275-.137-.5t-.363-.35q-1.35-.675-2.725-1.012T9 15t-2.775.338T3.5 16.35q-.225.125-.363.35T3 17.2z"/></svg>
+    )
+    case 'link': return (
+      <svg {...s}><path fill="#AAAAAA" d="M11 17H7q-2.075 0-3.537-1.463T2 12t1.463-3.537T7 7h4v2H7q-1.25 0-2.125.875T4 12t.875 2.125T7 15h4zm-3-4v-2h8v2zm5 4v-2h4q1.25 0 2.125-.875T20 12t-.875-2.125T17 9h-4V7h4q2.075 0 3.538 1.463T22 12t-1.463 3.538T17 17z"/></svg>
+    )
+    case 'whiteboard': return (
+      <svg {...s}><path fill="#AAAAAA" d="M3 19V5h18v14zm2-3h14V7H5zm0 0V7z"/></svg>
+    )
+    case 'breakout': return (
+      <svg {...s}><path fill="#AAAAAA" d="M0 18v-1.575q0-1.075 1.1-1.75T4 14q.325 0 .625.013t.575.062q-.35.525-.525 1.1t-.175 1.2V18zm6 0v-1.625q0-.8.438-1.463t1.237-1.162T9.588 13T12 12.75q1.325 0 2.438.25t1.912.75t1.225 1.163t.425 1.462V18zm13.5 0v-1.625q0-.65-.162-1.225t-.488-1.075q.275-.05.563-.062T20 14q1.8 0 2.9.663t1.1 1.762V18zM4 13q-.825 0-1.412-.587T2 11q0-.85.588-1.425T4 9q.85 0 1.425.575T6 11q0 .825-.575 1.413T4 13m16 0q-.825 0-1.412-.587T18 11q0-.85.588-1.425T20 9q.85 0 1.425.575T22 11q0 .825-.575 1.413T20 13m-8-1q-1.25 0-2.125-.875T9 9q0-1.275.875-2.137T12 6q1.275 0 2.138.863T15 9q0 1.25-.862 2.125T12 12"/></svg>
+    )
+    case 'language': return (
+      <svg {...s}><path fill="#AAAAAA" d="M12 22q-2.05 0-3.875-.788t-3.187-2.15t-2.15-3.187T2 12t.788-3.875t2.15-3.187t3.187-2.15T12 2t3.875.788t3.188 2.15t2.15 3.187T22 12t-.787 3.875t-2.15 3.188t-3.188 2.15T12 22m0-2.05q.65-.9 1.125-1.875T13.9 16h-3.8q.3 1.1.775 2.075T12 19.95m-2.6-.4q-.45-.825-.787-1.713T8.05 16H5.1q.725 1.25 1.813 2.175T9.4 19.55m5.2 0q1.4-.45 2.488-1.375T18.9 16h-2.95q-.225.95-.562 1.838T14.6 19.55M4.25 14h3.4q-.075-.5-.112-.987T7.5 12t.038-1.012T7.65 10h-3.4q-.125.5-.187.988T4 12t.063 1.013t.187.987m5.4 0h4.7q.075-.5.113-.987T14.5 12t-.038-1.012T14.35 10h-4.7q-.075.5-.112.988T9.5 12t.038 1.013t.112.987m6.7 0h3.4q.125-.5.188-.987T20 12t-.062-1.012T19.75 10h-3.4q.075.5.113.988T16.5 12t-.038 1.013t-.112.987m-.4-6h2.95q-.725-1.25-1.812-2.175T14.6 4.45q.45.825.788 1.713T15.95 8M10.1 8h3.8q-.3-1.1-.775-2.075T12 4.05q-.65.9-1.125 1.875T10.1 8m-5 0h2.95q.225-.95.563-1.838T9.4 4.45Q8 4.9 6.912 5.825T5.1 8"/></svg>
+    )
+    case 'coffee': return (
+      <svg {...s}><path fill="#AAAAAA" d="M11 18q-2.925 0-4.962-2.037T4 11V5q0-.825.588-1.412T6 3h12.5q1.45 0 2.475 1.025T22 6.5t-1.025 2.475T18.5 10H18v1q0 2.925-2.037 4.963T11 18M6 8h10V5H6zm5 8q2.075 0 3.538-1.463T16 11v-1H6v1q0 2.075 1.463 3.538T11 16m7-8h.5q.625 0 1.063-.437T20 6.5t-.437-1.062T18.5 5H18zM4 21v-2h16v2z"/></svg>
+    )
+    case 'settings': return (
+      <svg {...s}><path fill="#AAAAAA" d="m9.25 22l-.4-3.2q-.325-.125-.612-.3t-.563-.375L4.7 19.375l-2.75-4.75l2.575-1.95Q4.5 12.5 4.5 12.338v-.675q0-.163.025-.338L1.95 9.375l2.75-4.75l2.975 1.25q.275-.2.575-.375t.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3t.562.375l2.975-1.25l2.75 4.75l-2.575 1.95q.025.175.025.338v.674q0 .163-.05.338l2.575 1.95l-2.75 4.75l-2.95-1.25q-.275.2-.575.375t-.6.3l-.4 3.2zM12 15.5q1.45 0 2.475-1.025T15.5 12t-1.025-2.475T12 8.5t-2.475 1.025T8.5 12t1.025 2.475T12 15.5"/></svg>
+    )
+    case 'report': return (
+      <svg {...s}><path fill="#AAAAAA" d="M12 17q.425 0 .713-.288T13 16t-.288-.712T12 15t-.712.288T11 16t.288.713T12 17m-1-4h2V7h-2zm1 9q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137t2.137 3.175T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20"/></svg>
+    )
+    case 'stats': return (
+      <svg {...s}><path fill="#AAAAAA" d="M2 21v-2h20v2zm1-3v-7h3v7zm5 0V6h3v12zm5 0V9h3v9zm5 0V3h3v15z"/></svg>
+    )
+    default: return null
+  }
+}
+
+function MoreMenuToggle({ on, onToggle }) {
+  return (
+    <button onClick={onToggle} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>
+      <div style={{
+        width: 38, height: 22, borderRadius: 11,
+        background: on ? '#0073E6' : '#4A4A4A',
+        position: 'relative', transition: 'background 0.2s',
+      }}>
+        <div style={{
+          position: 'absolute', top: 3, left: on ? 19 : 3,
+          width: 16, height: 16, borderRadius: '50%',
+          background: '#FFFFFF', transition: 'left 0.2s',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+        }} />
+      </div>
+    </button>
+  )
+}
+
+const MORE_SECTIONS = [
+  {
+    header: 'Meeting',
+    items: [
+      { label: 'Lock meeting',                      icon: 'lock',      toggleKey: 'locked'       },
+      { label: 'Invite and remind',                 icon: 'invite'                                },
+      { label: 'Copy meeting link',                 icon: 'link'                                  },
+      { label: 'Whiteboards',                       icon: 'whiteboard'                            },
+      { label: 'Enable breakout sessions',          icon: 'breakout',  toggleKey: 'breakout'      },
+      { label: 'Enable sign language interpretation', icon: 'language', toggleKey: 'signLanguage' },
+      { label: 'Step away from meeting',            icon: 'coffee'                                },
+      { label: 'Meeting options',                   icon: 'settings'                              },
+      { label: 'Report an issue',                   icon: 'report'                                },
+      { label: 'Statistics',                        icon: 'stats'                                 },
+    ],
+  },
+  {
+    header: 'Cisco video system',
+    items: [
+      { label: 'Move meeting to a video device', icon: 'device' },
+    ],
+  },
+  {
+    header: "You're using your computer for audio",
+    items: [
+      { label: 'Switch audio', icon: 'audio' },
+    ],
+  },
+]
+
+function MoreMenu({ menuRef, btnRef, onClose }) {
+  const [toggles, setToggles] = useState({ locked: false, breakout: false, signLanguage: false })
+
+  const rect = btnRef.current?.getBoundingClientRect()
+  const panelWidth = 320
+  const left = rect ? Math.max(8, rect.left + rect.width / 2 - panelWidth / 2) : 0
+  // 16px gap between button top and arrow tip; arrow protrudes 5px below panel
+  const bottom = rect ? window.innerHeight - rect.top + 16 : 0
+  // notch horizontal center relative to panel left edge
+  const notchLeft = rect ? (rect.left + rect.width / 2) - Math.max(8, rect.left + rect.width / 2 - panelWidth / 2) - 5 : panelWidth / 2 - 5
+
+  function flip(key) {
+    setToggles(prev => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  return (
+    <motion.div
+      ref={menuRef}
+      key="more-menu"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 8 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+      style={{
+        position: 'fixed',
+        left, bottom,
+        width: panelWidth,
+        zIndex: 50,
+        fontFamily: "'Inter', system-ui, sans-serif",
+      }}
+    >
+      {/* Panel content */}
+      <div style={{
+        background: '#111111',
+        border: '1px solid #2A2A2A',
+        borderRadius: 12,
+        overflow: 'hidden',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+        maxHeight: rect ? rect.top - 32 : '80vh',
+        overflowY: 'auto',
+      }}>
+        {MORE_SECTIONS.map((section, si) => (
+          <div key={section.header}>
+            {si > 0 && <div style={{ height: 1, background: '#2A2A2A' }} />}
+
+            {/* Section header */}
+            <p style={{
+              fontSize: 12, fontWeight: 400, color: '#666666',
+              margin: 0, padding: '12px 16px 6px',
+            }}>
+              {section.header}
+            </p>
+
+            {/* Items */}
+            {section.items.map(item => (
+              <MoreMenuItem
+                key={item.label}
+                item={item}
+                toggleOn={item.toggleKey ? toggles[item.toggleKey] : undefined}
+                onToggle={item.toggleKey ? () => flip(item.toggleKey) : undefined}
+                onClose={onClose}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Arrow notch pointing down toward the More button */}
+      <div style={{ position: 'relative' }}>
+        <div style={{
+          position: 'absolute',
+          bottom: -5,
+          left: notchLeft,
+          width: 10, height: 10,
+          background: '#111111',
+          border: '1px solid #2A2A2A',
+          borderTopColor: 'transparent',
+          borderLeftColor: 'transparent',
+          borderRadius: '0 0 3px 0',
+          transform: 'rotate(45deg)',
+          zIndex: 2,
+        }} />
+      </div>
+    </motion.div>
+  )
+}
+
+function MoreMenuItem({ item, toggleOn, onToggle, onClose }) {
+  const [hovered, setHovered] = useState(false)
+  function handleClick() {
+    if (!onToggle) onClose()
+    else onToggle()
+  }
+  return (
+    <div
+      onClick={handleClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '10px 16px',
+        background: hovered ? '#1E1E1E' : 'transparent',
+        cursor: 'pointer',
+        transition: 'background 0.12s',
+      }}
+    >
+      <MoreMenuIcon type={item.icon} />
+      <span style={{ flex: 1, fontSize: 15, fontWeight: 400, color: '#FFFFFF', lineHeight: '22px' }}>
+        {item.label}
+      </span>
+      {onToggle !== undefined && (
+        <MoreMenuToggle on={toggleOn} onToggle={e => { e.stopPropagation(); onToggle() }} />
+      )}
+    </div>
+  )
+}
+
+/* ── Meeting Info ────────────────────────────────────────── */
+
+const MEETING_DATA = {
+  link:       'https://webex.com/meet/harsha.test-call',
+  number:     '2661 880 4718',
+  accessCode: '2661 880 4718',
+  videoAddr:  '26618804718@webex.com',
+  audio:      'United States Toll +1-650-479-3208',
+}
+
+function InfoRow({ label, value, onCopy, copied }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <div>
+      <p style={{ fontSize: 12, color: '#666666', margin: '0 0 3px', fontFamily: "'Inter', system-ui, sans-serif" }}>{label}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <p style={{
+          fontSize: 14, color: '#E9E9E9', margin: 0, flex: 1,
+          fontFamily: "'Inter', system-ui, sans-serif",
+          wordBreak: 'break-all', lineHeight: '20px',
+        }}>
+          {value}
+        </p>
+        {onCopy && (
+          <button
+            onClick={onCopy}
+            onMouseEnter={() => setHov(true)}
+            onMouseLeave={() => setHov(false)}
+            style={{
+              flexShrink: 0, background: hov ? '#2A2A2A' : 'none',
+              border: 'none', borderRadius: 6, cursor: 'pointer',
+              padding: 5, display: 'flex', alignItems: 'center',
+              transition: 'background 0.12s',
+            }}
+          >
+            {copied ? (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7l3 3 7-6" stroke="#4DB848" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <rect x="5" y="1" width="8" height="9" rx="1.5" stroke="#888888" strokeWidth="1.2"/>
+                <path d="M9 10v2a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 010 12V4a1.5 1.5 0 011.5-1.5H4" stroke="#888888" strokeWidth="1.2" strokeLinecap="round"/>
+              </svg>
+            )}
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function MeetingInfoPanel({ profile }) {
+  const [tab,    setTab]    = useState('general')
+  const [copied, setCopied] = useState(null)
+
+  function copy(field, value) {
+    navigator.clipboard.writeText(value).catch(() => {})
+    setCopied(field)
+    setTimeout(() => setCopied(c => c === field ? null : c), 2000)
+  }
+
+  const allInfo = `Meeting link: ${MEETING_DATA.link}\nMeeting number: ${MEETING_DATA.number}\nAccess code: ${MEETING_DATA.accessCode}\nVideo address: ${MEETING_DATA.videoAddr}\nAudio: ${MEETING_DATA.audio}`
+
+  return (
+    <div style={{ position: 'relative', width: 320 }}>
+      {/* ── Arrow notch ── */}
+      <div style={{
+        position: 'absolute',
+        top: -5, left: 20,
+        width: 10, height: 10,
+        background: '#1A1A1A',
+        border: '1px solid #383838',
+        borderBottomColor: 'transparent',
+        borderRightColor:  'transparent',
+        borderRadius: '3px 0 0 0',
+        transform: 'rotate(45deg)',
+        zIndex: 2,
+      }} />
+
+    <div style={{
+      width: 320,
+      background: '#1A1A1A',
+      border: '1px solid #383838',
+      borderRadius: 16,
+      boxShadow: '0 12px 40px rgba(0,0,0,0.7)',
+      fontFamily: "'Inter', system-ui, sans-serif",
+      overflow: 'hidden',
+    }}>
+      {/* ── Header ── */}
+      <div style={{ padding: '20px 20px 16px' }}>
+        <p style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF', margin: '0 0 10px', lineHeight: '22px' }}>
+          {profile.name}'s Test Call
+        </p>
+
+        {/* Host row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+          <div style={{
+            width: 26, height: 26, borderRadius: '50%',
+            background: '#2E96E8',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 11, fontWeight: 600, color: '#FFFFFF', flexShrink: 0,
+          }}>
+            {profile.name?.charAt(0).toUpperCase() || 'U'}
+          </div>
+          <span style={{ fontSize: 13, color: '#888888' }}>
+            Host: <span style={{ color: '#E9E9E9', fontWeight: 500 }}>{profile.name}</span>
+          </span>
+        </div>
+
+        {/* Copy all button */}
+        <button
+          onClick={() => copy('all', allInfo)}
+          style={{
+            width: '100%', background: 'none',
+            border: '1px solid #494949', borderRadius: 9999,
+            padding: '8px 0', cursor: 'pointer',
+            color: copied === 'all' ? '#4DB848' : '#FFFFFF',
+            fontSize: 13, fontWeight: 500,
+            fontFamily: "'Inter', system-ui, sans-serif",
+            transition: 'color 0.15s',
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+            {copied === 'all' ? (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7l3 3 7-6" stroke="#4DB848" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <rect x="5" y="1" width="8" height="9" rx="1.5" stroke="#FFFFFF" strokeWidth="1.2"/>
+                <path d="M9 10v2a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 010 12V4a1.5 1.5 0 011.5-1.5H4" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round"/>
+              </svg>
+            )}
+            {copied === 'all' ? 'Copied!' : 'Copy meeting information'}
+          </span>
+        </button>
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: 1, background: '#2A2A2A' }} />
+
+      {/* Tabs */}
+      <div style={{ padding: '10px 16px 0', display: 'flex', gap: 2 }}>
+        {['General', 'Security'].map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t.toLowerCase())}
+            style={{
+              background: tab === t.toLowerCase() ? '#323232' : 'none',
+              border: 'none', borderRadius: 20,
+              padding: '6px 14px',
+              color: tab === t.toLowerCase() ? '#FFFFFF' : '#888888',
+              fontSize: 13, fontWeight: tab === t.toLowerCase() ? 500 : 400,
+              cursor: 'pointer',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              transition: 'background 0.12s, color 0.12s',
+            }}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <div style={{ padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {tab === 'general' ? (
+          <>
+            <InfoRow label="Meeting link"    value={MEETING_DATA.link}       onCopy={() => copy('link',   MEETING_DATA.link)}       copied={copied === 'link'} />
+            <InfoRow label="Meeting number"  value={MEETING_DATA.number}     onCopy={() => copy('number', MEETING_DATA.number)}     copied={copied === 'number'} />
+            <InfoRow label="Access code"     value={MEETING_DATA.accessCode} onCopy={() => copy('access', MEETING_DATA.accessCode)} copied={copied === 'access'} />
+            <InfoRow label="Video address"   value={MEETING_DATA.videoAddr}  onCopy={() => copy('video',  MEETING_DATA.videoAddr)}  copied={copied === 'video'} />
+            <InfoRow label="Audio"           value={MEETING_DATA.audio} />
+          </>
+        ) : (
+          <>
+            <div style={{
+              background: 'rgba(0,115,230,0.12)',
+              border: '1px solid rgba(0,115,230,0.25)',
+              borderRadius: 10, padding: '10px 12px',
+              display: 'flex', gap: 8, alignItems: 'flex-start',
+            }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                <circle cx="8" cy="8" r="6.5" stroke="#2E96E8" strokeWidth="1.2"/>
+                <path d="M8 7v4" stroke="#2E96E8" strokeWidth="1.2" strokeLinecap="round"/>
+                <circle cx="8" cy="5.5" r="0.6" fill="#2E96E8"/>
+              </svg>
+              <p style={{ fontSize: 13, color: '#6BB8FF', margin: 0, lineHeight: '18px' }}>
+                You are securely connected to this meeting with strong encryption.
+              </p>
+            </div>
+            <InfoRow label="Meeting platform"  value="Commercial (Webex Suite)" />
+            <InfoRow label="Server connection"  value="TLS AES 256 GCM SHA384" />
+            <InfoRow label="Media connection"   value="AEAD AES 256 GCM" />
+          </>
+        )}
+      </div>
+    </div>
+    </div>
+  )
+}
+
 /* ── Helpers ─────────────────────────────────────────────── */
+
+function MeetingInfoBtn({ open, onClick }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 6,
+        background: open || hovered ? 'rgba(255,255,255,0.08)' : 'transparent',
+        border: 'none', borderRadius: 8,
+        padding: '6px 10px 6px 8px',
+        cursor: 'pointer',
+        transition: 'background 0.15s',
+      }}
+    >
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2C6.13 2 3 5.13 3 9s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7z" stroke="#FFFFFF" strokeWidth="1.5"/>
+        <path d="M10 9v4M10 7v.5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+      <span style={{ fontSize: 12, fontWeight: 500, color: '#FFFFFF', fontFamily: "'Inter', system-ui, sans-serif" }}>
+        Meeting info
+      </span>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M6 4l4 4-4 4" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </button>
+  )
+}
 
 function PillButton({ label, children, onClick, active = false }) {
   const [hovered, setHovered] = useState(false)
@@ -563,6 +1855,120 @@ function PillButton({ label, children, onClick, active = false }) {
   )
 }
 
+const TILE_MENU_ITEMS = [
+  {
+    label: 'Edit display name',
+    icon: <path fill="#AAAAAA" d="M5 19h1.425L16.2 9.225L14.775 7.8L5 17.575zm-2 2v-4.25L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.438.65T21 6.4q0 .4-.137.763t-.438.662L7.25 21zM19 6.4L17.6 5zm-3.525 2.125l-.7-.725L16.2 9.225z"/>,
+  },
+  {
+    label: 'Change virtual background',
+    icon: <path fill="#AAAAAA" d="m19 9l-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25L19 9Zm0 14l-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25L19 23ZM9 20l-2.5-5.5L1 12l5.5-2.5L9 4l2.5 5.5L17 12l-5.5 2.5L9 20Zm0-4.85L10 13l2.15-1L10 11L9 8.85L8 11l-2.15 1L8 13l1 2.15Z"/>,
+  },
+  {
+    label: 'Video Settings...',
+    icon: <path fill="#AAAAAA" d="M20 22h-6q-.425 0-.712-.288T13 21v-6q0-.425.288-.712T14 14h6q.425 0 .713.288T21 15v2l2-2v6l-2-2v2q0 .425-.288.713T20 22M12.05 8.5q-1.45 0-2.475 1.025T8.55 12q0 1.2.675 2.1T11 15.35V13.1q-.2-.2-.325-.513T10.55 12q0-.625.438-1.062t1.062-.438t1.05.438t.425 1.062h2.025q0-1.45-1.025-2.475T12.05 8.5M9.25 22l-.4-3.2q-.325-.125-.612-.3t-.563-.375L4.7 19.375l-2.75-4.75l2.575-1.95Q4.5 12.5 4.5 12.338v-.675q0-.163.025-.338L1.95 9.375l2.75-4.75l2.975 1.25q.275-.2.575-.375t.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3t.562.375l2.975-1.25l2.75 4.75l-2.575 1.95q.025.175.025.338V12h-2q-.025-.475-.075-.837t-.15-.688l2.15-1.625l-.975-1.7l-2.475 1.05q-.55-.575-1.213-.962t-1.437-.588L13 4h-1.975l-.35 2.65q-.775.2-1.437.588t-1.213.937L5.55 7.15l-.975 1.7l2.15 1.6q-.125.375-.175.75t-.05.8q0 .4.05.775t.175.75l-2.15 1.625l.975 1.7l2.475-1.05q.6.625 1.35 1.05T11 17.4V22z"/>,
+  },
+  {
+    label: 'Self-view location...',
+    icon: <path fill="#AAAAAA" d="M4 20q-.825 0-1.412-.587T2 18V6q0-.825.588-1.412T4 4h16q.825 0 1.413.588T22 6v12q0 .825-.587 1.413T20 20zm0-2h16V6H4zm0 0V6zm7-5h8V7h-8zm2-2V9h4v2z"/>,
+  },
+]
+
+function TileMenu({ menuRef, btnRef, onClose }) {
+  const rect = btnRef.current?.getBoundingClientRect()
+  const panelWidth = 260
+  const left  = rect ? rect.right - panelWidth : 0
+  // position above the button with 8px gap + 5px for arrow
+  const bottom = rect ? window.innerHeight - rect.top + 8 : 0
+  // notch aligns to center of button, relative to panel left
+  const notchLeft = rect ? (rect.left + rect.width / 2) - Math.max(0, rect.right - panelWidth) - 5 : panelWidth - 24
+
+  return (
+    <motion.div
+      ref={menuRef}
+      key="tile-menu"
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 6 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+      style={{ position: 'fixed', left, bottom, width: panelWidth, zIndex: 60, fontFamily: "'Inter', system-ui, sans-serif" }}
+    >
+      {/* Panel */}
+      <div style={{
+        background: '#1A1A1A',
+        border: '1px solid #383838',
+        borderRadius: 12,
+        overflow: 'hidden',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+      }}>
+        {TILE_MENU_ITEMS.map(item => (
+          <TileMenuItem key={item.label} item={item} onClose={onClose} />
+        ))}
+      </div>
+      {/* Arrow notch pointing down */}
+      <div style={{ position: 'relative' }}>
+        <div style={{
+          position: 'absolute', bottom: -5, left: notchLeft,
+          width: 10, height: 10,
+          background: '#1A1A1A',
+          border: '1px solid #383838',
+          borderTopColor: 'transparent', borderLeftColor: 'transparent',
+          borderRadius: '0 0 3px 0',
+          transform: 'rotate(45deg)',
+          zIndex: 2,
+        }} />
+      </div>
+    </motion.div>
+  )
+}
+
+function TileMenuItem({ item, onClose }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onClick={onClose}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '11px 16px',
+        background: hovered ? '#242424' : 'transparent',
+        cursor: 'pointer', transition: 'background 0.12s',
+      }}
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+        {item.icon}
+      </svg>
+      <span style={{ fontSize: 15, color: '#FFFFFF', fontWeight: 400 }}>
+        {item.label}
+      </span>
+    </div>
+  )
+}
+
+function TileIconBtn({ children, title, onClick, active = false }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <button
+      title={title}
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width: 36, height: 36, borderRadius: '50%',
+        background: active || hovered ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.45)',
+        backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.15)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'pointer',
+        transition: 'background 0.15s',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
 function NamePill({ label, micOn }) {
   return (
     <div style={{
@@ -580,11 +1986,13 @@ function NamePill({ label, micOn }) {
   )
 }
 
-function ToolbarBtn({ label, children, onClick, hasChevron = false, solid = false }) {
+function ToolbarBtn({ label, children, onClick, hasChevron = false, onChevronClick, solid = false, active = false }) {
   const [hovered, setHovered] = useState(false)
   const bg = solid
     ? (hovered ? '#1A1A1A' : '#111111')
-    : (hovered ? 'rgba(50,50,50,0.7)' : 'rgba(34,34,34,0.5)')
+    : active
+      ? 'rgba(60,60,60,0.85)'
+      : (hovered ? 'rgba(50,50,50,0.7)' : 'rgba(34,34,34,0.5)')
   return (
     <button
       onClick={onClick}
@@ -608,9 +2016,20 @@ function ToolbarBtn({ label, children, onClick, hasChevron = false, solid = fals
         <span style={{ fontSize: 11, fontWeight: 400, color: '#AAAAAA', whiteSpace: 'nowrap' }}>{label}</span>
       </div>
       {hasChevron && (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M3 5l3 3 3-3" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+        onChevronClick ? (
+          <span
+            onClick={e => { e.stopPropagation(); onChevronClick() }}
+            style={{ display: 'flex', alignItems: 'center', padding: '4px 2px', cursor: 'pointer' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M3 5l3 3 3-3" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span>
+        ) : (
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M3 5l3 3 3-3" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )
       )}
     </button>
   )
@@ -764,6 +2183,69 @@ function CamIcon({ on, size = 20 }) {
   )
 }
 
+/* ─────────────────────────────────────────────────────────
+ * ANIMATION STORYBOARD — AIStatusIcon pulse
+ *
+ *    0ms   icon at opacity 0.55
+ * 2000ms   opacity eases up to 1.0   (easeInOut)
+ * 4000ms   opacity eases back to 0.55 (easeInOut, repeat)
+ * ───────────────────────────────────────────────────────── */
+function AIStatusIcon() {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+    >
+      <motion.svg
+        width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="#FFFFFF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
+        animate={{ opacity: [0.15, 1, 0.15] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ cursor: 'default' }}
+      >
+        <path d="M12 21h-2c-3.771 0-5.657 0-6.828-1.172S2 16.771 2 13v-2c0-3.771 0-5.657 1.172-6.828S6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172S22 7.229 22 11v1.5M2 9h20M2 15h10"/>
+        <path d="M17.58 13.267a.463.463 0 0 1 .84 0l.627 1.343a2.78 2.78 0 0 0 1.343 1.344l1.343.626a.463.463 0 0 1 0 .84l-1.343.627a2.78 2.78 0 0 0-1.343 1.343l-.627 1.343a.463.463 0 0 1-.84 0l-.626-1.343a2.78 2.78 0 0 0-1.344-1.343l-1.343-.627a.463.463 0 0 1 0-.84l1.343-.626a2.78 2.78 0 0 0 1.343-1.344zM8 3v18"/>
+      </motion.svg>
+
+      {/* Tooltip */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 8px)',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: '#1A1A1A',
+              border: '1px solid #383838',
+              borderRadius: 8,
+              padding: '8px 12px',
+              width: 220,
+              fontSize: 12,
+              fontWeight: 400,
+              color: '#E9E9E9',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              lineHeight: '18px',
+              pointerEvents: 'none',
+              whiteSpace: 'normal',
+              zIndex: 100,
+            }}
+          >
+            AI Assistant is now transcribing and taking notes. All participants have been notified.
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 function CiscoAIIcon({ size = 20 }) {
   const s = size
   return (
@@ -800,26 +2282,3 @@ function CiscoAIIcon({ size = 20 }) {
   )
 }
 
-/* ── Toggle switch ───────────────────────────────────────── */
-function Toggle({ on, onChange }) {
-  return (
-    <button
-      onClick={onChange}
-      style={{
-        width: 44, height: 24, borderRadius: 12, border: 'none',
-        background: on ? '#2E96E8' : '#3A3A3A',
-        cursor: 'pointer', position: 'relative', flexShrink: 0,
-        transition: 'background 0.2s',
-      }}
-    >
-      <span style={{
-        position: 'absolute', top: 3,
-        left: on ? 23 : 3,
-        width: 18, height: 18, borderRadius: '50%',
-        background: '#FFFFFF',
-        transition: 'left 0.2s',
-        display: 'block',
-      }}/>
-    </button>
-  )
-}

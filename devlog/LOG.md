@@ -5,6 +5,36 @@
 
 ---
 
+### [2026-03-28 12:00] — Mic/Video split buttons + Audio and Video menus
+
+**Status:** 🟢 Done
+
+**What changed:**
+Built split-button treatment for the Mic and Video toolbar buttons in `MeetingScreen.jsx`. Each button is now two independent hit targets — the main icon+label area toggles the device, and a narrow 24px chevron opens a settings dropdown. A thin `rgba(255,255,255,0.1)` separator line divides the two halves. Added `MicSplitBtn` and `VideoSplitBtn` components with independent hover states for each half. Built `AudioMenu`: three sections (Speaker, Microphone, Smart audio•microphone) with device rows showing blue checkmarks for selected devices, a "Noise removal" expandable row, "Audio Settings..." and "Switch audio" action rows, and a footer label — positioned above the toolbar with a downward arrow notch. Built `VideoMenu`: a Camera section with device rows (last connected + MacBook Air Camera selected), action rows for "Change virtual background", "Self-view location...", and "Video Settings...". Both menus share `AudioSectionHeader`, `AudioDeviceRow`, `AudioDivider`, and the same spring entrance animation as MoreMenu. Also reduced emoji reaction shortcut border opacity from 0.3 to 0.12 for subtlety.
+
+**Files touched:**
+- `src/screens/meeting/MeetingScreen.jsx`
+
+**Next up:**
+Consider building the Video menu's "Change virtual background" flow as a modal or panel. QA split button sizing on different screen widths.
+
+---
+
+### [2026-03-28 00:00] — Meeting screen: toolbar panels, step away, and React emoji panel
+
+**Status:** 🟢 Done
+
+**What changed:**
+Major expansion of `MeetingScreen.jsx`. Fixed broken JSX from `MeetingInfoBtn` replacement and merged duplicate toast notifications into a single call. Added click-outside + 15s auto-dismiss to the Meeting Info panel. Added a cell-signal-bars icon (green/yellow via `navigator.onLine`) and a pulsing `AIStatusIcon` (hugeicons:ai-sheets paths, slow opacity 0.15→1 loop) that appears when `summaryActive` is on — hovering shows a tooltip anchored below and centered on the icon. Fixed the timer width drift using `tabular-nums` + `minWidth`. Built the "More" toolbar dropdown (`MoreMenu`) with 3 sections (Meeting first, Cisco/Audio at bottom), toggles, scroll cap, arrow notch, and auto-close when the toolbar hides. Added `TileIconBtn` coffee and 3-dots buttons to the profile tile's bottom-right corner; the 3-dots opens `TileMenu` (Edit display name, Change virtual background, Video Settings, Self-view location). Built the "Step away from meeting" overlay: saves and restores mic/camera state via `prevStateRef`, shows an opaque overlay (rgba 0.78 + blur) with a "Back to meeting" button, hides avatar initial and tile buttons while away. Built the `ReactPanel` emoji reaction panel triggered by the React toolbar button — 14-emoji 4-column grid with dashed borders for shortcut items, gesture toggle (blue, on by default), "Customize reaction shortcuts" row, arrow notch, and click-outside to close.
+
+**Files touched:**
+- `src/screens/meeting/MeetingScreen.jsx`
+
+**Next up:**
+Visually QA the React panel positioning and emoji sizes. Consider whether clicking an emoji should animate a floating reaction above the video tile. Also check if the More menu "Step away from meeting" item should call `stepAway()` directly.
+
+---
+
 ### [2026-03-27 14:30] — MeetingAIRail summary banner + smart Cisco AI toggle
 
 **Status:** 🟢 Done

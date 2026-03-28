@@ -86,7 +86,7 @@ const SUGGESTIONS = [
   { label: 'What all can Cisco AI do?',  gradient: true  },
 ]
 
-export function MeetingAIRail({ onClose, summaryActive, onStopSummary }) {
+export function MeetingAIRail({ onClose, summaryActive, onSummaryToggle }) {
   const [query, setQuery] = useState('')
 
   return (
@@ -113,7 +113,7 @@ export function MeetingAIRail({ onClose, summaryActive, onStopSummary }) {
         {/* Left: title + info */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF' }}>
-            Cisco AI&nbsp; Assistant
+            AI Assistant
           </span>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <circle cx="8" cy="8" r="6.5" stroke="#AAAAAA" strokeWidth="1.2"/>
@@ -164,48 +164,55 @@ export function MeetingAIRail({ onClose, summaryActive, onStopSummary }) {
         boxSizing: 'border-box',
       }}>
 
-        {/* ── Summary banner (top) ── */}
-        {summaryActive && (
-          <div style={{
-            display: 'flex', gap: 12, alignItems: 'flex-start',
-            marginBottom: 8, flexShrink: 0,
-          }}>
-            {/* Clipboard icon */}
-            <div style={{ flexShrink: 0, paddingTop: 2 }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <rect x="8" y="2" width="8" height="4" rx="1.5" stroke="#AAAAAA" strokeWidth="1.4"/>
-                <path d="M8 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2h-2" stroke="#AAAAAA" strokeWidth="1.4" strokeLinejoin="round"/>
-                <path d="M9 12h6M9 16h4" stroke="#AAAAAA" strokeWidth="1.4" strokeLinecap="round"/>
-              </svg>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <p style={{
-                fontSize: 14, fontWeight: 400, color: '#E9E9E9',
-                margin: 0, lineHeight: '20px',
-              }}>
-                The meeting summary and transcription is on for everyone
-              </p>
-              {/* Stop summary pill button */}
-              <button
-                onClick={onStopSummary}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  background: '#FFFFFF', border: 'none',
-                  borderRadius: 100, padding: '8px 16px',
-                  cursor: 'pointer', alignSelf: 'flex-start',
-                  fontSize: 14, fontWeight: 500, color: '#111111',
-                  fontFamily: "'Inter', system-ui, sans-serif",
-                }}
-              >
-                {/* Stop square icon */}
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <rect x="2.5" y="2.5" width="9" height="9" rx="1.5" fill="#111111"/>
-                </svg>
-                Stop summary
-              </button>
-            </div>
+        {/* ── Meeting Summary toggle row ── */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          paddingBottom: 16, marginBottom: 4,
+          borderBottom: '1px solid #2A2A2A',
+          flexShrink: 0,
+        }}>
+          {/* Clipboard icon */}
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+            <rect x="8" y="2" width="8" height="4" rx="1.5" stroke="#888888" strokeWidth="1.4"/>
+            <path d="M8 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2h-2" stroke="#888888" strokeWidth="1.4" strokeLinejoin="round"/>
+            <path d="M9 12h6M9 16h4" stroke="#888888" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+
+          {/* Label + status */}
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 14, fontWeight: 500, color: '#E9E9E9', margin: 0 }}>
+              Meeting Summary
+            </p>
+            <p style={{ fontSize: 12, color: '#666666', margin: '2px 0 0' }}>
+              {summaryActive ? 'On for everyone' : 'Off'}
+            </p>
           </div>
-        )}
+
+          {/* Toggle switch */}
+          <button
+            onClick={onSummaryToggle}
+            style={{
+              flexShrink: 0, background: 'none', border: 'none',
+              cursor: 'pointer', padding: 0,
+            }}
+          >
+            <div style={{
+              width: 38, height: 22, borderRadius: 11,
+              background: summaryActive ? '#0073E6' : '#383838',
+              position: 'relative',
+              transition: 'background 0.2s',
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: 3, left: summaryActive ? 19 : 3,
+                width: 16, height: 16, borderRadius: '50%',
+                background: '#FFFFFF',
+                transition: 'left 0.2s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+              }} />
+            </div>
+          </button>
+        </div>
 
         {/* Spacer pushes AI content to bottom */}
         <div style={{ flex: 1 }} />

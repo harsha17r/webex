@@ -63,6 +63,10 @@ export function Dropdown({
   dropdownWidth,
   offsetX = 8,
   offsetY = 8,
+  showArrow = false,
+  arrowOffset = 16,   // px from the aligned edge
+  arrowColor = '#1A1A1A',
+  arrowBorder = '#383838',
   children,
 }) {
   const panelRef = useRef(null)
@@ -113,6 +117,26 @@ export function Dropdown({
         zIndex: 1000,
       }}
     >
+      {/* ── Arrow notch ── */}
+      {showArrow && (
+        <div style={{ position: 'relative' }}>
+          <div style={{
+            position: 'absolute',
+            top: -5,
+            ...(anchor === 'bottom-center'
+              ? { left: '50%', marginLeft: -5 }
+              : { right: arrowOffset }),
+            width: 10, height: 10,
+            background: arrowColor,
+            border: `1px solid ${arrowBorder}`,
+            borderBottomColor: 'transparent',
+            borderRightColor:  'transparent',
+            borderRadius: '3px 0 0 0',
+            transform: 'rotate(45deg)',
+            zIndex: 2,
+          }} />
+        </div>
+      )}
       {children}
     </motion.div>
   )
