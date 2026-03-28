@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProfile } from '../../context/ProfileContext'
 import { MeetingAIRail } from '../../components/meeting/MeetingAIRail'
+import { AppsRail }          from '../../components/meeting/AppsRail'
+import { ParticipantsRail } from '../../components/meeting/ParticipantsRail'
+import { ChatRail }          from '../../components/meeting/ChatRail'
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD — MeetingScreen
@@ -63,7 +66,15 @@ export function MeetingScreen() {
   const [userSpeaking, setUserSpeaking] = useState(false)
   const [uiVisible,    setUiVisible]    = useState(true)
   const [entered,      setEntered]      = useState(false)  // true after entrance settles
-  const [aiRailOpen,      setAiRailOpen]      = useState(false)
+  const [activeRail, setActiveRail] = useState(null)   // 'ai' | 'apps' | 'participants' | 'chat' | null
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false)
+  const endBtnRef = useRef(null)
+  const aiRailOpen           = activeRail === 'ai'
+  const appsRailOpen         = activeRail === 'apps'
+  const participantsRailOpen = activeRail === 'participants'
+  const chatRailOpen         = activeRail === 'chat'
+  const railOpen             = activeRail !== null
+  function toggleRail(name) { setActiveRail(r => r === name ? null : name) }
   const [summaryActive,   setSummaryActive]   = useState(false)
   const [meetingInfoOpen, setMeetingInfoOpen] = useState(false)
   const [steppedAway,     setSteppedAway]     = useState(false)
@@ -165,6 +176,11 @@ export function MeetingScreen() {
     hideTimerRef.current = setTimeout(() => setUiVisible(false), 15000)
   }
 
+  /* ── Close leave popover when toolbar auto-hides ── */
+  useEffect(() => {
+    if (!uiVisible) setLeaveDialogOpen(false)
+  }, [uiVisible])
+
   /* ── Resume AudioContext on first user gesture (Chrome requires this) ── */
   useEffect(() => {
     function resumeCtx() {
@@ -198,6 +214,9 @@ export function MeetingScreen() {
     setCameraOn(v => !v)
   }
   function handleEnd() {
+    setLeaveDialogOpen(true)
+  }
+  function confirmLeave() {
     streamRef.current?.getTracks().forEach(t => t.stop())
     navigate('/home', { state: { fromMeeting: true, elapsed } })
   }
@@ -213,7 +232,7 @@ export function MeetingScreen() {
     setToasts(prev => prev.filter(t => t.id !== id))
   }
   function toggleAIRail() {
-    setAiRailOpen(v => !v)
+    toggleRail('ai')
   }
 
   function toggleSummary() {
@@ -343,7 +362,7 @@ export function MeetingScreen() {
   function turnOnAI() {
     setNudge(false)
     setSummaryActive(true)
-    setAiRailOpen(true)
+    setActiveRail('ai')
     addToast('AI Assistant is now transcribing and taking notes. All participants have been notified.')
   }
 
@@ -439,7 +458,7 @@ export function MeetingScreen() {
         style={{
           position: 'absolute',
           top: 68, left: 20,
-          right: aiRailOpen ? 383 : 20,   // 371 rail + 12 gap
+          right: railOpen ? 383 : 20,   // 371 rail + 12 gap
           bottom: 104,
           display: 'flex', gap: 12,
           transition: 'right 0.45s cubic-bezier(0.34, 1.2, 0.64, 1)',
@@ -665,19 +684,29 @@ export function MeetingScreen() {
               </svg>
             </ToolbarBtn>
           </div>
-          <EndBtn onClick={handleEnd} />
+          <div ref={endBtnRef}>
+            <EndBtn onClick={handleEnd} />
+          </div>
         </div>
 
         {/* Participants + Chat — solid #111111 per Figma */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <ToolbarBtn label="Participants" solid>
+          <ToolbarBtn label="Apps" solid onClick={() => toggleRail('apps')} active={appsRailOpen}>
+            <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+              <rect x="2" y="2" width="8" height="8" rx="2" stroke="#FFFFFF" strokeWidth="1.4"/>
+              <rect x="12" y="2" width="8" height="8" rx="2" stroke="#FFFFFF" strokeWidth="1.4"/>
+              <rect x="2" y="12" width="8" height="8" rx="2" stroke="#FFFFFF" strokeWidth="1.4"/>
+              <rect x="12" y="12" width="8" height="8" rx="2" stroke="#FFFFFF" strokeWidth="1.4"/>
+            </svg>
+          </ToolbarBtn>
+          <ToolbarBtn label="Participants" solid onClick={() => toggleRail('participants')} active={participantsRailOpen}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <circle cx="9" cy="7" r="4" stroke="#FFFFFF" strokeWidth="1.5"/>
               <path d="M2 21v-1a7 7 0 0 1 14 0v1" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
               <path d="M16 3.13a4 4 0 0 1 0 7.75M22 21v-1a7 7 0 0 0-5.27-6.77" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </ToolbarBtn>
-          <ToolbarBtn label="Chat" solid>
+          <ToolbarBtn label="Chat" solid onClick={() => toggleRail('chat')} active={chatRailOpen}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#FFFFFF" strokeWidth="1.5" strokeLinejoin="round"/>
             </svg>
@@ -688,7 +717,7 @@ export function MeetingScreen() {
       {/* ── Toast notifications — drop from top, stack below top bar ── */}
       <div style={{
         position: 'absolute', top: 76,
-        right: aiRailOpen ? 391 : 20,
+        right: railOpen ? 391 : 20,
         display: 'flex', flexDirection: 'column', gap: 8,
         zIndex: 28,
         transition: 'right 0.45s cubic-bezier(0.34, 1.2, 0.64, 1)',
@@ -715,7 +744,7 @@ export function MeetingScreen() {
             transition={SPRING}
             style={{
               position: 'absolute', top: 65,
-              right: aiRailOpen ? 391 : 20, width: 380,
+              right: railOpen ? 391 : 20, width: 380,
               transition: 'right 0.45s cubic-bezier(0.34, 1.2, 0.64, 1)',
               background: '#111111',
               border: '1px solid #595959',
@@ -743,6 +772,58 @@ export function MeetingScreen() {
         )}
       </AnimatePresence>
 
+      {/* ── Participants Rail ── */}
+      <AnimatePresence>
+        {participantsRailOpen && (
+          <motion.div
+            key="participants-rail"
+            initial={{ x: 371, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 371, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+            style={{ position: 'absolute', top: 68, right: 0, bottom: 104, width: 371, zIndex: 15, overflow: 'hidden' }}
+          >
+            <ParticipantsRail
+              onClose={() => setActiveRail(null)}
+              profile={profile}
+              micOn={micOn}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Chat Rail ── */}
+      <AnimatePresence>
+        {chatRailOpen && (
+          <motion.div
+            key="chat-rail"
+            initial={{ x: 371, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 371, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+            style={{ position: 'absolute', top: 68, right: 0, bottom: 104, width: 371, zIndex: 15, overflow: 'hidden' }}
+          >
+            <ChatRail onClose={() => setActiveRail(null)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Apps Rail ── */}
+      <AnimatePresence>
+        {appsRailOpen && (
+          <motion.div
+            key="apps-rail"
+            initial={{ x: 371, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 371, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+            style={{ position: 'absolute', top: 68, right: 0, bottom: 104, width: 371, zIndex: 15, overflow: 'hidden' }}
+          >
+            <AppsRail onClose={() => setActiveRail(null)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Meeting AI Rail — fits between top bar and toolbar ── */}
       <AnimatePresence>
         {aiRailOpen && (
@@ -758,7 +839,7 @@ export function MeetingScreen() {
             }}
           >
             <MeetingAIRail
-              onClose={() => setAiRailOpen(false)}
+              onClose={() => setActiveRail(null)}
               summaryActive={summaryActive}
               onSummaryToggle={toggleSummary}
             />
@@ -812,6 +893,17 @@ export function MeetingScreen() {
             menuRef={audioMenuRef}
             btnRef={micBtnRef}
             onClose={() => setAudioMenuOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Leave Popover ── */}
+      <AnimatePresence>
+        {leaveDialogOpen && (
+          <LeavePopover
+            btnRef={endBtnRef}
+            onLeave={confirmLeave}
+            onCancel={() => setLeaveDialogOpen(false)}
           />
         )}
       </AnimatePresence>
@@ -2032,6 +2124,80 @@ function ToolbarBtn({ label, children, onClick, hasChevron = false, onChevronCli
         )
       )}
     </button>
+  )
+}
+
+function LeavePopover({ btnRef, onLeave, onCancel }) {
+  const panelRef   = useRef(null)
+  const rect       = btnRef.current?.getBoundingClientRect()
+  const panelWidth = 220
+  const left       = rect ? rect.left + rect.width / 2 - panelWidth / 2 : 0
+  const bottom     = rect ? window.innerHeight - rect.top + 12 : 0
+  const notchLeft  = panelWidth / 2 - 5
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (!panelRef.current?.contains(e.target) && !btnRef.current?.contains(e.target)) {
+        onCancel()
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [onCancel, btnRef])
+
+  return (
+    <motion.div
+      ref={panelRef}
+      initial={{ opacity: 0, scale: 0.96, y: 6 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96, y: 6 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      style={{
+        position: 'fixed',
+        bottom, left,
+        width: panelWidth,
+        zIndex: 200,
+        transformOrigin: 'bottom center',
+        fontFamily: "'Inter', system-ui, sans-serif",
+      }}
+    >
+      <div style={{
+        position: 'relative',
+        background: '#1E1E1E',
+        border: '1px solid #383838',
+        borderRadius: 12,
+        boxShadow: '0 12px 40px rgba(0,0,0,0.7)',
+        padding: '8px 8px 8px 8px',
+      }}>
+        {/* Arrow notch at the bottom, pointing down toward the End button */}
+        <div style={{
+          position: 'absolute',
+          bottom: -6, left: notchLeft,
+          width: 10, height: 10,
+          background: '#1E1E1E',
+          border: '1px solid #383838',
+          borderTopColor: 'transparent',
+          borderLeftColor: 'transparent',
+          borderRadius: '0 0 3px 0',
+          transform: 'rotate(45deg)',
+          zIndex: 2,
+        }} />
+
+        <button
+          onClick={onLeave}
+          style={{
+            width: '100%', padding: '10px 0', marginBottom: 4,
+            background: '#C0001A', border: 'none', borderRadius: 8,
+            fontSize: 14, fontWeight: 600, color: '#FFFFFF',
+            cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
+          }}
+        >
+          Leave meeting
+        </button>
+
+
+      </div>
+    </motion.div>
   )
 }
 

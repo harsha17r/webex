@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useProfile } from '../../context/ProfileContext'
 import { PreJoinModal } from '../meeting/PreJoinModal'
@@ -21,42 +21,73 @@ import { Dropdown } from '../../components/Dropdown'
  *   3 tiles row, gap 20: each bg #494949, radius 8, padding 20px 16px, column gap 10
  * ───────────────────────────────────────────────────────── */
 
-// Fluent UI 20px icons — fill="currentColor"
-const TILES = [
-  {
-    key: 'schedule',
-    label: 'Schedule a meeting',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" style={{ color: '#FFFFFF' }}>
-        <path fill="currentColor" d="M14.5 3A2.5 2.5 0 0 1 17 5.5v4.1a5.5 5.5 0 0 0-1-.393V7H4v7.5A1.5 1.5 0 0 0 5.5 16h3.707q.149.524.393 1H5.5A2.5 2.5 0 0 1 3 14.5v-9A2.5 2.5 0 0 1 5.5 3zm0 1h-9A1.5 1.5 0 0 0 4 5.5V6h12v-.5A1.5 1.5 0 0 0 14.5 4M19 14.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0m-4-2a.5.5 0 0 0-1 0V14h-1.5a.5.5 0 0 0 0 1H14v1.5a.5.5 0 0 0 1 0V15h1.5a.5.5 0 0 0 0-1H15z"/>
-      </svg>
-    ),
-  },
-  {
-    key: 'join',
-    label: 'Join with meeting ID',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" style={{ color: '#FFFFFF' }}>
-        <path fill="currentColor" d="M6 5a1 1 0 1 0 0-2a1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 3a1 1 0 1 1-2 0a1 1 0 0 1 2 0m3-7a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 3a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-1 5a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 3a1 1 0 1 1-2 0a1 1 0 0 1 2 0m3-11a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 3a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-1 5a1 1 0 1 0 0-2a1 1 0 0 0 0 2"/>
-      </svg>
-    ),
-  },
-  {
-    key: 'launch',
-    label: 'Launch a Webex Meeting',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" style={{ color: '#FFFFFF' }}>
-        <path fill="currentColor" d="M5 4a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h5a3 3 0 0 0 3-3v-.321l3.037 2.097a1.25 1.25 0 0 0 1.96-1.029V6.252a1.25 1.25 0 0 0-1.96-1.028L13 7.32V7a3 3 0 0 0-3-3zm8 4.536l3.605-2.49a.25.25 0 0 1 .392.206v7.495a.25.25 0 0 1-.392.206L13 11.463zM3 7a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-      </svg>
-    ),
-  },
-]
+function StartDropItem({ label, onClick }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        padding: '12px 16px',
+        fontSize: 14, fontWeight: 500, color: '#FFFFFF',
+        background: hovered ? '#383838' : 'transparent',
+        cursor: 'pointer', transition: 'background 0.12s',
+        fontFamily: "'Inter', system-ui, sans-serif",
+      }}
+    >
+      {label}
+    </div>
+  )
+}
 
 export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingElapsed = 0 }) {
-  const [tileHover, setTileHover] = useState(null)
-  const [btnHover, setBtnHover]     = useState(false)
+  const [tileHover,    setTileHover]    = useState(null)
+  const [startDropOpen,    setStartDropOpen]    = useState(false)
+  const [scheduleDropOpen, setScheduleDropOpen] = useState(false)
+  const startTileRef      = useRef(null)
+  const scheduleTileRef   = useRef(null)
+  const startCloseTimer    = useRef(null)
+  const scheduleCloseTimer = useRef(null)
+
+  function startCloseDelay()    { startCloseTimer.current    = setTimeout(() => setStartDropOpen(false),    200) }
+  function cancelCloseDelay()   { clearTimeout(startCloseTimer.current) }
+  function schedCloseDelay()    { scheduleCloseTimer.current = setTimeout(() => setScheduleDropOpen(false), 200) }
+  function cancelSchedDelay()   { clearTimeout(scheduleCloseTimer.current) }
+
+  useEffect(() => {
+    if (!startDropOpen) return
+    function handleClick(e) {
+      if (!startTileRef.current?.contains(e.target)) setStartDropOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [startDropOpen])
+
+  useEffect(() => {
+    if (!scheduleDropOpen) return
+    function handleClick(e) {
+      if (!scheduleTileRef.current?.contains(e.target)) setScheduleDropOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [scheduleDropOpen])
+
+  const [btnHover, setBtnHover]       = useState(false)
   const [preJoinOpen, setPreJoinOpen] = useState(false)
+  const [joinOpen, setJoinOpen]       = useState(false)
+  const [copied, setCopied]           = useState(false)
+  const [roomTooltip, setRoomTooltip] = useState(false)
+
   const { profile } = useProfile()
+
+  const personalRoomUrl = `https://webex.com/meet/${(profile?.name || 'you').toLowerCase().replace(/\s+/g, '.')}`
+
+  function copyPersonalRoom() {
+    navigator.clipboard.writeText(personalRoomUrl).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <>
@@ -157,7 +188,10 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
         </AnimatePresence>
 
         {/* ── Section 2 — Meetings ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Header block — heading + personal room tightly grouped */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
 
           {/* Header row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -205,27 +239,209 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
             )}
           </div>
 
+          {/* ── Personal room row ── */}
+          <div
+            onMouseEnter={() => setRoomTooltip(true)}
+            onMouseLeave={() => setRoomTooltip(false)}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', width: 'fit-content' }}
+          >
+            {/* Tooltip */}
+            {roomTooltip && (
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
+                background: '#333333', border: '1px solid #494949',
+                borderRadius: 6, padding: '5px 10px',
+                fontSize: 12, color: '#FFFFFF', whiteSpace: 'nowrap',
+                fontFamily: "'Inter', system-ui, sans-serif",
+                pointerEvents: 'none', zIndex: 50,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+              }}>
+                Personal meeting room link
+              </div>
+            )}
+
+            {/* Icon with rounded bg */}
+            <div style={{
+                width: 28, height: 28, borderRadius: 7, flexShrink: 0,
+                background: '#2A2A2A',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="4" stroke="#AAAAAA" strokeWidth="1.6"/>
+                <path d="M4 20c0-4 3.582-7 8-7s8 3 8 7" stroke="#AAAAAA" strokeWidth="1.6" strokeLinecap="round"/>
+              </svg>
+            </div>
+
+            {/* Full URL */}
+            <span style={{
+              fontSize: 15, color: '#CCCCCC',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>
+              {personalRoomUrl}
+            </span>
+
+            {/* Copy button — always visible */}
+            <button
+              onClick={copyPersonalRoom}
+              title={copied ? 'Copied!' : 'Copy link'}
+              style={{
+                flexShrink: 0, background: 'none', border: 'none',
+                cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center',
+              }}
+            >
+              {copied ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12l5 5L20 7" stroke="#1D8160" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="9" width="11" height="11" rx="2" stroke="#888888" strokeWidth="1.6"/>
+                  <path d="M15 9V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" stroke="#888888" strokeWidth="1.6" strokeLinecap="round"/>
+                </svg>
+              )}
+            </button>
+          </div>
+          </div>{/* end header block */}
+
           {/* Action tiles */}
-          <div style={{ display: 'flex', gap: 20 }}>
-            {TILES.map(tile => (
+          <div style={{ display: 'flex', gap: 20, position: 'relative' }}>
+
+            {/* ── Start tile (with dropdown) ── */}
+            <div style={{ flex: 1, position: 'relative' }}>
               <div
-                key={tile.key}
-                onMouseEnter={() => setTileHover(tile.key)}
-                onMouseLeave={() => setTileHover(null)}
+                ref={startTileRef}
+                onMouseEnter={() => { setTileHover('start'); cancelCloseDelay() }}
+                onMouseLeave={() => { setTileHover(null); startCloseDelay() }}
+                onClick={() => setStartDropOpen(o => !o)}
                 style={{
-                  flex: 1, background: tileHover === tile.key ? '#444444' : '#3A3A3A',
+                  flex: 1, background: fromMeeting
+                    ? (tileHover === 'start' || startDropOpen ? '#2BAB7E' : '#1D8160')
+                    : (tileHover === 'start' || startDropOpen ? '#444444' : '#3A3A3A'),
                   borderRadius: 8, padding: '20px 24px',
                   display: 'flex', flexDirection: 'column', gap: 10,
                   cursor: 'pointer', transition: 'background 0.15s',
                   boxSizing: 'border-box',
                 }}
               >
-                {tile.icon}
-                <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF', lineHeight: '20px' }}>
-                  {tile.label}
-                </span>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path fill="#FFFFFF" d="M3 7a3 3 0 0 1 3-3h5a3 3 0 0 1 3 3v.32l2.43-1.68a1.25 1.25 0 0 1 1.97 1.03v6.66a1.25 1.25 0 0 1-1.97 1.03L14 12.68V13a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7zm9 5.46V13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v.54l3.61-2.49a.25.25 0 0 1 .39.21v6.48a.25.25 0 0 1-.39.21L12 12.46z"/>
+                </svg>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Start a meeting</span>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ transform: startDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+                    <path d="M3 6l5 5 5-5" stroke={fromMeeting ? 'rgba(255,255,255,0.7)' : '#AAAAAA'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
               </div>
-            ))}
+
+              {/* Start dropdown */}
+              <AnimatePresence>
+                {startDropOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    onMouseEnter={cancelCloseDelay}
+                    onMouseLeave={startCloseDelay}
+                    style={{
+                      position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
+                      background: '#2A2A2A',
+                      border: '1px solid #494949',
+                      borderRadius: 8,
+                      overflow: 'hidden',
+                      zIndex: 10,
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                    }}
+                  >
+                    {[
+                      { label: 'Instant meeting', action: () => { setStartDropOpen(false); setPreJoinOpen(true) } },
+                      { label: 'Personal Room', action: () => setStartDropOpen(false) },
+                    ].map((item, i) => (
+                      <StartDropItem key={i} label={item.label} onClick={item.action} />
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* ── Join tile ── */}
+            <div
+              onMouseEnter={() => setTileHover('join')}
+              onMouseLeave={() => setTileHover(null)}
+              onClick={() => setJoinOpen(true)}
+              style={{
+                flex: 1, background: tileHover === 'join' || joinOpen ? '#444444' : '#3A3A3A',
+                borderRadius: 8, padding: '20px 24px',
+                display: 'flex', flexDirection: 'column', gap: 10,
+                cursor: 'pointer', transition: 'background 0.15s',
+                boxSizing: 'border-box',
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path fill="#FFFFFF" d="M10 2a8 8 0 1 1 0 16A8 8 0 0 1 10 2zm0 1a7 7 0 1 0 0 14A7 7 0 0 0 10 3zm.5 3.5a.5.5 0 0 1 .5.5v2.5H14a.5.5 0 0 1 0 1h-3V13a.5.5 0 0 1-1 0v-2.5H7a.5.5 0 0 1 0-1h3V7a.5.5 0 0 1 .5-.5z"/>
+              </svg>
+              <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Join a meeting</span>
+            </div>
+
+            {/* ── Schedule tile ── */}
+            <div style={{ flex: 1, position: 'relative' }}>
+              <div
+                ref={scheduleTileRef}
+                onMouseEnter={() => { setTileHover('schedule'); cancelSchedDelay() }}
+                onMouseLeave={() => { setTileHover(null); schedCloseDelay() }}
+                onClick={() => setScheduleDropOpen(o => !o)}
+                style={{
+                  background: tileHover === 'schedule' || scheduleDropOpen ? '#444444' : '#3A3A3A',
+                  borderRadius: 8, padding: '20px 24px',
+                  display: 'flex', flexDirection: 'column', gap: 10,
+                  cursor: 'pointer', transition: 'background 0.15s',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path fill="#FFFFFF" d="M14.5 3A2.5 2.5 0 0 1 17 5.5v4.1a5.5 5.5 0 0 0-1-.393V7H4v7.5A1.5 1.5 0 0 0 5.5 16h3.707q.149.524.393 1H5.5A2.5 2.5 0 0 1 3 14.5v-9A2.5 2.5 0 0 1 5.5 3zm0 1h-9A1.5 1.5 0 0 0 4 5.5V6h12v-.5A1.5 1.5 0 0 0 14.5 4M19 14.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0m-4-2a.5.5 0 0 0-1 0V14h-1.5a.5.5 0 0 0 0 1H14v1.5a.5.5 0 0 0 1 0V15h1.5a.5.5 0 0 0 0-1H15z"/>
+                </svg>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Schedule</span>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ transform: scheduleDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+                    <path d="M3 6l5 5 5-5" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {scheduleDropOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    onMouseEnter={cancelSchedDelay}
+                    onMouseLeave={schedCloseDelay}
+                    style={{
+                      position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
+                      background: '#2A2A2A',
+                      border: '1px solid #494949',
+                      borderRadius: 8,
+                      overflow: 'hidden',
+                      zIndex: 10,
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                    }}
+                  >
+                    {[
+                      { label: 'Meeting' },
+                      { label: 'Webinar' },
+                    ].map((item, i) => (
+                      <StartDropItem key={i} label={item.label} onClick={() => setScheduleDropOpen(false)} />
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
           </div>
 
           {/* Past meeting card — appears after returning from a meeting */}
@@ -250,11 +466,189 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
     </div>
 
     <AnimatePresence>
-      {preJoinOpen && (
-        <PreJoinModal onClose={() => setPreJoinOpen(false)} />
-      )}
+      {preJoinOpen && <PreJoinModal onClose={() => setPreJoinOpen(false)} />}
+    </AnimatePresence>
+
+    <AnimatePresence>
+      {joinOpen && <JoinMeetingModal onClose={() => setJoinOpen(false)} />}
     </AnimatePresence>
     </>
+  )
+}
+
+/* ── Join Meeting Modal ───────────────────────────────── */
+/* ─────────────────────────────────────────────────────────
+ * ANIMATION STORYBOARD — JoinMeetingModal error state
+ *
+ *    0ms   Join pressed with invalid input
+ *    0ms   input border flashes red (instant)
+ *    0ms   input wiggles  x: 0 → -8 → 8 → -6 → 6 → -3 → 3 → 0
+ *   60ms   error message slides in  y: -4 → 0, opacity 0 → 1
+ * ───────────────────────────────────────────────────────── */
+
+const ERROR = {
+  wiggle:    [0, -8, 8, -6, 6, -3, 3, 0],   // x keyframes — fast shake
+  wiggleT:   { duration: 0.4, ease: 'easeInOut' },
+  borderRed: '#E53935',
+  borderNorm:'#494949',
+  msgDelay:   0.06,   // s — error text lags slightly behind wiggle
+  msgSpring: { type: 'spring', stiffness: 420, damping: 28 },
+  msgOffsetY: -4,     // px — slides down from above
+}
+
+function isValidMeetingInput(v) {
+  const s = v.trim()
+  return /^\d{9,}$/.test(s) || s.includes('.') || s.includes('/')
+}
+
+function JoinMeetingModal({ onClose }) {
+  const [value,    setValue]    = useState('')
+  const [errorKey, setErrorKey] = useState(0)   // increments to replay wiggle
+  const [hasError, setHasError] = useState(false)
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    setTimeout(() => inputRef.current?.focus(), 50)
+  }, [])
+
+  function handleChange(e) {
+    setValue(e.target.value)
+    if (hasError) setHasError(false)
+  }
+
+  function handleJoin() {
+    if (!value.trim()) return
+    if (!isValidMeetingInput(value)) {
+      setHasError(true)
+      setErrorKey(k => k + 1)
+      return
+    }
+    onClose()
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 200,
+        background: 'rgba(0,0,0,0.6)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: "'Inter', system-ui, sans-serif",
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 8 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+        onClick={e => e.stopPropagation()}
+        style={{
+          width: 420,
+          background: '#1A1A1A',
+          border: '1px solid #383838',
+          borderRadius: 16,
+          padding: '28px 28px 24px',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.7)',
+        }}
+      >
+        <p style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 700, color: '#FFFFFF' }}>
+          Join a meeting
+        </p>
+        <p style={{ margin: '0 0 20px', fontSize: 14, color: '#888888', lineHeight: '20px' }}>
+          Enter a meeting link or number to join.
+        </p>
+
+        {/* Input — wiggles on error */}
+        <motion.div
+          key={errorKey}
+          animate={{ x: hasError ? ERROR.wiggle : 0 }}
+          transition={ERROR.wiggleT}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            background: '#222222',
+            border: `1px solid ${hasError ? ERROR.borderRed : ERROR.borderNorm}`,
+            borderRadius: 10,
+            padding: '11px 14px',
+            marginBottom: hasError ? 8 : 16,
+            transition: 'border-color 0.15s',
+          }}
+        >
+          <input
+            ref={inputRef}
+            value={value}
+            onChange={handleChange}
+            onKeyDown={e => e.key === 'Enter' && handleJoin()}
+            placeholder="Meeting link or number"
+            style={{
+              flex: 1, background: 'transparent',
+              border: 'none', outline: 'none',
+              fontSize: 14, color: '#FFFFFF',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              caretColor: '#FFFFFF',
+            }}
+          />
+          {value && (
+            <button onClick={() => { setValue(''); setHasError(false) }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex' }}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M3 3l10 10M13 3L3 13" stroke="#666666" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+          )}
+        </motion.div>
+
+        {/* Error message — slides in after wiggle */}
+        <AnimatePresence>
+          {hasError && (
+            <motion.p
+              initial={{ opacity: 0, y: ERROR.msgOffsetY }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: ERROR.msgOffsetY }}
+              transition={{ ...ERROR.msgSpring, delay: ERROR.msgDelay }}
+              style={{
+                margin: '0 0 14px 2px',
+                fontSize: 12, color: ERROR.borderRed, lineHeight: '18px',
+              }}
+            >
+              Incorrect information — please check and try again.
+            </motion.p>
+          )}
+        </AnimatePresence>
+
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1, padding: '11px 0',
+              background: '#2A2A2A', border: '1px solid #494949', borderRadius: 9,
+              fontSize: 14, fontWeight: 500, color: '#AAAAAA',
+              cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleJoin}
+            disabled={!value.trim()}
+            style={{
+              flex: 2, padding: '11px 0',
+              background: value.trim() ? '#1D8160' : '#1A2E28',
+              border: 'none', borderRadius: 9,
+              fontSize: 14, fontWeight: 600, color: value.trim() ? '#FFFFFF' : '#3A6A55',
+              cursor: value.trim() ? 'pointer' : 'default',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              transition: 'background 0.15s, color 0.15s',
+            }}
+          >
+            Join
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
@@ -1609,6 +2003,24 @@ function PastMeetingCard({ elapsed, profile }) {
               <path d="M9 5h9a2 2 0 0 1 2 2v9m-.184 3.839A2 2 0 0 1 18 21H6a2 2 0 0 1-2-2V7a2 2 0 0 1 1.158-1.815M16 3v4M8 3v1m-4 7h7m4 0h5M3 3l18 18"/>
             </svg>
             <span style={{ fontSize: 14, color: '#ffffff' }}>No meetings scheduled</span>
+            {viewDate >= new Date(today.getFullYear(), today.getMonth(), today.getDate()) && (
+              <button style={{
+                marginTop: 6,
+                display: 'flex', alignItems: 'center', gap: 7,
+                background: 'transparent',
+                border: '1px solid #494949',
+                borderRadius: 9999,
+                padding: '8px 18px',
+                cursor: 'pointer',
+                fontFamily: "'Inter', system-ui, sans-serif",
+                fontSize: 13, fontWeight: 500, color: '#FFFFFF',
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 5v14M5 12h14" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                Schedule a meeting
+              </button>
+            )}
           </div>
         )
       )}
