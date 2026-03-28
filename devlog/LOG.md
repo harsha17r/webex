@@ -5,6 +5,54 @@
 
 ---
 
+### [2026-03-27 14:30] — MeetingAIRail summary banner + smart Cisco AI toggle
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added a "Stop summary" banner to the top of `MeetingAIRail.jsx` matching the Figma design — clipboard icon, "The meeting summary and transcription is on for everyone" text, and a white pill button with a stop-square icon. Banner state was initially local, then lifted to `MeetingScreen` as `summaryActive` (defaults `false`) with an `onStopSummary` prop so dismissing the banner persists across rail open/close cycles. Updated `toggleAIRail` in `MeetingScreen.jsx` to gate on `summaryActive`: if summary was never activated (or was stopped), clicking the Cisco AI toolbar button shows the nudge/confirmation modal instead of directly opening the rail. `turnOnAI` now sets `setSummaryActive(true)` so the banner appears in the rail only after the user explicitly confirms. Also added layout-preview icons (Day/Week SVGs from `material-symbols`) to the `ViewDropPanel` dropdown in `MeetingsTab.jsx`.
+
+**Files touched:**
+- `src/components/meeting/MeetingAIRail.jsx`
+- `src/screens/meeting/MeetingScreen.jsx`
+- `src/screens/home/MeetingsTab.jsx`
+
+**Next up:**
+Continue polishing the meeting screen — check if there are other AI rail states to prototype (e.g. after a query is submitted). Consider adding a visual indicator to the Cisco AI toolbar button when summary is active.
+
+---
+
+### [2026-03-27 05:15] — Meeting detail modal — all 4 tabs complete
+
+**Status:** 🟢 Done
+
+**What changed:**
+Built a full meeting detail modal in `MeetingsTab.jsx` triggered by clicking the past meeting card. The modal is centered overlay with fixed height (`74vh`), animated entrance via `motion.div` + `AnimatePresence`, and 4 tabs: About, Meeting summary, Transcript, Chat messages. Header has download + chevron + share icons and a close button. About tab shows a participants panel (profile user with real photo/initials fallback + Cisco AI with SVG gradient avatar). Meeting summary tab renders a 60/40 CSS Grid with Notes and Action Items `SummarySection` cards — each has a translate icon (`material-symbols:translate`, inlined SVG), copy icon, and a thumbs-up/down feedback strip with a 3-state machine (`null → 'up'/'down' → 'done'`). Transcript tab has a search bar with live `<mark>` highlighting, timestamped entries alternating user/AI with spoken text as the primary visual hierarchy. Chat messages tab has a date header, conversational messages with `CiscoAIAvatar` for AI turns, and a "The meeting conversation is closed." footer pinned below the scroll area. All content reflects an onboarding test call concept — first-time user, Cisco AI walking them through Webex features.
+
+**Files touched:**
+- `src/screens/home/MeetingsTab.jsx`
+
+**Next up:**
+Visual QA each tab — particularly the 60/40 grid in Meeting summary and the pinned footer in Chat messages. Consider whether the About tab needs more content beyond participants. The participants panel is only shown on the About tab.
+
+---
+
+### [2026-03-27 03:10] — Removed debug cards and dead code cleanup
+
+**Status:** 🟢 Done
+
+**What changed:**
+Stripped the three debug meeting state cards (Upcoming, Starting Soon, Live) from the Day view in `MeetingsTab.jsx` — these were exploration scaffolding and the user explicitly asked to remove them. The Day view now shows only the Past `MeetingRow` card. Followed up by deleting all five now-unused component definitions: `StateLabel`, `UpcomingCard`, `StartingSoonCard`, `LiveCard`, `Badge`, and `SmallJoinBtn`. Also built and then fully removed a screen sharing modal from `MeetingScreen.jsx` after multiple iterations — first a static SVG illustration, then a real `getDisplayMedia` preview capturing the actual screen. User decided against including the modal entirely, so `MeetingScreen.jsx` is back to its previous state with a plain no-op Share toolbar button.
+
+**Files touched:**
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/meeting/MeetingScreen.jsx`
+
+**Next up:**
+Day view shows only the past card — consider whether additional meeting states (upcoming, live) should be added back later as real data, or if the current single-card view is the final design direction. The meeting screen's Share button is a stub — could revisit with a lighter share flow if needed.
+
+---
+
 ### [2026-03-27 02:30] — Week view, all card states, compact card redesign
 
 **Status:** 🟢 Done

@@ -63,7 +63,8 @@ export function MeetingScreen() {
   const [userSpeaking, setUserSpeaking] = useState(false)
   const [uiVisible,    setUiVisible]    = useState(true)
   const [entered,      setEntered]      = useState(false)  // true after entrance settles
-  const [aiRailOpen,   setAiRailOpen]   = useState(false)
+  const [aiRailOpen,     setAiRailOpen]     = useState(false)
+  const [summaryActive,  setSummaryActive]  = useState(false)
   const [toasts,       setToasts]       = useState([])
   const audioCtxRef    = useRef(null)
   const toastIdRef     = useRef(0)
@@ -191,11 +192,17 @@ export function MeetingScreen() {
     setToasts(prev => prev.filter(t => t.id !== id))
   }
   function toggleAIRail() {
-    setAiRailOpen(v => !v)
+    if (!summaryActive) {
+      // User hasn't turned on AI yet — show the confirmation modal
+      setNudge(true)
+    } else {
+      setAiRailOpen(v => !v)
+    }
   }
 
   function turnOnAI() {
     setNudge(false)
+    setSummaryActive(true)
     setAiRailOpen(true)
     addToast('This meeting is being transcribed. All participants have been notified.')
     setTimeout(() => addToast('Cisco AI is generating real-time notes and action items.'), 700)
@@ -519,7 +526,11 @@ export function MeetingScreen() {
               width: 371, zIndex: 15, overflow: 'hidden',
             }}
           >
-            <MeetingAIRail onClose={() => setAiRailOpen(false)} />
+            <MeetingAIRail
+              onClose={() => setAiRailOpen(false)}
+              summaryActive={summaryActive}
+              onStopSummary={() => setSummaryActive(false)}
+            />
           </motion.div>
         )}
       </AnimatePresence>
