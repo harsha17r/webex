@@ -22,35 +22,38 @@ const C = {
 const benefits = [
   {
     icon: (
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <rect x="2" y="7" width="16" height="13" rx="2.5" stroke="#2AAB7D" strokeWidth="1.5"/>
-        <path d="M18 11.5L26 8V20L18 16.5" stroke="#2AAB7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="10" cy="13.5" r="2.5" stroke="#2AAB7D" strokeWidth="1.3"/>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="#2AAB7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="7" width="13" height="10" rx="2"/>
+        <path d="M15 11.5L22 8v8l-7-3.5"/>
       </svg>
     ),
-    headline: 'HD meetings for up to 100 people',
-    sub: 'Unlimited meetings, 40 min each — plus screen sharing, whiteboarding and recording.',
+    headline: 'Meet anyone, from anywhere',
+    sub: 'Up to 100 people per meeting — screen sharing, whiteboard, and HD video included.',
   },
   {
     icon: (
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <rect x="2" y="4" width="19" height="15" rx="2.5" stroke="#2AAB7D" strokeWidth="1.5"/>
-        <path d="M7 9h9M7 13h6" stroke="#2AAB7D" strokeWidth="1.5" strokeLinecap="round"/>
-        <path d="M6 19l-4 5h20l-4-5" stroke="#2AAB7D" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="#2AAB7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="8" y1="22" x2="16" y2="22"/>
       </svg>
     ),
-    headline: 'AI-powered noise removal built in',
-    sub: 'Cisco\'s voice intelligence keeps every call clear, even from noisy places.',
+    headline: 'Sound clear from any room',
+    sub: "Cisco AI removes background noise automatically — so every word gets through.",
   },
   {
     icon: (
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <path d="M14 3L4 7V15c0 5 4.5 9.3 10 10 5.5-.7 10-5 10-10V7L14 3z" stroke="#2AAB7D" strokeWidth="1.5" strokeLinejoin="round"/>
-        <path d="M10 14l3 3 5-5" stroke="#2AAB7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="#2AAB7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7L12 2z"/>
+        <polyline points="9 12 11 14 15 10"/>
       </svg>
     ),
-    headline: 'End-to-end encryption from day one',
-    sub: 'The same zero-trust Cisco security that regulated industries rely on.',
+    headline: 'Enterprise security, free',
+    sub: 'End-to-end encryption and FedRAMP authorization — the same protection Fortune 500s rely on.',
   },
 ]
 
@@ -98,8 +101,7 @@ function GoogleIcon() {
 function SSOIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <circle cx="8" cy="12" r="5" stroke="white" strokeWidth="1.5"/>
-      <path d="M21 12h-8M16 9l3 3-3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path fill="white" d="m10.313 11.566l7.94-7.94l2.121 2.12l-1.414 1.415l2.121 2.121l-3.535 3.536l-2.121-2.121l-2.99 2.99a5.002 5.002 0 0 1-7.97 5.849a5 5 0 0 1 5.848-7.97m-.899 5.848a2 2 0 1 0-2.828-2.828a2 2 0 0 0 2.828 2.828"/>
     </svg>
   )
 }
@@ -116,6 +118,9 @@ const linkHover = {
   onMouseEnter: e => { e.currentTarget.style.opacity = '0.75' },
   onMouseLeave: e => { e.currentTarget.style.opacity = '1' },
 }
+
+// ── SSO domain list ───────────────────────────────────────────────────────────
+const SSO_DOMAINS = ['lumon.com']
 
 // ── Component ─────────────────────────────────────────────────────────────────
 function isValidEmail(v) {
@@ -134,7 +139,16 @@ export function WelcomeScreen() {
     if (!v) { setError('Please enter your email address.'); return }
     if (!isValidEmail(v)) { setError('Please enter a valid email address.'); return }
     setError('')
-    navigate('/verify', { state: { email: v } })
+    const domain = v.split('@')[1]?.toLowerCase()
+    if (SSO_DOMAINS.includes(domain)) {
+      navigate('/lumon-login', { state: { email: v } })
+    } else {
+      navigate('/verify', { state: { email: v } })
+    }
+  }
+
+  function handleSSOClick() {
+    navigate('/sso', { state: { email: email.trim() } })
   }
 
   return (
@@ -261,12 +275,12 @@ export function WelcomeScreen() {
               </svg>
             </button>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <p style={{ fontSize: 14, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.textPrimary, margin: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.accent, margin: 0 }}>
                 Webex Free
-              </p>
-              <p style={{ fontSize: 12, lineHeight: '18px', color: C.textSecond, margin: 0 }}>
-                No credit card required. Free forever.
+              </span>
+              <p style={{ fontSize: 14, lineHeight: '18px', color: C.textMuted, margin: 0 }}>
+                No credit card required.
               </p>
             </div>
 
@@ -275,8 +289,8 @@ export function WelcomeScreen() {
               {benefits.map((b, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
                   <div style={{ flexShrink: 0, marginTop: 2 }}>{b.icon}</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    <p style={{ fontSize: 14, lineHeight: '20px', fontWeight: 500, color: C.textPrimary, margin: 0 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    <p style={{ fontSize: 15, lineHeight: '21px', fontWeight: 600, color: C.textPrimary, margin: 0 }}>
                       {b.headline}
                     </p>
                     <p style={{ fontSize: 12, lineHeight: '18px', color: C.textSecond, margin: 0 }}>
@@ -289,7 +303,7 @@ export function WelcomeScreen() {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span
-                style={{ fontSize: 12, fontWeight: 500, color: '#5cb3f0', cursor: 'pointer', transition: 'opacity 0.15s' }}
+                style={{ fontSize: 14, fontWeight: 500, color: '#5cb3f0', cursor: 'pointer', transition: 'opacity 0.15s' }}
                 {...linkHover}
               >
                 See full plan details →
@@ -298,7 +312,7 @@ export function WelcomeScreen() {
                 style={{ fontSize: 12, fontWeight: 500, color: C.textSecond, cursor: 'pointer', transition: 'opacity 0.15s' }}
                 {...linkHover}
               >
-                Change plan
+                Compare plans
               </span>
             </div>
           </div>
@@ -399,6 +413,7 @@ export function WelcomeScreen() {
                       onMouseEnter={e => { e.currentTarget.style.borderColor = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateY(0)' }}
                       onMouseDown={e => e.currentTarget.style.transform = 'translateY(0)'}
+                      onClick={id === 'sso' ? handleSSOClick : undefined}
                       aria-label={`Continue with ${label}`}
                     >
                       <Icon />

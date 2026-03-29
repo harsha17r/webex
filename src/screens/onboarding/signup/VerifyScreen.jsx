@@ -14,7 +14,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
-import logoVerticalRGB from '../../assets/logos/RGB_Webex_Logo_lockup_vertical_whitetext.svg'
+import logoVerticalRGB from '../../../assets/logos/RGB_Webex_Logo_lockup_vertical_whitetext.svg'
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const C = {

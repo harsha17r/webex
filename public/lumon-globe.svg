@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Outer circle -->
+  <circle cx="60" cy="60" r="52" fill="none" stroke="#004B87" stroke-width="5"/>
+
+  <!-- Vertical center line (prime meridian) -->
+  <line x1="60" y1="8" x2="60" y2="112" stroke="#004B87" stroke-width="4"/>
+
+  <!-- Horizontal center line (equator) -->
+  <line x1="8" y1="60" x2="112" y2="60" stroke="#004B87" stroke-width="4"/>
+
+  <!-- Latitude lines — upper -->
+  <path d="M 24 38 Q 60 30 96 38" fill="none" stroke="#004B87" stroke-width="3.5"/>
+  <!-- Latitude lines — lower -->
+  <path d="M 24 82 Q 60 90 96 82" fill="none" stroke="#004B87" stroke-width="3.5"/>
+
+  <!-- Longitude lines — left -->
+  <path d="M 60 8 Q 28 60 60 112" fill="none" stroke="#004B87" stroke-width="3.5"/>
+  <!-- Longitude lines — right -->
+  <path d="M 60 8 Q 92 60 60 112" fill="none" stroke="#004B87" stroke-width="3.5"/>
+</svg>

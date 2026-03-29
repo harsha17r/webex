@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
-import logoVerticalRGB from '../../assets/logos/RGB_Webex_Logo_lockup_vertical_whitetext.svg'
+import logoVerticalRGB from '../../../assets/logos/RGB_Webex_Logo_lockup_vertical_whitetext.svg'
 
 const C = {
   bg:           '#111111',

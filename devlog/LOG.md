@@ -5,6 +5,40 @@
 
 ---
 
+### [2026-03-29 14:00] — SSO loading screen + Lumon logo update
+
+**Status:** 🟢 Done
+
+**What changed:**
+Replaced the hand-crafted placeholder globe SVG with the official Lumon Industries vector logo (`public/lumon-logo.svg`). Used `viewBox="25 112.169 450 275.661"` to crop the SVG to just the blue banner content, hiding the watermarks (which sit at y>400, safely outside the viewport). Updated `employee.js` brand color to `#0076A3` (from the official vector). In `LumonLoginScreen.jsx`, updated logo display to `height: 68 / width: auto` for the landscape layout, updated button hover + focus ring colors to match `#0076A3`, and changed `handleSignIn` to navigate immediately to `/sso-loading`. Created `SSOLoadingScreen.jsx` using the Interface Craft storyboard pattern — 9 stages over 3350ms: Webex logo slides in (150ms), heading (500ms), then three step rows each animating in with a spinning arc that pops into a green checkmark. Registered `/sso-loading` route in `App.jsx`.
+
+**Files touched:**
+- `public/lumon-logo.svg`
+- `src/config/employee.js`
+- `src/screens/onboarding/sso/LumonLoginScreen.jsx`
+- `src/screens/onboarding/sso/SSOLoadingScreen.jsx` ← new
+- `src/App.jsx`
+
+**Next up:**
+Test the full SSO flow: WelcomeScreen → enter lumon.com email → LumonLoginScreen → type any password → SSOLoadingScreen animation → ProfileReviewScreen. Also consider adding an exit animation (fade out) on the SSOLoadingScreen before navigating.
+
+---
+
+### [2026-03-28 16:30] — WelcomeScreen benefits card redesign
+
+**Status:** 🟢 Done
+
+**What changed:**
+Redesigned the benefits card on `WelcomeScreen.jsx` using a 3-step process: interface-craft critique, Webex value prop research, then implementation. Five concrete improvements were made: (1) Icons replaced from 28×28 custom-drawn SVGs with inconsistent viewBox to a clean, consistent 20×20 / 24×24-viewBox set at stroke-width 1.5 — video camera, microphone, shield-with-check. (2) Benefit headlines rewritten from feature-speak ("HD meetings for up to 100 people") to outcome-speak ("Meet anyone, from anywhere"), ("Sound clear from any room"), ("Enterprise security, free"). (3) Card header now leads with a green "WEBEX FREE" tag, then a hook headline "Meet, message, and collaborate — free forever." — instead of just the plan name. (4) Social proof line added: "Trusted by 95% of Fortune 500 companies" with a small shield icon. (5) Footer "Change plan" removed (inappropriate pre-signup), replaced with "Compare plans". Benefit headline typography bumped to 15px/600 with 6px gap (was 14px/500, 3px gap).
+
+**Files touched:**
+- `src/screens/onboarding/WelcomeScreen.jsx`
+
+**Next up:**
+Build the SSO flow — email domain detection (if domain = lumon.com) → Lumon interstitial redirect screen → Lumon-branded SSO login page → home. The `src/config/employee.js` already has COMPANY domain set to `lumon.com`.
+
+---
+
 ### [2026-03-28 12:00] — Mic/Video split buttons + Audio and Video menus
 
 **Status:** 🟢 Done

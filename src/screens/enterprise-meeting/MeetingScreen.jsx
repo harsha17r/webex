@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProfile } from '../../context/ProfileContext'
-import { MeetingAIRail, SummaryIcon } from '../../components/meeting/MeetingAIRail'
-import { AppsRail }          from '../../components/meeting/AppsRail'
-import { ParticipantsRail } from '../../components/meeting/ParticipantsRail'
-import { ChatRail }          from '../../components/meeting/ChatRail'
+import { MeetingAIRail, SummaryIcon } from '../../../enterprise-components/meeting/MeetingAIRail'
+import { AppsRail }          from '../../../enterprise-components/meeting/AppsRail'
+import { ParticipantsRail } from '../../../enterprise-components/meeting/ParticipantsRail'
+import { ChatRail }          from '../../../enterprise-components/meeting/ChatRail'
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD — MeetingScreen
@@ -218,7 +218,7 @@ export function MeetingScreen() {
   }
   function confirmLeave() {
     streamRef.current?.getTracks().forEach(t => t.stop())
-    navigate('/home', { state: { fromMeeting: true, elapsed } })
+    navigate('/enterprise-home', { state: { fromMeeting: true, elapsed } })
   }
 
   function addToast(message) {

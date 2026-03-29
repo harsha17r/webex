@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react'
+import { EMPLOYEE } from '../config/employee'
 
 /* ─────────────────────────────────────────────────────────
  * ProfileContext
@@ -11,10 +12,12 @@ import { createContext, useContext, useState } from 'react'
 const SESSION_KEY = 'webex_profile'
 
 const DEFAULT_PROFILE = {
-  name:        'Arvind',
-  email:       '',
+  name:        EMPLOYEE.name,
+  email:       EMPLOYEE.email,
+  jobTitle:    EMPLOYEE.jobTitle,
+  department:  EMPLOYEE.department,
   photoUrl:    null,
-  bannerColor: '#9F6402',
+  bannerColor: EMPLOYEE.bannerColor,
 }
 
 function readSession() {
