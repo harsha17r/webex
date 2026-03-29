@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProfile } from '../../context/ProfileContext'
-import { MeetingAIRail, SummaryIcon } from '../../../enterprise-components/meeting/MeetingAIRail'
-import { AppsRail }          from '../../../enterprise-components/meeting/AppsRail'
-import { ParticipantsRail } from '../../../enterprise-components/meeting/ParticipantsRail'
-import { ChatRail }          from '../../../enterprise-components/meeting/ChatRail'
+import { MeetingAIRail, SummaryIcon } from '../../enterprise-components/meeting/MeetingAIRail'
+import { AppsRail }          from '../../enterprise-components/meeting/AppsRail'
+import { ParticipantsRail } from '../../enterprise-components/meeting/ParticipantsRail'
+import { ChatRail }          from '../../enterprise-components/meeting/ChatRail'
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD — MeetingScreen

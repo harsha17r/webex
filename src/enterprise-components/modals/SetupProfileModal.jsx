@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { useProfile } from '../../context/ProfileContext'
+import { COMPANY } from '../../config/employee'
 
 /* ─────────────────────────────────────────────────────────
  * SetupProfileModal
@@ -215,12 +216,19 @@ export function SetupProfileModal({ onClose, onSave, onOpenAppearances }) {
             </div>
 
             {/* Name */}
-            <span style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF', lineHeight: '28px' }}>
+            <span style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF', lineHeight: '24px' }}>
               {draftName.trim() || 'Your name'}
             </span>
 
+            {/* Job title + department */}
+            {profile.jobTitle && (
+              <span style={{ fontSize: 12, fontWeight: 400, color: '#AAAAAA', lineHeight: '18px' }}>
+                {profile.jobTitle}{profile.department ? ` · ${profile.department}` : ''}
+              </span>
+            )}
+
             {/* Email */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: 6 }}>
               <span style={{ fontSize: 12, fontWeight: 400, color: '#AAAAAA', lineHeight: '14px' }}>Email</span>
               <span style={{ fontSize: 12, fontWeight: 500, color: '#FFFFFF', lineHeight: '20px' }}>{profile.email || '—'}</span>
             </div>
@@ -501,6 +509,40 @@ export function SetupProfileModal({ onClose, onSave, onOpenAppearances }) {
                       }}
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Locked fields — managed by org */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <rect x="2" y="5" width="8" height="6" rx="1.5" stroke="#888888" strokeWidth="1.2"/>
+                    <path d="M4 5V3.5a2 2 0 1 1 4 0V5" stroke="#888888" strokeWidth="1.2" strokeLinecap="round"/>
+                  </svg>
+                  <span style={{ fontSize: 11, fontWeight: 400, color: '#888888' }}>
+                    Managed by your organization
+                  </span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 16px' }}>
+                  {[
+                    { label: 'Email',        value: profile.email      },
+                    { label: 'Job Title',    value: profile.jobTitle   },
+                    { label: 'Department',   value: profile.department },
+                    { label: 'Organization', value: COMPANY.name       },
+                  ].map(({ label, value }) => (
+                    <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span style={{ fontSize: 11, fontWeight: 400, color: '#888888' }}>{label}</span>
+                      <div style={{
+                        padding: '8px 12px',
+                        background: '#1A1A1A',
+                        border: '1px solid #2E2E2E',
+                        borderRadius: 8,
+                        fontSize: 13, fontWeight: 400, color: '#888888',
+                      }}>
+                        {value || '—'}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

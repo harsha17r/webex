@@ -2,20 +2,20 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useProfile } from '../../context/ProfileContext'
 import { AnimatePresence, motion } from 'motion/react'
-import { Sidebar } from '../../../enterprise-components/layout/Sidebar'
-import { TopBar } from '../../../enterprise-components/layout/TopBar'
-import { CiscoAIRail } from '../../../enterprise-components/layout/CiscoAIRail'
+import { Sidebar } from '../../enterprise-components/layout/Sidebar'
+import { TopBar } from '../../enterprise-components/layout/TopBar'
+import { CiscoAIRail } from '../../enterprise-components/layout/CiscoAIRail'
 import { MeetingsTab } from './MeetingsTab'
 import { MessagesTab } from './MessagesTab'
-import { OnboardingChecklist } from '../../../enterprise-components/OnboardingChecklist'
+import { OnboardingChecklist } from '../../enterprise-components/OnboardingChecklist'
 
 export function HomeScreen() {
   const [activeTab, setActiveTab]         = useState('meet')
   const [aiPanelOpen, setAiPanelOpen]     = useState(true)
-  const [calendarConnected, setCalendar]  = useState(false)
   const location = useLocation()
   const { updateProfile } = useProfile()
-  const { fromMeeting = false, elapsed: meetingElapsed = 0 } = location.state ?? {}
+  const { fromMeeting = false, elapsed: meetingElapsed = 0, calendarConnected: calFromOnboarding = false } = location.state ?? {}
+  const [calendarConnected, setCalendar]  = useState(calFromOnboarding)
 
   // Always apply name + email coming from the onboarding flow
   useEffect(() => {
@@ -60,7 +60,7 @@ export function HomeScreen() {
             </div>
 
             {/* Checklist — persists across tab switches, anchored to content area only */}
-            <OnboardingChecklist onCalendarConnect={() => setCalendar(true)} />
+            <OnboardingChecklist />
           </div>
 
           {/* AI Rail — slides in/out with spring */}

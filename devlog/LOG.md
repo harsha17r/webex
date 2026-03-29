@@ -5,6 +5,220 @@
 
 ---
 
+### [2026-03-29 12:30] — Calendar sync: in-card connection storyboard animation
+
+**Status:** 🟢 Done
+
+**What changed:**
+`CalendarSyncScreen.jsx` — Interface Craft storyboard pattern for in-card connection feedback. Stage-driven (`stage` integer 0–3): tap locks row active → chevron cross-fades to spinning loader (stage 1, 0ms) → spinner morphs to green checkmark with `pathLength` draw (stage 2, 900ms) → subtitle text morphs to green "Calendar connected" (stage 3, 1300ms) → navigate to enterprise dashboard (2400ms). All icons swap via `AnimatePresence mode="wait"` in a new `RowIcon` component. `TIMING`, `SPINNER`, `CHECK`, `ICON_SWAP`, `CONNECTED_TEXT` config objects — zero magic numbers in JSX. Non-active row fades to 0.45 opacity. Build + lint clean.
+
+**Files touched:**
+- `src/screens/onboarding/CalendarSyncScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Tune `TIMING` values if pacing needs adjustment. Consider adding a subtle row background pulse during the spinner stage.
+
+---
+
+### [2026-03-29 12:00] — Calendar sync: remove connected celebration overlay
+
+**Status:** 🟢 Done
+
+**What changed:**
+`CalendarSyncScreen.jsx` — Removed the full-screen `CalendarConnectedCelebration` overlay, `CONNECT` storyboard constants, `AnimatePresence`, and celebration state. Choosing a provider still sets the row active; navigation to `/enterprise-home` with `calendarConnected: true` runs after a short delay (`NAV_DELAY_MS` 420) via a single timeout with cleanup on unmount. Top-of-file comment updated to match. Build verified.
+
+**Files touched:**
+- `src/screens/onboarding/CalendarSyncScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Optional: adjust `NAV_DELAY_MS` if taps should feel snappier or need more time to read the active row state.
+
+---
+
+### [2026-03-29] — Calendar sync: connected celebration storyboard
+
+**Status:** 🟢 Done (superseded — celebration removed)
+
+**What changed:**
+`CalendarSyncScreen.jsx` — Interface Craft storyboard (`CONNECT` timings + springs): after provider row activates, ~320ms overlay (blur dim + card spring) with provider chip, green halo + check **pathLength** draw, then title/subcopy springs; 2400ms from tap → enterprise home + `calendarConnected`. `CalendarConnectedCelebration` under `AnimatePresence`; flow timers ref-array + cleanup.
+
+**Files touched:**
+- `src/screens/onboarding/CalendarSyncScreen.jsx`
+
+**Next up:**
+Tune `CONNECT.TIMING.goToDashboard` if pacing should change.
+
+---
+
+### [2026-03-29] — Profile review: crop + remove photo (SetupProfile parity)
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added `src/components/profile/ProfilePhotoCropOverlay.jsx` — same circular crop math / drag / zoom / JPEG export as `SetupProfileModal`. `ProfileReviewScreen` now opens it after file pick (`createObjectURL`), applies cropped data URL to local state + `updateProfile`, revokes blobs on cancel/apply/unmount. **Remove photo** clears `photoUrl` in context. **Save & continue** uses `photoUrl: photo` so a removed photo persists as null (fixed `?? profile.photoUrl` bug).
+
+**Files touched:**
+- `src/components/profile/ProfilePhotoCropOverlay.jsx` ← new
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+
+**Next up:**
+Optional: reuse `ProfilePhotoCropOverlay` inside `SetupProfileModal` to dedupe.
+
+---
+
+### [2026-03-29] — Profile review photo → ProfileContext / TopBar
+
+**Status:** 🟢 Done
+
+**What changed:**
+`ProfileReviewScreen` now uses `useProfile`: initial `displayName` / `photo` from `profile`; on file pick, `updateProfile({ photoUrl })` so the base64 image persists via existing `sessionStorage` (`webex_profile`). **Save & continue** calls `updateProfile` with trimmed display name and current photo before `navigate('/calendar-sync')`. Enterprise `HomeScreen` already renders `TopBar`, which reads `profile.photoUrl` — no `HomeScreen.jsx` change required.
+
+**Files touched:**
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+
+**Next up:**
+None.
+
+---
+
+### [2026-03-29] — Profile review: bordered Upload photo button
+
+**Status:** 🟢 Done
+
+**What changed:**
+Replaced the avatar corner camera chip and blue text link with a single outlined control: `UploadPhotoIcon` (tray + arrow) + label, `1px` `C.borderSubtle` border, ~12px radius, transparent background, padding from `PROFILE_HEADER`. Hover lightens border/text and slight fill. After a photo exists, label reads “Change photo”. Removed `CameraIcon`.
+
+**Files touched:**
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+
+**Next up:**
+None.
+
+---
+
+### [2026-03-29] — Profile review: PROFILE_HEADER sizing knob
+
+**Status:** 🟢 Done
+
+**What changed:**
+Centralized avatar/name/upload row dimensions in `PROFILE_HEADER` (`ProfileReviewScreen.jsx` next to `LAYOUT`). `CameraIcon` takes optional `size`. Profile block JSX reads from that object; added `type="button"` on upload controls.
+
+**Files touched:**
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+
+**Next up:**
+None.
+
+---
+
+### [2026-03-29] — Profile review: account details heading + locked fields
+
+**Status:** 🟢 Done
+
+**What changed:**
+`ProfileReviewScreen.jsx`: replaced centered `SectionDivider` (lines + label) with `SectionHeading` — left-aligned uppercase “Account details” only. `LockedField` value cells now use the same padding and type scale as editable inputs (`10px 14px`, 14px/500, `minHeight: 44`, flex-centered text). Label row bumped to 13px to match other field labels. Wrapped each locked field in `cursor: not-allowed` for the prohibited / ⊘ hover affordance.
+
+**Files touched:**
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+
+**Next up:**
+None.
+
+---
+
+### [2026-03-29] — Profile review: remove layout sliders
+
+**Status:** 🟢 Done
+
+**What changed:**
+Removed `LayoutWidthControls` and related state from `ProfileReviewScreen.jsx`. Layout dimensions are fixed via a single `LAYOUT` constant (left 400, right min 360, row max 1020, gap 80). Dropped unused `logoVerticalRGB` import.
+
+**Files touched:**
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+
+**Next up:**
+None.
+
+---
+
+### [2026-03-29] — Profile review: layout width controls
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added a fixed bottom-left `LayoutWidthControls` panel on `ProfileReviewScreen`: collapsible “Column widths” chip, sliders for left column width (px), right column minimum width (px), row max width, and column gap; reset restores `LAYOUT_DEFAULTS`. Left column uses `width: leftWidthPx`; right `motion.div` uses `flex: 1` with `minWidth: rightMinWidthPx` so the form column takes remaining space under the row cap.
+
+**Files touched:**
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+
+**Next up:**
+Hide or gate the panel for production if it should not ship to end users.
+
+---
+
+### [2026-03-29] — Profile review: no back, wider row
+
+**Status:** 🟢 Done
+
+**What changed:**
+`ProfileReviewScreen.jsx` onboarding SSO screen: removed the top-left Back pill and the unused `ArrowLeftIcon`; top bar is now `justify-content: flex-end` with only the “…” control. Widened the main two-column shell from `maxWidth: 940` to `1120`, increased column `gap` to `72`, and reduced outer horizontal padding from `72px` to `56px` so the block uses more viewport width.
+
+**Files touched:**
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+
+**Next up:**
+None unless design wants a different max width or left column width.
+
+---
+
+### [2026-03-29] — Enterprise public spaces header (was only on home)
+
+**Status:** 🟢 Done
+
+**What changed:**
+The earlier public-spaces header update lived only in `src/screens/home/MessageStage.jsx`, but the app’s enterprise Messages tab imports `src/screens/enterprise-home/MessageStage.jsx`, so users saw no change. Copied the same header markup into enterprise `PublicSpacesView`: flex row with icon + title/subtitle left, pill search `space-between` on the right.
+
+**Files touched:**
+- `src/screens/enterprise-home/MessageStage.jsx`
+
+**Next up:**
+None for this item — home and enterprise public headers now match.
+
+---
+
+### [2026-03-29] — Home MessageStage: public spaces header parity
+
+**Status:** 🟢 Done
+
+**What changed:**
+Aligned `PublicSpacesView` header in `src/screens/home/MessageStage.jsx` with `RecommendedMessagesView`: same row layout, `20px 24px 16px` padding, `#2A2A2A` bottom border, 40px `#1170CF` circle with icon, title at 16px/600 white and subtitle at 13px `#777777`. Replaced the stacked large heading + full-width search with `justify-content: space-between` so title block stays left and the pill search field sits top-right (280px width, `maxWidth: 40%` for narrow stages). Public spaces uses a globe glyph in the circle (same stroke color as recommended’s bolt) to keep semantics clear.
+
+**Files touched:**
+- `src/screens/home/MessageStage.jsx`
+
+**Next up:**
+Enterprise `MessageStage.jsx` updated in a follow-up entry so both entry points stay in sync.
+
+---
+
+### [2026-03-29] — Public tab sidebar: only joined spaces
+
+**Status:** 🟢 Done
+
+**What changed:**
+Enterprise Messages "Public" tab left rail was listing all discoverable public spaces, which read like an inbox the user already belonged to. Refined behavior: the sidebar now shows only spaces the user has joined (initially empty with copy pointing to the explore grid on the right). Lifted join state into `MessagesTab` as `joinedPublicSpaceIds` (a `Set`). `MessageStage` public grid receives `joinedPublicSpaceIds` and `onPublicSpaceJoinChange`; `PublicSpacesView` / `SpaceCard` use controlled join state instead of local-only toggles. Renamed sidebar UI to `JoinedPublicSpacesSidebar`; message list column uses flex column + `minHeight: 0` so the empty state can center in the available height.
+
+**Files touched:**
+- `src/screens/enterprise-home/MessagesTab.jsx`
+- `src/screens/enterprise-home/MessageStage.jsx`
+
+**Next up:**
+Optional: open a thread/space preview when clicking a joined row in the sidebar; persist `joinedPublicSpaceIds` in `localStorage` if demo sessions should survive refresh.
+
+---
+
 ### [2026-03-29 14:00] — SSO loading screen + Lumon logo update
 
 **Status:** 🟢 Done

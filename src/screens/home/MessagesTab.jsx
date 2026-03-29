@@ -60,8 +60,59 @@ const COMPOSE_ITEMS = [
 ]
 
 const FILTER_WIDTH      = 240
-const COMPOSE_WIDTH     = 240
 const MORE_OPTIONS_WIDTH = 310
+
+/* ── SidebarElement ────────────────────────────────────── */
+
+function SidebarElement({ name, color, selected, onClick }) {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: 12, padding: '12px 14px',
+        borderRadius: 12,
+        background: selected ? '#2E2E2E' : hovered ? '#2A2A2A' : 'transparent',
+        transition: 'background 0.12s',
+        cursor: 'pointer',
+        boxSizing: 'border-box',
+      }}
+    >
+      {/* Left: avatar + name */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+        {/* Avatar group — 40×40 container */}
+        <div style={{ position: 'relative', width: 40, height: 40, flexShrink: 0 }}>
+          {/* Main avatar */}
+          <div style={{
+            position: 'absolute', left: 0, top: 0,
+            width: 40, height: 40, borderRadius: '50%',
+            background: color,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+              <path fill="#92CBF2" d="M14.604 2.76a20.5 20.5 0 0 0-4.637 0l-1.595.182a.5.5 0 0 0-.441.453l-.123 1.382a39.5 39.5 0 0 0 0 6.983l.123 1.382a.5.5 0 0 0 .498.456H10.5V21a.5.5 0 0 0 .89.312l.391-.49a35.5 35.5 0 0 0 5.497-9.676l.19-.507A.5.5 0 0 0 17 9.963h-2.713l2.325-6.352a.5.5 0 0 0-.413-.669z"/>
+            </svg>
+          </div>
+        </div>
+
+        <span style={{
+          fontSize: 16, fontWeight: 500,
+          color: '#FFFFFF',
+          lineHeight: '1.25em',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {name}
+        </span>
+      </div>
+
+
+    </div>
+  )
+}
 
 const MORE_OPTIONS = [
   { key: 'separate-dms',        label: "Separate DM's and spaces",  defaultOn: true  },
@@ -225,8 +276,15 @@ export function MessagesTab() {
   const [checkedOptions,   setCheckedOptions]   = useState(
     () => new Set(MORE_OPTIONS.filter(o => o.defaultOn).map(o => o.key))
   )
+  const [selectedItem,     setSelectedItem]     = useState(null)
   const [inviteHover,      setInviteHover]      = useState(false)
   const [invitePress,      setInvitePress]      = useState(false)
+  const [sendHover,        setSendHover]        = useState(false)
+  const [sendPress,        setSendPress]        = useState(false)
+  const [dmView,           setDmView]           = useState(null)
+  const [spaceHover,       setSpaceHover]       = useState(false)
+  const [spacePress,       setSpacePress]       = useState(false)
+  const [spaceView,        setSpaceView]        = useState(null)
 
   const filterRef    = useRef(null)
   const filterTimer  = useRef(null)
@@ -351,7 +409,7 @@ export function MessagesTab() {
           {FILTER_TABS.map(tab => (
             <button
               key={tab}
-              onClick={() => setActiveFilter(tab)}
+              onClick={() => { setActiveFilter(tab); setSelectedItem(null); setDmView(null); setSpaceView(null) }}
               style={{
                 background: activeFilter === tab ? '#494949' : 'transparent',
                 border: activeFilter === tab ? 'none' : '1px solid #494949',
@@ -370,17 +428,73 @@ export function MessagesTab() {
           ))}
         </div>
 
-        {/* Message list — empty state */}
-        <div style={{
-          flex: 1,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <span style={{ fontSize: 16, fontWeight: 500, color: '#AAAAAA' }}>
-            No messages yet.
-          </span>
+        {/* Message list */}
+        <div style={{ flex: 1, padding: '0 8px' }}>
+          {activeFilter === 'All' && (
+            <SidebarElement
+              name="Recommended messages"
+              color="#1170CF"
+              selected={selectedItem === 'recommended'}
+              onClick={() => setSelectedItem('recommended')}
+            />
+          )}
+          {activeFilter === 'Spaces' && (
+            <div style={{ padding: '4px 2px 0' }}>
+              <button
+                onMouseEnter={() => setSpaceHover(true)}
+                onMouseLeave={() => { setSpaceHover(false); setSpacePress(false) }}
+                onMouseDown={() => setSpacePress(true)}
+                onMouseUp={() => setSpacePress(false)}
+                onClick={() => setSpaceView('create-space')}
+                style={{
+                  width: '100%', height: 44,
+                  background: spacePress ? '#3A3A3A' : spaceHover ? '#2E2E2E' : '#282828',
+                  border: `1px solid ${spaceHover ? '#666666' : '#494949'}`,
+                  borderRadius: 10,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  cursor: 'pointer',
+                  transition: 'background 0.15s, border-color 0.15s',
+                  transform: spacePress ? 'scale(0.98)' : 'scale(1)',
+                }}>
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                  <path fill="#FFFFFF" d="M9 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8M6 6a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-1.991 5A2 2 0 0 0 2 13c0 1.691.833 2.966 2.135 3.797C5.417 17.614 7.145 18 9 18q.617 0 1.21-.057a5.5 5.5 0 0 1-.618-.958Q9.301 17 9 17c-1.735 0-3.257-.364-4.327-1.047C3.623 15.283 3 14.31 3 13c0-.553.448-1 1.009-1h5.59q.277-.538.658-1zM14.5 19a4.5 4.5 0 1 0 0-9a4.5 4.5 0 0 0 0 9m0-7a.5.5 0 0 1 .5.5V14h1.5a.5.5 0 0 1 0 1H15v1.5a.5.5 0 0 1-1 0V15h-1.5a.5.5 0 0 1 0-1H14v-1.5a.5.5 0 0 1 .5-.5"/>
+                </svg>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                  Create a space
+                </span>
+              </button>
+            </div>
+          )}
+          {activeFilter === "DM's" && (
+            <div style={{ padding: '4px 2px 0' }}>
+              <button
+                onMouseEnter={() => setSendHover(true)}
+                onMouseLeave={() => { setSendHover(false); setSendPress(false) }}
+                onMouseDown={() => setSendPress(true)}
+                onMouseUp={() => setSendPress(false)}
+                onClick={() => setDmView('new-message')}
+                style={{
+                  width: '100%', height: 44,
+                  background: sendPress ? '#3A3A3A' : sendHover ? '#2E2E2E' : '#282828',
+                  border: `1px solid ${sendHover ? '#666666' : '#494949'}`,
+                  borderRadius: 10,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  cursor: 'pointer',
+                  transition: 'background 0.15s, border-color 0.15s',
+                  transform: sendPress ? 'scale(0.98)' : 'scale(1)',
+                }}>
+                <svg width="16" height="16" viewBox="0 0 20 20">
+                  <path fill="#FFFFFF" d="M10 2a8 8 0 1 1-3.613 15.14l-.121-.065l-3.645.91a.5.5 0 0 1-.62-.441v-.082l.014-.083l.91-3.644l-.063-.12a8 8 0 0 1-.83-2.887l-.025-.382L2 10a8 8 0 0 1 8-8m0 1a7 7 0 0 0-6.106 10.425a.5.5 0 0 1 .063.272l-.014.094l-.756 3.021l3.024-.754a.5.5 0 0 1 .188-.01l.091.021l.087.039A7 7 0 1 0 10 3m.5 8a.5.5 0 0 1 .09.992L10.5 12h-3a.5.5 0 0 1-.09-.992L7.5 11zm2-3a.5.5 0 0 1 .09.992L12.5 9h-5a.5.5 0 0 1-.09-.992L7.5 8z"/>
+                </svg>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF', fontFamily: "'Inter', system-ui, sans-serif" }}>
+                  Send a message
+                </span>
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Invite to Webex button */}
+        {/* Invite to Webex — always at bottom */}
         <div style={{ padding: '0 10px 16px', flexShrink: 0 }}>
           <button
             onMouseEnter={() => setInviteHover(true)}
@@ -409,7 +523,70 @@ export function MessagesTab() {
       </div>
 
       {/* ── MessageStage — feature carousel empty state ── */}
-      <MessageStage />
+      {activeFilter === 'All'
+        ? <MessageStage view={selectedItem} />
+        : activeFilter === "DM's" && dmView
+          ? <MessageStage view={dmView} onClose={() => setDmView(null)} />
+          : activeFilter === "DM's"
+            ? (
+              <div style={{
+                flex: 1, background: '#1A1A1A',
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 10, fontFamily: "'Inter', system-ui, sans-serif",
+              }}>
+                <div style={{
+                  width: 52, height: 52, borderRadius: '50%',
+                  background: '#242424', border: '1px solid #2E2E2E',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: 4,
+                }}>
+                  <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                    <path fill="#444444" d="M10 2a8 8 0 1 1-3.613 15.14l-.121-.065l-3.645.91a.5.5 0 0 1-.62-.441v-.082l.014-.083l.91-3.644l-.063-.12a8 8 0 0 1-.83-2.887l-.025-.382L2 10a8 8 0 0 1 8-8m0 1a7 7 0 0 0-6.106 10.425a.5.5 0 0 1 .063.272l-.014.094l-.756 3.021l3.024-.754a.5.5 0 0 1 .188-.01l.091.021l.087.039A7 7 0 1 0 10 3m.5 8a.5.5 0 0 1 .09.992L10.5 12h-3a.5.5 0 0 1-.09-.992L7.5 11zm2-3a.5.5 0 0 1 .09.992L12.5 9h-5a.5.5 0 0 1-.09-.992L7.5 8z"/>
+                  </svg>
+                </div>
+                <p style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF', margin: 0 }}>No messages yet</p>
+                <p style={{ fontSize: 13, color: '#555555', margin: 0 }}>Send a message to start a conversation.</p>
+              </div>
+            )
+            : activeFilter === 'Spaces' && spaceView
+              ? <MessageStage view={spaceView} onClose={() => setSpaceView(null)} />
+              : activeFilter === 'Spaces'
+                ? (
+                  <div style={{
+                    flex: 1, background: '#1A1A1A',
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center',
+                    gap: 10, fontFamily: "'Inter', system-ui, sans-serif",
+                  }}>
+                    <div style={{
+                      width: 52, height: 52, borderRadius: '50%',
+                      background: '#242424', border: '1px solid #2E2E2E',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      marginBottom: 4,
+                    }}>
+                      <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                        <path fill="#444444" d="M9 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8M6 6a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-1.991 5A2 2 0 0 0 2 13c0 1.691.833 2.966 2.135 3.797C5.417 17.614 7.145 18 9 18q.617 0 1.21-.057a5.5 5.5 0 0 1-.618-.958Q9.301 17 9 17c-1.735 0-3.257-.364-4.327-1.047C3.623 15.283 3 14.31 3 13c0-.553.448-1 1.009-1h5.59q.277-.538.658-1zM14.5 19a4.5 4.5 0 1 0 0-9a4.5 4.5 0 0 0 0 9m0-7a.5.5 0 0 1 .5.5V14h1.5a.5.5 0 0 1 0 1H15v1.5a.5.5 0 0 1-1 0V15h-1.5a.5.5 0 0 1 0-1H14v-1.5a.5.5 0 0 1 .5-.5"/>
+                      </svg>
+                    </div>
+                    <p style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF', margin: 0 }}>No spaces yet</p>
+                    <p style={{ fontSize: 13, color: '#555555', margin: 0 }}>Create a space to start a group conversation.</p>
+                  </div>
+                )
+                : activeFilter === 'Public'
+                  ? (
+                    <div style={{
+                      flex: 1, background: '#1A1A1A',
+                      display: 'flex', flexDirection: 'column',
+                      alignItems: 'center', justifyContent: 'center',
+                      gap: 10, fontFamily: "'Inter', system-ui, sans-serif",
+                    }}>
+                      <p style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF', margin: 0 }}>No public spaces yet</p>
+                      <p style={{ fontSize: 13, color: '#555555', margin: 0 }}>Public spaces will appear here when available.</p>
+                    </div>
+                  )
+                  : <div style={{ flex: 1, background: '#1A1A1A' }} />
+      }
 
       {/* ── Filter Dropdown ── */}
       <AnimatePresence>

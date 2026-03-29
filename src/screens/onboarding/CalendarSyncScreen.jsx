@@ -1,97 +1,73 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
-
+import { EMPLOYEE } from '../../config/employee'
 /* ─────────────────────────────────────────────────────────
- * CalendarSyncScreen — Onboarding step after profile review
+ * CalendarSyncScreen — Onboarding after profile review
  *
- * LEFT PANEL (320px, top-aligned)
- *   "Sync your calendar" heading + subtitle + info banner
- *   Mini month calendar — same visual as MeetingsTab CalendarView
- *     border #2E2E2E, header #1E1E1E, today in blue #2E96E8
+ * Same provider rows + icons as home `ConnectCalendarModal`.
+ * User picks one calendar → in-card animation → enterprise home.
  *
- * RIGHT PANEL (flex: 1, top-aligned, slides up on mount)
- *   Provider cards: Google Calendar, Microsoft Outlook, Apple Calendar
- *   Click → 900ms "connecting" spinner → "Connected" green state
- *   "Connect & continue" enabled once ≥ 1 provider connected
- *   "Skip for now" ghost link always available
+ * Route: /calendar-sync
  *
- * Route: /calendar-sync  (comes after /profile-review)
+ * "Connect a calendar for …" uses `EMPLOYEE.email` (work email), same as profile review.
+ *
+ * Two-column widths match `ProfileReviewScreen` (`LAYOUT`).
  * ───────────────────────────────────────────────────────── */
 
-/* ── Calendar helpers (mirrors MeetingsTab) ───────────── */
-
-const DAY_ABBR = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
-
-function getWeekStart(d) {
-  const date = new Date(d)
-  date.setHours(0, 0, 0, 0)
-  date.setDate(date.getDate() - date.getDay())
-  return date
+/** Same grid as `ProfileReviewScreen.jsx` — keeps left rail aligned across onboarding */
+const LAYOUT = {
+  leftWidthPx:      400,
+  rightMinWidthPx:  360,
+  rowMaxWidthPx:    1020,
+  columnGapPx:      80,
 }
 
-function addDays(d, n) {
-  const date = new Date(d)
-  date.setDate(date.getDate() + n)
-  return date
-}
-
-function isSameDay(a, b) {
-  return a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-}
-
-const MONTH_NAMES = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December',
-]
-
-/* ── Provider data ────────────────────────────────────── */
-
+/** Matches `src/components/modals/ConnectCalendarModal.jsx` */
 const PROVIDERS = [
   {
-    id:    'google',
-    name:  'Google Calendar',
-    desc:  'Sync meetings from your Google Workspace account',
-    icon:  <GoogleIcon />,
+    id: 'microsoft',
+    name: 'Microsoft 365',
+    sub: 'Outlook, Teams calendar',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <rect x="1"    y="1"    width="10.5" height="10.5" fill="#F25022"/>
+        <rect x="12.5" y="1"    width="10.5" height="10.5" fill="#7FBA00"/>
+        <rect x="1"    y="12.5" width="10.5" height="10.5" fill="#00A4EF"/>
+        <rect x="12.5" y="12.5" width="10.5" height="10.5" fill="#FFB900"/>
+      </svg>
+    ),
   },
   {
-    id:    'outlook',
-    name:  'Microsoft Outlook',
-    desc:  'Connect to Exchange, Office 365, or Outlook.com',
-    icon:  <OutlookIcon />,
-  },
-  {
-    id:    'apple',
-    name:  'Apple Calendar',
-    desc:  'Sync iCloud or locally stored calendars',
-    icon:  <AppleIcon />,
+    id: 'google',
+    name: 'Google Calendar',
+    sub: 'Gmail, Google Workspace',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <rect x="2" y="3" width="20" height="19" rx="2" fill="#FFFFFF"/>
+        <rect x="2" y="3" width="20" height="7" rx="2" fill="#1967D2"/>
+        <rect x="2" y="8"  width="20" height="2" fill="#1967D2"/>
+        <rect x="8"  y="1" width="2" height="5" rx="1" fill="#1967D2"/>
+        <rect x="14" y="1" width="2" height="5" rx="1" fill="#1967D2"/>
+        <rect x="4"  y="13" width="4" height="4" rx="1" fill="#EA4335"/>
+        <rect x="10" y="13" width="4" height="4" rx="1" fill="#34A853"/>
+        <rect x="16" y="13" width="4" height="4" rx="1" fill="#FBBC04"/>
+      </svg>
+    ),
   },
 ]
-
-/* ── Colors ───────────────────────────────────────────── */
 
 const C = {
   bg:           '#111111',
   surface:      '#1E1E1E',
-  surfaceCard:  '#181818',
   border:       '#383838',
+  borderModal:  '#494949',
+  borderHover:  '#737373',
   borderSubtle: '#AAAAAA',
   textPrimary:  '#FFFFFF',
   textSecond:   '#AAAAAA',
   textMuted:    '#666666',
   accent:       '#4ac397',
-  accentDim:    '#1c8160',
-  accentHover:  '#4ac397',
-  infoBg:       'rgba(92, 179, 240, 0.07)',
-  infoBorder:   'rgba(92, 179, 240, 0.22)',
-  infoText:     '#5cb3f0',
-  calBorder:    '#2E2E2E',
-  calHeader:    '#1E1E1E',
-  calToday:     '#2E96E8',
-  connectedBg:  'rgba(74,195,151,0.06)',
-  connectedBorder: 'rgba(74,195,151,0.30)',
 }
 
 const CONTENT = {
@@ -100,46 +76,46 @@ const CONTENT = {
   delay:  0.12,
 }
 
-/* ── Provider icons ───────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────
+ * IN-CARD CONNECTION STORYBOARD
+ *
+ * Read top-to-bottom. Each `at` value is ms after tap.
+ *
+ *    0ms   tap → row locks active (green border), chevron cross-fades to spinner
+ * 3000ms   spinner cross-fades to green checkmark (path draws on)
+ * 3400ms   subtitle morphs to "Calendar connected"
+ * 4400ms   navigate → enterprise dashboard
+ * ───────────────────────────────────────────────────────── */
 
-function GoogleIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="8" fill="#FFFFFF"/>
-      <path d="M28.64 16.204c0-.639-.057-1.252-.164-1.84H16v3.48h7.076a6.045 6.045 0 0 1-2.623 3.966v3.299h4.247c2.484-2.288 3.942-5.655 3.942-8.905z" fill="#4285F4"/>
-      <path d="M16 29c3.546 0 6.521-1.175 8.695-3.178l-4.247-3.299c-1.176.788-2.68 1.253-4.448 1.253-3.42 0-6.316-2.31-7.35-5.415H4.264v3.408A13.996 13.996 0 0 0 16 29z" fill="#34A853"/>
-      <path d="M8.65 18.361A8.394 8.394 0 0 1 8.21 16c0-.819.14-1.614.44-2.361V10.23H4.264A13.996 13.996 0 0 0 2 16c0 2.258.54 4.394 1.496 6.277l4.153-3.916z" fill="#FBBC05"/>
-      <path d="M16 8.224c1.927 0 3.655.662 5.015 1.962l3.76-3.76C22.516 4.26 19.541 3 16 3A13.996 13.996 0 0 0 2.737 9.723l4.153 3.916C7.924 10.533 10.82 8.224 16 8.224z" fill="#EA4335"/>
-    </svg>
-  )
+const TIMING = {
+  showSpinner:   0,       // immediate — chevron out, spinner in
+  showCheck:     3000,    // spinner → checkmark (3s loading)
+  showConnected: 3400,    // subtitle text swap
+  navigate:      4400,    // go to dashboard
 }
 
-function OutlookIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="8" fill="#0078D4"/>
-      <path d="M18 8h8a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-8V8z" fill="#50D9FF" fillOpacity="0.35"/>
-      <rect x="18" y="8" width="9" height="2.5" rx="0" fill="#50D9FF" fillOpacity="0.55"/>
-      <rect x="18" y="12.5" width="9" height="2" fill="white" fillOpacity="0.3"/>
-      <rect x="18" y="16" width="9" height="2" fill="white" fillOpacity="0.3"/>
-      <rect x="18" y="19.5" width="6" height="2" fill="white" fillOpacity="0.3"/>
-      <rect x="5" y="10" width="14" height="12" rx="2" fill="white"/>
-      <text x="12" y="19.5" textAnchor="middle" fontSize="9" fontWeight="700" fill="#0078D4" fontFamily="Arial, sans-serif">OL</text>
-    </svg>
-  )
+const ICON_SWAP = {
+  spring: { type: 'spring', stiffness: 500, damping: 30 },
 }
 
-function AppleIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="8" fill="#1C1C1E"/>
-      <path d="M20.5 8C19.1 9.4 17.5 9.3 16 9.3c-.1-1.5.5-3 1.9-4C19.3 3.9 21 4 21.1 4c.1 1.4-.4 2.8-1.6 4z" fill="white"/>
-      <path d="M16.2 10.5c1.7 0 3.2.9 4.3.9 1.1 0 2.8-.9 4.3-.7.7.1 2.6.3 3.8 1.9-3.3 2-2.8 7.2.7 9.1-.9 2.5-2.1 5-3.7 5-1.5 0-2-.9-3.7-.9-1.8 0-2.3.9-3.7.9-1.5 0-2.7-2.4-3.7-4.9-1.2-3-1.8-8.2 1.2-10.5.9-.7 1.8-1 2.5-.8z" fill="white"/>
-    </svg>
-  )
+const SPINNER = {
+  size:        20,        // px diameter
+  strokeWidth: 2.2,
+  color:       '#4ac397',
+  rotate:      { duration: 0.7, ease: 'linear', repeat: Infinity },
 }
 
-/* ── Sub-components ───────────────────────────────────── */
+const CHECK = {
+  size:        22,
+  strokeWidth: 2.4,
+  color:       '#4ac397',
+  pathDraw:    { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+  spring:      { type: 'spring', stiffness: 460, damping: 24 },
+}
+
+const CONNECTED_TEXT = {
+  spring: { type: 'spring', stiffness: 300, damping: 28 },
+}
 
 function ArrowLeftIcon() {
   return (
@@ -149,199 +125,109 @@ function ArrowLeftIcon() {
   )
 }
 
-function InfoIcon() {
+function RowIcon({ stage }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <path d="M12 16v-4M12 8h.01"/>
-    </svg>
-  )
-}
+    <div style={{
+      width: 24, height: 24,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      position: 'relative',
+    }}>
+      <AnimatePresence mode="wait">
+        {stage < 1 && (
+          <motion.svg
+            key="chevron"
+            width="24" height="24" viewBox="0 0 24 24" fill="none"
+            initial={false}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={ICON_SWAP.spring}
+            style={{ position: 'absolute' }}
+          >
+            <path d="M9 6l6 6-6 6" stroke="#D4D4D4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </motion.svg>
+        )}
 
-function CheckIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="8" r="8" fill={C.accentDim} fillOpacity="0.3"/>
-      <circle cx="8" cy="8" r="8" stroke={C.accent} strokeWidth="1.2"/>
-      <path d="M4.5 8L7 10.5L11.5 5.5" stroke={C.accent} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  )
-}
+        {stage >= 1 && stage < 2 && (
+          <motion.svg
+            key="spinner"
+            width={SPINNER.size} height={SPINNER.size}
+            viewBox="0 0 20 20" fill="none"
+            initial={{ opacity: 0, scale: 0.4 }}
+            animate={{ opacity: 1, scale: 1, rotate: 360 }}
+            exit={{ opacity: 0, scale: 0.4 }}
+            transition={{
+              opacity: { duration: 0.15 },
+              scale: ICON_SWAP.spring,
+              rotate: SPINNER.rotate,
+            }}
+            style={{ position: 'absolute' }}
+          >
+            <circle
+              cx="10" cy="10" r="8"
+              stroke="rgba(74, 195, 151, 0.25)"
+              strokeWidth={SPINNER.strokeWidth}
+              fill="none"
+            />
+            <path
+              d="M10 2a8 8 0 0 1 8 8"
+              stroke={SPINNER.color}
+              strokeWidth={SPINNER.strokeWidth}
+              strokeLinecap="round"
+              fill="none"
+            />
+          </motion.svg>
+        )}
 
-function SpinnerIcon() {
-  return (
-    <motion.svg
-      width="16" height="16" viewBox="0 0 16 16" fill="none"
-      animate={{ rotate: 360 }}
-      transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
-    >
-      <circle cx="8" cy="8" r="6" stroke={C.borderSubtle} strokeWidth="1.5" strokeDasharray="20 8" strokeLinecap="round"/>
-    </motion.svg>
-  )
-}
-
-/* ── Mini Calendar (month view) ───────────────────────── */
-
-function MiniCalendar() {
-  const today        = new Date()
-  const viewDate     = today
-  const firstOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1)
-  const gridStart    = getWeekStart(firstOfMonth)
-  const cells        = Array.from({ length: 42 }, (_, i) => addDays(gridStart, i))
-
-  return (
-    <div>
-      {/* Month label */}
-      <p style={{ fontSize: 12, fontWeight: 600, color: C.textSecond, margin: '0 0 10px', letterSpacing: '0.01em' }}>
-        {MONTH_NAMES[viewDate.getMonth()]} {viewDate.getFullYear()}
-      </p>
-
-      <div style={{ border: `1px solid ${C.calBorder}`, borderRadius: 8, overflow: 'hidden' }}>
-
-        {/* Day header row */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
-          borderBottom: `1px solid ${C.calBorder}`,
-          background: C.calHeader,
-        }}>
-          {DAY_ABBR.map(d => (
-            <div key={d} style={{ padding: '6px 0', textAlign: 'center' }}>
-              <span style={{ fontSize: 10, fontWeight: 500, color: '#595959', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                {d}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Date cells */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-          {cells.map((day, i) => {
-            const inMonth  = day.getMonth() === viewDate.getMonth()
-            const isToday  = isSameDay(day, today)
-            const isWeekend = day.getDay() === 0 || day.getDay() === 6
-            const isLast   = i >= 35
-
-            return (
-              <div key={i} style={{
-                minHeight: 34,
-                borderRight: (i + 1) % 7 !== 0 ? `1px solid ${C.calBorder}` : 'none',
-                borderBottom: !isLast ? `1px solid ${C.calBorder}` : 'none',
-                padding: '4px 0',
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                background: isWeekend && inMonth ? 'rgba(0,0,0,0.18)' : 'transparent',
-              }}>
-                <div style={{
-                  width: 22, height: 22, borderRadius: '50%',
-                  background: isToday ? C.calToday : 'transparent',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <span style={{
-                    fontSize: 10,
-                    fontWeight: isToday ? 600 : 400,
-                    color: isToday ? '#FFFFFF' : (inMonth ? (isWeekend ? '#595959' : '#E9E9E9') : '#383838'),
-                  }}>
-                    {day.getDate()}
-                  </span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-      </div>
+        {stage >= 2 && (
+          <motion.svg
+            key="check"
+            width={CHECK.size} height={CHECK.size}
+            viewBox="0 0 24 24" fill="none"
+            initial={{ opacity: 0, scale: 0.3 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={CHECK.spring}
+            style={{ position: 'absolute' }}
+          >
+            <motion.path
+              d="M6.5 12.5L10.5 16.5L18 7.5"
+              stroke={CHECK.color}
+              strokeWidth={CHECK.strokeWidth}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={CHECK.pathDraw}
+            />
+          </motion.svg>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
 
-/* ── Provider card ────────────────────────────────────── */
-
-function ProviderCard({ provider, status, onConnect }) {
-  const isConnected  = status === 'connected'
-  const isConnecting = status === 'connecting'
-
-  return (
-    <motion.div
-      layout
-      onClick={() => !isConnecting && !isConnected && onConnect(provider.id)}
-      style={{
-        display: 'flex', alignItems: 'center', gap: 16,
-        padding: '14px 18px',
-        background: isConnected ? C.connectedBg : C.surfaceCard,
-        border: `1px solid ${isConnected ? C.connectedBorder : C.border}`,
-        borderRadius: 12,
-        cursor: isConnected || isConnecting ? 'default' : 'pointer',
-        transition: 'border-color 0.2s, background 0.2s',
-        userSelect: 'none',
-      }}
-      whileHover={!isConnected && !isConnecting ? { borderColor: '#555555' } : {}}
-    >
-      {/* Provider icon */}
-      <div style={{ flexShrink: 0 }}>
-        {provider.icon}
-      </div>
-
-      {/* Text */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 14, fontWeight: 600, color: C.textPrimary, margin: '0 0 2px' }}>
-          {provider.name}
-        </p>
-        <p style={{ fontSize: 12, color: C.textSecond, margin: 0, lineHeight: 1.4 }}>
-          {provider.desc}
-        </p>
-      </div>
-
-      {/* Status indicator */}
-      <div style={{ flexShrink: 0 }}>
-        <AnimatePresence mode="wait">
-          {isConnecting && (
-            <motion.div key="spin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <SpinnerIcon />
-            </motion.div>
-          )}
-          {isConnected && (
-            <motion.div
-              key="check"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-            >
-              <CheckIcon />
-            </motion.div>
-          )}
-          {status === 'idle' && (
-            <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div style={{
-                fontSize: 12, fontWeight: 500, color: C.infoText,
-                padding: '4px 10px',
-                border: `1px solid ${C.infoBorder}`,
-                borderRadius: 6,
-                background: C.infoBg,
-              }}>
-                Connect
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  )
-}
-
-/* ── Main screen ──────────────────────────────────────── */
-
 export function CalendarSyncScreen() {
   const navigate = useNavigate()
+  const workEmail = EMPLOYEE.email
+  const [hoveredProvider, setHoveredProvider] = useState(null)
+  const [activeProvider, setActiveProvider] = useState(null)
+  const [stage, setStage] = useState(0)
+  const timersRef = useRef([])
 
-  // status per provider: 'idle' | 'connecting' | 'connected'
-  const [statuses, setStatuses] = useState({ google: 'idle', outlook: 'idle', apple: 'idle' })
+  useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
 
-  const anyConnected = Object.values(statuses).some(s => s === 'connected')
+  function handleChooseProvider(id) {
+    if (activeProvider) return
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
 
-  function handleConnect(id) {
-    setStatuses(prev => ({ ...prev, [id]: 'connecting' }))
-    setTimeout(() => {
-      setStatuses(prev => ({ ...prev, [id]: 'connected' }))
-    }, 900)
+    setActiveProvider(id)
+    setStage(1)
+
+    timersRef.current.push(setTimeout(() => setStage(2), TIMING.showCheck))
+    timersRef.current.push(setTimeout(() => setStage(3), TIMING.showConnected))
+    timersRef.current.push(setTimeout(() => {
+      navigate('/enterprise-home', { state: { calendarConnected: true } })
+    }, TIMING.navigate))
   }
 
   return (
@@ -353,13 +239,13 @@ export function CalendarSyncScreen() {
       overflow: 'hidden',
     }}>
 
-      {/* ── Top bar ── */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '28px 72px 0',
+        padding: '28px 56px 0',
         flexShrink: 0,
       }}>
         <button
+          type="button"
           onClick={() => navigate(-1)}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
@@ -378,6 +264,7 @@ export function CalendarSyncScreen() {
         </button>
 
         <button
+          type="button"
           style={{
             width: 40, height: 40, borderRadius: '50%',
             background: C.surface, border: `1.5px solid ${C.borderSubtle}`,
@@ -396,146 +283,197 @@ export function CalendarSyncScreen() {
         </button>
       </div>
 
-      {/* ── Two-column layout ── */}
       <div style={{
         flex: 1,
         display: 'flex',
         justifyContent: 'center',
-        padding: '3vh 72px 4vh',
+        padding: '3vh 56px 4vh',
         overflow: 'hidden',
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'stretch',
-          gap: 64,
+          gap: LAYOUT.columnGapPx,
           width: '100%',
-          maxWidth: 940,
+          maxWidth: LAYOUT.rowMaxWidthPx,
         }}>
 
-          {/* ── LEFT PANEL ── */}
           <div style={{
-            width: 320, flexShrink: 0,
+            width: LAYOUT.leftWidthPx, flexShrink: 0,
             display: 'flex', flexDirection: 'column',
             justifyContent: 'flex-start',
             gap: 20,
           }}>
-
-            {/* Heading */}
             <div>
               <h1 style={{
                 fontSize: 26, fontWeight: 700, lineHeight: '32px',
-                color: C.textPrimary, margin: '0 0 8px',
+                color: C.textPrimary, margin: '0 0 10px',
                 letterSpacing: '-0.02em',
                 whiteSpace: 'nowrap',
               }}>
                 Sync your calendar
               </h1>
               <p style={{ fontSize: 13, color: C.textSecond, margin: 0, lineHeight: 1.55 }}>
-                See all your upcoming meetings directly inside Webex.
-              </p>
-            </div>
-
-            {/* Info banner */}
-            <div style={{
-              background: C.infoBg,
-              border: `1px solid ${C.infoBorder}`,
-              borderRadius: 10,
-              padding: '11px 14px',
-              display: 'flex', gap: 9, alignItems: 'flex-start',
-            }}>
-              <div style={{ color: C.infoText, flexShrink: 0, marginTop: 1 }}>
-                <InfoIcon />
-              </div>
-              <p style={{ fontSize: 12, color: C.infoText, margin: 0, lineHeight: 1.55 }}>
                 Webex only reads your calendar to show meeting times. It will never create or delete events without your action.
               </p>
             </div>
 
-            {/* Mini calendar */}
-            <MiniCalendar />
-
+            {/* Same panel treatment as home `ConnectCalendarModal` info banner */}
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: 10,
+              background: '#081E3D',
+              border: '1px solid #0E3260',
+              borderRadius: 10,
+              padding: 14,
+            }}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
+                <circle cx="10" cy="10" r="8.5" stroke="#92CBF2" strokeWidth="1.4"/>
+                <path d="M10 9v5" stroke="#92CBF2" strokeWidth="1.4" strokeLinecap="round"/>
+                <circle cx="10" cy="6.5" r="0.8" fill="#92CBF2"/>
+              </svg>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#92CBF2', margin: 0, lineHeight: 1.5 }}>
+                You&apos;ll be briefly taken to your calendar provider to sign in, then brought right back.
+              </p>
+            </div>
           </div>
 
-          {/* ── RIGHT PANEL ── */}
           <motion.div
             initial={{ opacity: 0, y: CONTENT.enterY }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...CONTENT.spring, delay: CONTENT.delay }}
             style={{
               flex: 1,
+              minWidth: LAYOUT.rightMinWidthPx,
+              minHeight: 0,
               display: 'flex', flexDirection: 'column',
               justifyContent: 'flex-start',
-              gap: 14,
+              gap: 16,
             }}
           >
-
-            {/* Section label */}
             <div>
-              <p style={{
-                fontSize: 11, fontWeight: 600, color: C.textMuted,
-                textTransform: 'uppercase', letterSpacing: '0.1em',
-                margin: '0 0 4px',
-              }}>
-                Choose a calendar
-              </p>
-              <p style={{ fontSize: 13, color: C.textSecond, margin: 0, lineHeight: 1.5 }}>
-                Connect one or more providers — you can always add more later.
-              </p>
+              {workEmail && (
+                <p style={{
+                  fontSize: 14, fontWeight: 400, color: '#AAAAAA',
+                  margin: '4px 0 0', lineHeight: '20px',
+                }}>
+                  for {workEmail}
+                </p>
+              )}
             </div>
 
-            {/* Provider cards */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {PROVIDERS.map(provider => (
-                <ProviderCard
-                  key={provider.id}
-                  provider={provider}
-                  status={statuses[provider.id]}
-                  onConnect={handleConnect}
-                />
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {PROVIDERS.map(p => {
+                const isActive = activeProvider === p.id
+                const isHovered = hoveredProvider === p.id && !activeProvider
+                const isConnected = isActive && stage >= 3
+                const borderColor = isActive ? C.accent : (isHovered ? C.borderHover : C.borderModal)
+                const background = isActive
+                  ? 'rgba(74, 195, 151, 0.08)'
+                  : (isHovered ? 'rgba(255,255,255,0.04)' : 'transparent')
+
+                return (
+                  <div
+                    key={p.id}
+                    role="button"
+                    tabIndex={activeProvider ? -1 : 0}
+                    onClick={() => !activeProvider && handleChooseProvider(p.id)}
+                    onKeyDown={e => {
+                      if (!activeProvider && (e.key === 'Enter' || e.key === ' ')) {
+                        e.preventDefault()
+                        handleChooseProvider(p.id)
+                      }
+                    }}
+                    onMouseEnter={() => setHoveredProvider(p.id)}
+                    onMouseLeave={() => setHoveredProvider(null)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 16,
+                      padding: '12px 20px',
+                      border: `1px solid ${borderColor}`,
+                      borderRadius: 8,
+                      cursor: activeProvider && !isActive ? 'default' : 'pointer',
+                      background,
+                      opacity: activeProvider && !isActive ? 0.45 : 1,
+                      transition: 'background 0.15s, border-color 0.15s, opacity 0.2s',
+                      outline: 'none',
+                    }}
+                  >
+                    <div style={{ flexShrink: 0 }}>{p.icon}</div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, overflow: 'hidden' }}>
+                      <span style={{ fontSize: 16, fontWeight: 500, color: '#FFFFFF', lineHeight: '24px' }}>
+                        {p.name}
+                      </span>
+                      <div style={{ position: 'relative', height: 20 }}>
+                        <AnimatePresence mode="wait">
+                          {isConnected ? (
+                            <motion.span
+                              key="connected"
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={CONNECTED_TEXT.spring}
+                              style={{
+                                position: 'absolute', left: 0, top: 0,
+                                fontSize: 14, fontWeight: 500, color: C.accent,
+                                lineHeight: '20px', whiteSpace: 'nowrap',
+                              }}
+                            >
+                              Calendar connected
+                            </motion.span>
+                          ) : (
+                            <motion.span
+                              key="sub"
+                              exit={{ opacity: 0, y: -6 }}
+                              transition={{ duration: 0.15 }}
+                              style={{
+                                position: 'absolute', left: 0, top: 0,
+                                fontSize: 14, fontWeight: 400, color: '#AAAAAA',
+                                lineHeight: '20px', whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {p.sub}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                    <div style={{ flexShrink: 0 }}>
+                      <RowIcon stage={isActive ? stage : 0} />
+                    </div>
+                  </div>
+                )
+              })}
             </div>
 
-            {/* Connect button */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
-              <button
-                onClick={() => anyConnected && navigate('/enterprise-home')}
-                disabled={!anyConnected}
-                style={{
-                  width: '100%', padding: '13px 16px',
-                  background: anyConnected
-                    ? 'linear-gradient(90deg, #1c8160 0%, #2aab7d 100%)'
-                    : C.surface,
-                  border: `1px solid ${anyConnected ? 'transparent' : C.border}`,
-                  borderRadius: 9999,
-                  fontSize: 14, fontWeight: 600,
-                  color: anyConnected ? '#FFFFFF' : C.textMuted,
-                  fontFamily: 'inherit',
-                  cursor: anyConnected ? 'pointer' : 'default',
-                  transition: 'opacity 0.15s, transform 0.1s, background 0.3s',
-                }}
-                onMouseEnter={e => { if (anyConnected) { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)' } }}
-                onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)' }}
-              >
-                {anyConnected ? 'Connect & continue →' : 'Connect a calendar to continue'}
-              </button>
-
-              <button
-                onClick={() => navigate('/enterprise-home')}
-                style={{
-                  background: 'none', border: 'none',
-                  fontSize: 13, color: C.textMuted,
-                  cursor: 'pointer', fontFamily: 'inherit',
-                  fontWeight: 500, padding: '4px 0',
-                  transition: 'color 0.15s',
-                  textAlign: 'center',
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = C.textSecond}
-                onMouseLeave={e => e.currentTarget.style.color = C.textMuted}
-              >
-                Skip for now
-              </button>
-            </div>
-
+            <button
+              type="button"
+              onClick={() => navigate('/enterprise-home')}
+              style={{
+                alignSelf: 'center',
+                marginTop: 4,
+                padding: '12px 32px',
+                minHeight: 46,
+                fontSize: 14,
+                fontWeight: 600,
+                color: C.textSecond,
+                fontFamily: 'inherit',
+                background: 'transparent',
+                border: `1px solid ${C.borderModal}`,
+                borderRadius: 9999,
+                cursor: 'pointer',
+                transition: 'background 0.15s, border-color 0.15s, color 0.15s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+                e.currentTarget.style.borderColor = C.borderHover
+                e.currentTarget.style.color = C.textPrimary
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.borderColor = C.borderModal
+                e.currentTarget.style.color = C.textSecond
+              }}
+            >
+              Skip for now
+            </button>
           </motion.div>
         </div>
       </div>

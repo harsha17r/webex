@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { SetupProfileModal } from './modals/SetupProfileModal'
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal'
 import { AppearancesModal } from './modals/AppearancesModal'
-import { ConnectCalendarModal } from './modals/ConnectCalendarModal'
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD — OnboardingChecklist open / close
@@ -14,9 +12,7 @@ import { ConnectCalendarModal } from './modals/ConnectCalendarModal'
  *    0ms   row 1     → y:8 → 0, opacity 0 → 1  (spring)
  *   50ms   row 2     → y:8 → 0, opacity 0 → 1  (stagger)
  *  100ms   row 3     → y:8 → 0, opacity 0 → 1
- *  150ms   row 4     → y:8 → 0, opacity 0 → 1
- *  200ms   row 5     → y:8 → 0, opacity 0 → 1
- *  260ms   footer    → y:4 → 0, opacity 0 → 1  (last in)
+ *  160ms   footer    → y:4 → 0, opacity 0 → 1  (last in)
  *
  * CLOSE (click header):
  *    0ms   rows+footer → opacity 1 → 0  (simultaneous, fast 80ms)
@@ -65,24 +61,6 @@ const TASKS = [
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20">
         <path fill="#FFFFFF" d="M5 4a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h5a3 3 0 0 0 3-3v-.321l3.037 2.097a1.25 1.25 0 0 0 1.96-1.029V6.252a1.25 1.25 0 0 0-1.96-1.028L13 7.32V7a3 3 0 0 0-3-3zm8 4.536l3.605-2.49a.25.25 0 0 1 .392.206v7.495a.25.25 0 0 1-.392.206L13 11.463zM3 7a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-      </svg>
-    ),
-  },
-  {
-    key: 'profile',
-    label: 'Set up your profile',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20">
-        <path fill="#FFFFFF" d="M10 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8M7 6a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-1.991 5A2 2 0 0 0 3 13c0 1.691.833 2.966 2.135 3.797C6.417 17.614 8.145 18 10 18s3.583-.386 4.865-1.203C16.167 15.967 17 14.69 17 13a2 2 0 0 0-2-2zM4 13c0-.553.448-1 1.009-1H15a1 1 0 0 1 1 1c0 1.309-.622 2.284-1.673 2.953C13.257 16.636 11.735 17 10 17s-3.257-.364-4.327-1.047C4.623 15.283 4 14.31 4 13"/>
-      </svg>
-    ),
-  },
-  {
-    key: 'calendar',
-    label: 'Connect your Calendar',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20">
-        <path fill="#FFFFFF" d="M7 11a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 2a1 1 0 1 1-2 0a1 1 0 0 1 2 0m2-2a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 2a1 1 0 1 1-2 0a1 1 0 0 1 2 0m2-2a1 1 0 1 0 0-2a1 1 0 0 0 0 2m4-5.5A2.5 2.5 0 0 0 14.5 3h-9A2.5 2.5 0 0 0 3 5.5v9A2.5 2.5 0 0 0 5.5 17h9a2.5 2.5 0 0 0 2.5-2.5zM4 7h12v7.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 4 14.5zm1.5-3h9A1.5 1.5 0 0 1 16 5.5V6H4v-.5A1.5 1.5 0 0 1 5.5 4"/>
       </svg>
     ),
   },
@@ -167,14 +145,14 @@ function TaskRow({ task, done, onClick }) {
 
 /* ─── OnboardingChecklist ───────────────────────────────── */
 
-export function OnboardingChecklist({ onCalendarConnect }) {
-  const [open,             setOpen]             = useState(false)
-  const [dismissed,        setDismissed]        = useState(false)
-  const [completed,        setCompleted]        = useState(new Set())
-  const [profileModalOpen,    setProfileModalOpen]    = useState(false)
+const DISMISSED_KEY = 'webex_checklist_dismissed'
+
+export function OnboardingChecklist() {
+  const [open,      setOpen]      = useState(false)
+  const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISSED_KEY) === 'true')
+  const [completed, setCompleted] = useState(new Set())
   const [notifModalOpen,      setNotifModalOpen]      = useState(false)
   const [appearancesOpen,     setAppearancesOpen]     = useState(false)
-  const [calendarModalOpen,   setCalendarModalOpen]   = useState(false)
 
   if (dismissed) return null
 
@@ -250,7 +228,7 @@ export function OnboardingChecklist({ onCalendarConnect }) {
           }}/>
         </div>
         <span style={{ fontSize: 14, fontWeight: 400, color: '#737373', lineHeight: '16px', flexShrink: 0 }}>
-          {completed.size}/5
+          {completed.size}/3
         </span>
       </div>
 
@@ -278,10 +256,8 @@ export function OnboardingChecklist({ onCalendarConnect }) {
               task={task}
               done={completed.has(task.key)}
               onClick={() => {
-                if (task.key === 'profile') setProfileModalOpen(true)
-                else if (task.key === 'notifications') setNotifModalOpen(true)
+                if (task.key === 'notifications') setNotifModalOpen(true)
                 else if (task.key === 'appearance') setAppearancesOpen(true)
-                else if (task.key === 'calendar') setCalendarModalOpen(true)
                 else toggleTask(task.key)
               }}
             />
@@ -300,7 +276,7 @@ export function OnboardingChecklist({ onCalendarConnect }) {
           }
         >
           <div
-            onClick={() => setDismissed(true)}
+            onClick={() => { localStorage.setItem(DISMISSED_KEY, 'true'); setDismissed(true) }}
             style={{ padding: '8px 0', cursor: 'pointer' }}
           >
             <span style={{ fontSize: 12, fontWeight: 400, color: '#2E96E8', lineHeight: '20px' }}>
@@ -311,27 +287,6 @@ export function OnboardingChecklist({ onCalendarConnect }) {
       </motion.div>
 
     </div>
-
-    {/* Profile setup modal */}
-    <AnimatePresence>
-      {profileModalOpen && (
-        <SetupProfileModal
-          onClose={() => setProfileModalOpen(false)}
-          onSave={() => toggleTask('profile')}
-          onOpenAppearances={() => setAppearancesOpen(true)}
-        />
-      )}
-    </AnimatePresence>
-
-    {/* Calendar modal */}
-    <AnimatePresence>
-      {calendarModalOpen && (
-        <ConnectCalendarModal
-          onClose={() => setCalendarModalOpen(false)}
-          onSave={() => { toggleTask('calendar'); onCalendarConnect?.() }}
-        />
-      )}
-    </AnimatePresence>
 
     {/* Appearances modal */}
     <AnimatePresence>

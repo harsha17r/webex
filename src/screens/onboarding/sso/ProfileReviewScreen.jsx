@@ -1,19 +1,20 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { COMPANY, EMPLOYEE } from '../../../config/employee'
-import logoVerticalRGB from '../../../assets/logos/RGB_Webex_Logo_lockup_vertical_whitetext.svg'
+import { useProfile } from '../../../context/ProfileContext'
+import { ProfilePhotoCropOverlay } from '../../../components/profile/ProfilePhotoCropOverlay'
 
 /* ─────────────────────────────────────────────────────────
  * ProfileReviewScreen — Two-column, single-fold layout
  *
- * LEFT PANEL (320px)
+ * LEFT PANEL (fixed width — see LAYOUT)
  *   Webex vertical logo
  *   "Review your profile" heading + subtitle
  *   Admin info banner
- *   Avatar + name + upload button (row layout)
+ *   Avatar + bordered Upload photo / Remove photo
  *
- * RIGHT PANEL (flex: 1, max ~520px)
+ * RIGHT PANEL (flex: 1 — min width + row max in LAYOUT)
  *   Display name (editable)
  *   Phone number (editable, optional)
  *   ── Account details ──
@@ -50,15 +51,30 @@ const CONTENT = {
   delay:  0.15,
 }
 
-/* ── Icons ────────────────────────────────────────────── */
-
-function ArrowLeftIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path d="M8.5 2.5L4 7l4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
+/** Two-column layout (px). */
+const LAYOUT = {
+  leftWidthPx:      400,
+  rightMinWidthPx:  360,
+  rowMaxWidthPx:    1020,
+  columnGapPx:      80,
 }
+
+/**
+ * Profile row (avatar + upload controls) — tweak sizes here.
+ */
+const PROFILE_HEADER = {
+  avatarPx:            120,
+  initialsFontPx:      26,
+  rowGapPx:            24,
+  /** Bordered “Upload photo” control */
+  uploadIconPx:        16,
+  uploadFontPx:        14,
+  uploadPadding:       '12px 20px',
+  uploadBorderRadius:  12,
+  uploadIconTextGap:   10,
+}
+
+/* ── Icons ────────────────────────────────────────────── */
 
 function LockIcon() {
   return (
@@ -69,11 +85,13 @@ function LockIcon() {
   )
 }
 
-function CameraIcon() {
+/** Tray + arrow upload (stroke uses `currentColor`). */
+function UploadPhotoIcon({ size = 18 }) {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-      <circle cx="12" cy="13" r="4"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="12" y1="3" x2="12" y2="15" />
     </svg>
   )
 }
@@ -89,29 +107,27 @@ function InfoIcon() {
 
 /* ── Sub-components ───────────────────────────────────── */
 
-function SectionDivider({ label }) {
+function SectionHeading({ label }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%' }}>
-      <div style={{ flex: 1, height: 1, background: C.border }} />
+    <div style={{ width: '100%', textAlign: 'left' }}>
       <span style={{
-        fontSize: 10, fontWeight: 600, color: C.textMuted,
-        textTransform: 'uppercase', letterSpacing: '0.1em', flexShrink: 0,
+        fontSize: 12, fontWeight: 600, color: C.textMuted,
+        textTransform: 'uppercase', letterSpacing: '0.1em',
       }}>
         {label}
       </span>
-      <div style={{ flex: 1, height: 1, background: C.border }} />
     </div>
   )
 }
 
 function LockedField({ label, value }) {
   return (
-    <div>
+    <div style={{ cursor: 'not-allowed' }}>
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginBottom: 5,
+        marginBottom: 6,
       }}>
-        <label style={{ fontSize: 12, fontWeight: 500, color: C.textSecond }}>
+        <label style={{ fontSize: 13, fontWeight: 500, color: C.textSecond }}>
           {label}
         </label>
         <div style={{ display: 'flex', alignItems: 'center', gap: 3, color: C.textMuted }}>
@@ -122,14 +138,18 @@ function LockedField({ label, value }) {
         </div>
       </div>
       <div style={{
-        width: '100%', padding: '8px 12px',
+        width: '100%',
+        padding: '10px 14px',
+        minHeight: 44,
+        display: 'flex', alignItems: 'center',
         background: C.surfaceLock,
         border: `1px solid ${C.border}`,
         borderRadius: 8,
-        fontSize: 13, color: C.textLock,
+        fontSize: 14, fontWeight: 500, color: C.textLock,
+        lineHeight: '20px',
         fontFamily: "'Inter', system-ui, sans-serif",
         boxSizing: 'border-box',
-        userSelect: 'none', cursor: 'default',
+        userSelect: 'none',
         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
       }}>
         {value}
@@ -139,27 +159,68 @@ function LockedField({ label, value }) {
 }
 
 function getInitials(name) {
-  return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (!parts.length) return '?'
+  return parts.map(n => n[0]).join('').slice(0, 2).toUpperCase()
 }
 
 /* ── Main screen ──────────────────────────────────────── */
 
 export function ProfileReviewScreen() {
-  const navigate    = useNavigate()
-  const fileRef     = useRef(null)
+  const navigate = useNavigate()
+  const fileRef = useRef(null)
+  const cropBlobRef = useRef(null)
+  const { profile, updateProfile } = useProfile()
 
-  const [displayName, setDisplayName] = useState(EMPLOYEE.name)
+  const [displayName, setDisplayName] = useState(() => profile.name || EMPLOYEE.name)
   const [phone,       setPhone]       = useState('')
-  const [photo,       setPhoto]       = useState(null)
+  const [photo,       setPhoto]       = useState(() => profile.photoUrl ?? null)
+  const [cropRawUrl,  setCropRawUrl]   = useState(null)
   const [nameFocus,   setNameFocus]   = useState(false)
   const [phoneFocus,  setPhoneFocus]  = useState(false)
 
-  function handlePhotoChange(e) {
+  function closeCropper() {
+    if (cropBlobRef.current) {
+      URL.revokeObjectURL(cropBlobRef.current)
+      cropBlobRef.current = null
+    }
+    setCropRawUrl(null)
+  }
+
+  useEffect(() => () => {
+    if (cropBlobRef.current) URL.revokeObjectURL(cropBlobRef.current)
+  }, [])
+
+  function handlePhotoFilePick(e) {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => setPhoto(reader.result)
-    reader.readAsDataURL(file)
+    const url = URL.createObjectURL(file)
+    if (cropBlobRef.current) URL.revokeObjectURL(cropBlobRef.current)
+    cropBlobRef.current = url
+    setCropRawUrl(url)
+    e.target.value = ''
+  }
+
+  const handleCropApply = useCallback((dataUrl) => {
+    closeCropper()
+    setPhoto(dataUrl)
+    updateProfile({ photoUrl: dataUrl })
+  }, [updateProfile])
+
+  const handleCropCancel = useCallback(() => {
+    closeCropper()
+  }, [])
+
+  function removePhoto() {
+    closeCropper()
+    setPhoto(null)
+    updateProfile({ photoUrl: null })
+  }
+
+  function handleSaveAndContinue() {
+    const name = displayName.trim() || profile.name || EMPLOYEE.name
+    updateProfile({ name, photoUrl: photo })
+    navigate('/calendar-sync')
   }
 
   return (
@@ -170,31 +231,20 @@ export function ProfileReviewScreen() {
       display: 'flex', flexDirection: 'column',
       overflow: 'hidden',
     }}>
+      {cropRawUrl && (
+        <ProfilePhotoCropOverlay
+          rawImageUrl={cropRawUrl}
+          onApply={handleCropApply}
+          onCancel={handleCropCancel}
+        />
+      )}
 
-      {/* ── Top bar — Back pill + "…" button ── */}
+      {/* ── Top bar — "…" only ── */}
       <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '28px 72px 0',
+        display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+        padding: '28px 56px 0',
         flexShrink: 0,
       }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '10px 20px',
-            background: 'transparent',
-            border: `2px solid ${C.borderSubtle}`,
-            borderRadius: 9999,
-            fontSize: 14, fontWeight: 600, color: C.borderSubtle,
-            fontFamily: 'inherit', cursor: 'pointer',
-            transition: 'border-color 0.15s, color 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = C.textPrimary; e.currentTarget.style.color = C.textPrimary }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.color = C.borderSubtle }}
-        >
-          <ArrowLeftIcon /> Back
-        </button>
-
         <button
           style={{
             width: 40, height: 40, borderRadius: '50%',
@@ -221,20 +271,20 @@ export function ProfileReviewScreen() {
         flex: 1,
         display: 'flex',
         justifyContent: 'center',
-        padding: '3vh 72px 4vh',
+        padding: '3vh 56px 4vh',
         overflow: 'hidden',
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'stretch',
-          gap: 64,
+          gap: LAYOUT.columnGapPx,
           width: '100%',
-          maxWidth: 940,
+          maxWidth: LAYOUT.rowMaxWidthPx,
         }}>
 
           {/* ── LEFT PANEL ── */}
           <div style={{
-            width: 320, flexShrink: 0,
+            width: LAYOUT.leftWidthPx, flexShrink: 0,
             display: 'flex', flexDirection: 'column',
             justifyContent: 'flex-start',
             gap: 20,
@@ -250,9 +300,6 @@ export function ProfileReviewScreen() {
               }}>
                 Review your profile
               </h1>
-              <p style={{ fontSize: 13, color: C.textSecond, margin: 0, lineHeight: 1.55 }}>
-                Make sure everything looks right before you get started.
-              </p>
             </div>
 
             {/* Info banner */}
@@ -266,9 +313,12 @@ export function ProfileReviewScreen() {
               <div style={{ color: C.infoText, flexShrink: 0, marginTop: 1 }}>
                 <InfoIcon />
               </div>
-              <p style={{ fontSize: 12, color: C.infoText, margin: 0, lineHeight: 1.55 }}>
-                Some fields are managed by <strong>{COMPANY.name}</strong>. Contact your IT administrator to update them.
+              <p style={{ fontSize: 14, color: C.infoText, margin: 0, lineHeight: 1.55 }}>
+                Some fields are managed by <strong>{COMPANY.name}</strong>.
+                Contact your IT administrator to update them.
               </p>
+              
+              
             </div>
           </div>
 
@@ -280,17 +330,19 @@ export function ProfileReviewScreen() {
             transition={{ ...CONTENT.spring, delay: CONTENT.delay }}
             style={{
               flex: 1,
+              minWidth: LAYOUT.rightMinWidthPx,
+              minHeight: 0,
               display: 'flex', flexDirection: 'column',
               justifyContent: 'flex-start',
               gap: 24,
             }}
           >
 
-            {/* ── Profile photo — above display name ── */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ position: 'relative', flexShrink: 0 }}>
+            {/* ── Profile photo — sizes: PROFILE_HEADER ── */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: PROFILE_HEADER.rowGapPx }}>
+              <div style={{ flexShrink: 0 }}>
                 <div style={{
-                  width: 64, height: 64, borderRadius: '50%',
+                  width: PROFILE_HEADER.avatarPx, height: PROFILE_HEADER.avatarPx, borderRadius: '50%',
                   background: photo ? 'transparent' : 'linear-gradient(135deg, #2AAB7D, #5cb3f0)',
                   border: `2px solid ${C.border}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -299,47 +351,64 @@ export function ProfileReviewScreen() {
                   {photo ? (
                     <img src={photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <span style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>
-                      {getInitials(EMPLOYEE.name)}
+                    <span style={{ fontSize: PROFILE_HEADER.initialsFontPx, fontWeight: 700, color: '#fff' }}>
+                      {getInitials(displayName)}
                     </span>
                   )}
                 </div>
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  style={{
-                    position: 'absolute', bottom: 1, right: 1,
-                    width: 22, height: 22, borderRadius: '50%',
-                    background: '#2A2A2A', border: `2px solid ${C.bg}`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', color: C.borderSubtle,
-                    transition: 'background 0.15s, color 0.15s',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#383838'; e.currentTarget.style.color = '#fff' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#2A2A2A'; e.currentTarget.style.color = C.borderSubtle }}
-                  aria-label="Upload photo"
-                >
-                  <CameraIcon />
-                </button>
               </div>
 
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 600, color: C.textPrimary, margin: '0 0 3px' }}>
-                  {EMPLOYEE.name}
-                </p>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
                 <button
+                  type="button"
                   onClick={() => fileRef.current?.click()}
                   style={{
-                    background: 'none', border: 'none',
-                    fontSize: 12, color: C.infoText,
-                    cursor: 'pointer', fontFamily: 'inherit',
-                    fontWeight: 500, padding: 0,
-                    transition: 'opacity 0.15s',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    gap: PROFILE_HEADER.uploadIconTextGap,
+                    padding: PROFILE_HEADER.uploadPadding,
+                    background: 'transparent',
+                    border: `1px solid ${C.borderSubtle}`,
+                    borderRadius: PROFILE_HEADER.uploadBorderRadius,
+                    fontSize: PROFILE_HEADER.uploadFontPx,
+                    fontWeight: 500,
+                    color: C.borderSubtle,
+                    fontFamily: 'inherit',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.15s, color 0.15s, background 0.15s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
-                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = C.textSecond
+                    e.currentTarget.style.color = C.textSecond
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = C.borderSubtle
+                    e.currentTarget.style.color = C.borderSubtle
+                    e.currentTarget.style.background = 'transparent'
+                  }}
                 >
-                  {photo ? 'Change photo' : 'Upload a photo'}
+                  <UploadPhotoIcon size={PROFILE_HEADER.uploadIconPx} />
+                  {photo ? 'Change photo' : 'Upload photo'}
                 </button>
+                {photo && (
+                  <button
+                    type="button"
+                    onClick={removePhoto}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '8px 0',
+                      fontSize: 14,
+                      lineHeight: '20px',
+                      fontWeight: 500,
+                      color: C.textMuted,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    Remove photo
+                  </button>
+                )}
               </div>
 
               <input
@@ -347,7 +416,7 @@ export function ProfileReviewScreen() {
                 type="file"
                 accept="image/*"
                 style={{ display: 'none' }}
-                onChange={handlePhotoChange}
+                onChange={handlePhotoFilePick}
               />
             </div>
 
@@ -411,13 +480,13 @@ export function ProfileReviewScreen() {
             </div>
 
             {/* Section divider */}
-            <SectionDivider label="Account details" />
+            <SectionHeading label="Account details" />
 
             {/* Locked fields — 2-col grid */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              gap: '14px 14px',
+              gap: '28px 24px',
             }}>
               <LockedField label="Full name"    value={EMPLOYEE.name} />
               <LockedField label="Work email"   value={EMPLOYEE.email} />
@@ -430,7 +499,8 @@ export function ProfileReviewScreen() {
 
             {/* Save button */}
             <button
-              onClick={() => navigate('/calendar-sync')}
+              type="button"
+              onClick={handleSaveAndContinue}
               style={{
                 width: '100%', padding: '13px 16px',
                 marginTop: 6,
@@ -444,7 +514,7 @@ export function ProfileReviewScreen() {
               onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)' }}
               onMouseDown={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
-              Save & continue →
+              Save & continue
             </button>
 
           </motion.div>

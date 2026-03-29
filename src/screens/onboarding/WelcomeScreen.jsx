@@ -276,7 +276,7 @@ export function WelcomeScreen() {
             </button>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.accent, margin: 0 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.textPrimary, margin: 0 }}>
                 Webex Free
               </span>
               <p style={{ fontSize: 14, lineHeight: '18px', color: C.textMuted, margin: 0 }}>
