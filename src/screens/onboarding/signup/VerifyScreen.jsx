@@ -410,7 +410,7 @@ export function VerifyScreen() {
                 </motion.div>
 
                 <h1 style={{ fontSize: 32, lineHeight: '40px', fontWeight: 600, color: C.textPrimary, margin: 0, textAlign: 'center' }}>
-                  Verification successful !
+                  Verification successful!
                 </h1>
               </motion.div>
             )}

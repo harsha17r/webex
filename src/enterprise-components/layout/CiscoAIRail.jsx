@@ -15,7 +15,7 @@ const SUGGESTIONS = [
   'How do I set up my profile?',
   'How do I set up my notifications?',
   'What is custom status?',
-  'How do I find and message someone?',
+  'What can you help me with?',
 ]
 
 export function CiscoAIIcon({ size = 56 }) {

@@ -5,6 +5,59 @@
 
 ---
 
+### [2026-04-02] — Appearance panel inside Settings modal
+
+**Status:** 🟢 Done
+
+**What changed:**
+Extracted `AppearanceSettingsPanel` from `AppearancesModal.jsx` (SMB + enterprise copies): Mode + Theme grids, optional description via `includeDescription`. Standalone `AppearancesModal` now renders that panel in its scroll area with `includeDescription={false}` so the header subtitle is not duplicated. `NotificationSettingsModal.jsx` (both trees) imports the panel and, when sidebar **Appearance** is selected, shows a `SectionCard` titled **Appearance** with the full appearance UI (description + mode + theme) inside the existing right-hand scroll column.
+
+**Files touched:**
+- `src/components/modals/AppearancesModal.jsx`
+- `src/components/modals/NotificationSettingsModal.jsx`
+- `src/enterprise-components/modals/AppearancesModal.jsx`
+- `src/enterprise-components/modals/NotificationSettingsModal.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Wire other nav placeholders or persist appearance state if product requires it.
+
+---
+
+### [2026-04-02 23:20] — Custom meeting reminder: editable empty field
+
+**Status:** 🟢 Done
+
+**What changed:**
+The custom time field was a controlled `type="number"` input bound only to numeric state, so clearing the field did nothing (`parseInt('')` → no update). Added parallel string state `customMinutesStr`, synced from `customMinutes` when the number changes (stepper, unit toggle, dropdown reset), switched input to `type="text"` with `inputMode="numeric"`, allow `''` or digits-only in `onChange`, and commit clamped values on `blur` (and **Enter**). Preview line uses `customReminderPreview` so it tracks in-progress typing and falls back to the last committed value when the field is empty. Applied in both SMB and enterprise `NotificationSettingsModal.jsx`.
+
+**Files touched:**
+- `src/components/modals/NotificationSettingsModal.jsx`
+- `src/enterprise-components/modals/NotificationSettingsModal.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Same as prior: extend remaining settings panels as needed.
+
+---
+
+### [2026-04-02 22:45] — Meeting custom reminder: compact layout, 15 min default
+
+**Status:** 🟢 Done
+
+**What changed:**
+In both `NotificationSettingsModal.jsx` copies (SMB `src/components` and enterprise `src/enterprise-components`), tightened the “Custom” meeting reminder block so its controls match the `SoundDropdown` row visually: fixed control height **28px**, **borderRadius 4** on stepper and segmented toggle (same family as dropdown), **fontSize 13** for the numeric input and **#CCCCCC** like the dropdown label, smaller **±** buttons. Reduced outer padding/gaps and top margin so the card is shorter. Default **customMinutes** is now **15** (initial state and reset when leaving Custom). Summary line stays **12px** italic secondary text; step row uses **13px** to align with dropdown text.
+
+**Files touched:**
+- `src/components/modals/NotificationSettingsModal.jsx`
+- `src/enterprise-components/modals/NotificationSettingsModal.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Pick up from prior “Next up”: extend other settings panels (Video, Appearance, etc.) as needed.
+
+---
+
 ### [2026-04-02 21:30] — Settings modal: General, Audio panels + custom meeting reminder
 
 **Status:** 🟢 Done

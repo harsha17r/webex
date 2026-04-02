@@ -68,7 +68,7 @@ const SUGGESTIONS = [
   { label: 'Catch me up',                gradient: false },
   { label: 'Was my name mentioned?',     gradient: false },
   { label: 'What are the action items?', gradient: false },
-  { label: 'What all can Cisco AI do?',  gradient: true  },
+  { label: 'What can I do with Cisco AI?',  gradient: true  },
 ]
 
 export function MeetingAIRail({ onClose, summaryActive, onSummaryToggle }) {

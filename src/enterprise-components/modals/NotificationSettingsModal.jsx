@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'motion/react'
+import { AppearanceSettingsPanel } from './AppearancesModal'
 
 /* ─────────────────────────────────────────────────────────
  * NotificationSettingsModal
@@ -726,7 +727,8 @@ export function NotificationSettingsModal({ onClose, onSave }) {
 
   // ── Meeting state ──
   const [mtgVal,        setMtgVal]        = useState('5 minutes before')
-  const [customMinutes, setCustomMinutes] = useState(30)
+  const [customMinutes, setCustomMinutes] = useState(15)
+  const [customMinutesStr, setCustomMinutesStr] = useState('15')
   const [customUnit,    setCustomUnit]    = useState('minutes')
   const [mtgRing,       setMtgRing]       = useState('Off')
   const [mtgMute,       setMtgMute]       = useState(false)
@@ -781,6 +783,16 @@ export function NotificationSettingsModal({ onClose, onSave }) {
       }, 260)
     }
   }, [quietExpanded])
+
+  useEffect(() => {
+    setCustomMinutesStr(String(customMinutes))
+  }, [customMinutes])
+
+  const maxCustomPreview = customUnit === 'hours' ? 24 : 1440
+  const rawCustomPreview = parseInt(customMinutesStr, 10)
+  const customReminderPreview = customMinutesStr !== '' && !isNaN(rawCustomPreview)
+    ? Math.min(maxCustomPreview, Math.max(1, rawCustomPreview))
+    : customMinutes
 
   const activeLabel = activeNav === 'notifications'
     ? 'Notification Settings'
@@ -950,7 +962,7 @@ export function NotificationSettingsModal({ onClose, onSave }) {
                             value={mtgVal}
                             onChange={v => {
                               setMtgVal(v)
-                              if (v !== 'Custom') { setCustomMinutes(30); setCustomUnit('minutes') }
+                              if (v !== 'Custom') { setCustomMinutes(15); setCustomUnit('minutes') }
                             }}
                             options={['5 minutes before', '1 minute before', 'At start time', 'Off', 'Custom']}
                             width={220}
@@ -966,64 +978,81 @@ export function NotificationSettingsModal({ onClose, onSave }) {
                                 style={{ overflow: 'hidden' }}
                               >
                                 <div style={{
-                                  marginTop: 12, background: '#181818',
+                                  marginTop: 8, background: '#181818',
                                   border: '1px solid #2A2A2A', borderRadius: 6,
-                                  padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10,
+                                  padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 6,
                                 }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
 
-                                    {/* Stepper */}
+                                    {/* Stepper — height/font aligned with SoundDropdown trigger */}
                                     <div style={{
                                       display: 'flex', alignItems: 'center',
-                                      background: '#222222', border: '1px solid #3A3A3A', borderRadius: 6, overflow: 'hidden',
+                                      background: '#222222', border: '1px solid #3A3A3A', borderRadius: 4, overflow: 'hidden',
+                                      height: 28, boxSizing: 'border-box',
                                     }}>
                                       <button
+                                        type="button"
                                         onClick={() => setCustomMinutes(v => Math.max(1, v - 1))}
                                         style={{
-                                          width: 32, height: 34, border: 'none', borderRight: '1px solid #3A3A3A',
-                                          background: 'transparent', color: '#AAAAAA', fontSize: 18, lineHeight: 1,
+                                          width: 28, height: '100%', border: 'none', borderRight: '1px solid #3A3A3A',
+                                          background: 'transparent', color: '#AAAAAA', fontSize: 14, lineHeight: 1,
                                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                                           cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
+                                          padding: 0,
                                         }}
                                       >−</button>
                                       <input
-                                        type="number"
-                                        className="no-spinner"
-                                        value={customMinutes}
-                                        min={1}
-                                        max={customUnit === 'hours' ? 24 : 1440}
+                                        type="text"
+                                        inputMode="numeric"
+                                        autoComplete="off"
+                                        aria-label="Custom reminder amount"
+                                        value={customMinutesStr}
                                         onChange={e => {
-                                          const v = parseInt(e.target.value, 10)
-                                          if (!isNaN(v)) {
-                                            const max = customUnit === 'hours' ? 24 : 1440
-                                            setCustomMinutes(Math.min(max, Math.max(1, v)))
+                                          const raw = e.target.value
+                                          if (raw === '' || /^\d+$/.test(raw)) setCustomMinutesStr(raw)
+                                        }}
+                                        onBlur={() => {
+                                          const max = customUnit === 'hours' ? 24 : 1440
+                                          const v = parseInt(customMinutesStr, 10)
+                                          if (customMinutesStr === '' || isNaN(v) || v < 1) {
+                                            setCustomMinutes(1)
+                                            setCustomMinutesStr('1')
+                                          } else {
+                                            const c = Math.min(max, v)
+                                            setCustomMinutes(c)
+                                            setCustomMinutesStr(String(c))
                                           }
                                         }}
+                                        onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
                                         style={{
-                                          width: 52, height: 34, border: 'none',
-                                          background: 'transparent', color: '#FFFFFF',
-                                          fontSize: 15, fontWeight: 500, textAlign: 'center',
+                                          width: 48, height: '100%', border: 'none',
+                                          background: 'transparent', color: '#CCCCCC',
+                                          fontSize: 13, fontWeight: 400, textAlign: 'center',
                                           outline: 'none', fontFamily: "'Inter', system-ui, sans-serif",
+                                          lineHeight: 1,
                                         }}
                                       />
                                       <button
+                                        type="button"
                                         onClick={() => {
                                           const max = customUnit === 'hours' ? 24 : 1440
                                           setCustomMinutes(v => Math.min(max, v + 1))
                                         }}
                                         style={{
-                                          width: 32, height: 34, border: 'none', borderLeft: '1px solid #3A3A3A',
-                                          background: 'transparent', color: '#AAAAAA', fontSize: 18, lineHeight: 1,
+                                          width: 28, height: '100%', border: 'none', borderLeft: '1px solid #3A3A3A',
+                                          background: 'transparent', color: '#AAAAAA', fontSize: 14, lineHeight: 1,
                                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                                           cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
+                                          padding: 0,
                                         }}
                                       >+</button>
                                     </div>
 
                                     {/* Minutes / Hours segmented toggle */}
-                                    <div style={{ display: 'flex', borderRadius: 6, overflow: 'hidden', border: '1px solid #3A3A3A' }}>
+                                    <div style={{ display: 'flex', borderRadius: 4, overflow: 'hidden', border: '1px solid #3A3A3A', height: 28, boxSizing: 'border-box' }}>
                                       {['minutes', 'hours'].map(unit => (
                                         <button
+                                          type="button"
                                           key={unit}
                                           onClick={() => {
                                             if (customUnit === unit) return
@@ -1035,7 +1064,7 @@ export function NotificationSettingsModal({ onClose, onSave }) {
                                             setCustomUnit(unit)
                                           }}
                                           style={{
-                                            padding: '7px 14px', border: 'none',
+                                            padding: '0 10px', height: '100%', border: 'none',
                                             background: customUnit === unit ? '#1170CF' : '#222222',
                                             color: customUnit === unit ? '#FFFFFF' : '#777777',
                                             fontSize: 13, fontWeight: customUnit === unit ? 500 : 400,
@@ -1048,12 +1077,12 @@ export function NotificationSettingsModal({ onClose, onSave }) {
                                       ))}
                                     </div>
 
-                                    <span style={{ fontSize: 13, color: '#555555' }}>before start</span>
+                                    <span style={{ fontSize: 13, color: '#555555', lineHeight: 1 }}>before start</span>
                                   </div>
 
-                                  {/* Preview */}
-                                  <span style={{ fontSize: 12, color: '#555555', fontStyle: 'italic' }}>
-                                    Reminder set for {customMinutes} {customUnit} before start time
+                                  {/* Preview — live while typing; falls back to committed value if empty */}
+                                  <span style={{ fontSize: 12, color: '#555555', fontStyle: 'italic', lineHeight: '16px' }}>
+                                    Reminder set for {customReminderPreview} {customUnit} before start time
                                   </span>
                                 </div>
                               </motion.div>
@@ -1279,6 +1308,12 @@ export function NotificationSettingsModal({ onClose, onSave }) {
                     </div>
 
                   </>
+                ) : activeNav === 'appearance' ? (
+                  <SectionCard title="Appearance">
+                    <div style={{ background: '#111111', padding: '16px 16px 20px' }}>
+                      <AppearanceSettingsPanel />
+                    </div>
+                  </SectionCard>
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
                     <span style={{ fontSize: 14, color: '#444444' }}>Coming soon</span>

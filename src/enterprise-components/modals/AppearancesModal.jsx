@@ -187,9 +187,9 @@ function PreviewCard({ label, selected, onSelect, children }) {
   )
 }
 
-/* ── Main modal ──────────────────────────────────────── */
+/* ── Shared panel (Settings modal + Appearances modal body) ───────── */
 
-export function AppearancesModal({ onClose, onSave }) {
+export function AppearanceSettingsPanel({ includeDescription = true }) {
   const [selectedMode,  setSelectedMode]  = useState('dark')
   const [selectedTheme, setSelectedTheme] = useState('classic')
 
@@ -199,6 +199,50 @@ export function AppearancesModal({ onClose, onSave }) {
     return <DarkMiniApp base={theme.base} surface={theme.surface} accent={theme.accent} />
   }
 
+  return (
+    <>
+      {includeDescription && (
+        <p style={{ fontSize: 13, fontWeight: 400, color: '#888888', margin: '0 0 20px', lineHeight: '20px' }}>
+          Customize how your workspace looks. You can always change this later in Settings.
+        </p>
+      )}
+
+      {/* Mode */}
+      <div style={{ marginBottom: 24 }}>
+        <p style={{ fontSize: 12, fontWeight: 600, color: '#AAAAAA', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          Mode
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          {MODES.map(mode => (
+            <PreviewCard key={mode.id} label={mode.label} selected={selectedMode === mode.id} onSelect={() => setSelectedMode(mode.id)}>
+              {mode.id === 'system' && <SystemDefaultMiniApp />}
+              {mode.id === 'light'  && <LightMiniApp />}
+              {mode.id === 'dark'   && <DarkMiniApp base="#111111" surface="#1E1E1E" accent="#1170CF" />}
+            </PreviewCard>
+          ))}
+        </div>
+      </div>
+
+      {/* Theme */}
+      <div style={{ marginBottom: 8 }}>
+        <p style={{ fontSize: 12, fontWeight: 600, color: '#AAAAAA', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          Theme
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          {THEMES.map(theme => (
+            <PreviewCard key={theme.id} label={theme.label} selected={selectedTheme === theme.id} onSelect={() => setSelectedTheme(theme.id)}>
+              {themePreview(theme)}
+            </PreviewCard>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
+/* ── Main modal ──────────────────────────────────────── */
+
+export function AppearancesModal({ onClose, onSave }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -239,37 +283,7 @@ export function AppearancesModal({ onClose, onSave }) {
 
         {/* Content */}
         <div style={{ padding: '0 28px 4px', overflowY: 'auto', maxHeight: 560 }} className="scrollbar-dark">
-
-          {/* Mode */}
-          <div style={{ marginBottom: 24 }}>
-            <p style={{ fontSize: 12, fontWeight: 600, color: '#AAAAAA', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Mode
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-              {MODES.map(mode => (
-                <PreviewCard key={mode.id} label={mode.label} selected={selectedMode === mode.id} onSelect={() => setSelectedMode(mode.id)}>
-                  {mode.id === 'system' && <SystemDefaultMiniApp />}
-                  {mode.id === 'light'  && <LightMiniApp />}
-                  {mode.id === 'dark'   && <DarkMiniApp base="#111111" surface="#1E1E1E" accent="#1170CF" />}
-                </PreviewCard>
-              ))}
-            </div>
-          </div>
-
-          {/* Theme */}
-          <div style={{ marginBottom: 8 }}>
-            <p style={{ fontSize: 12, fontWeight: 600, color: '#AAAAAA', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Theme
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-              {THEMES.map(theme => (
-                <PreviewCard key={theme.id} label={theme.label} selected={selectedTheme === theme.id} onSelect={() => setSelectedTheme(theme.id)}>
-                  {themePreview(theme)}
-                </PreviewCard>
-              ))}
-            </div>
-          </div>
-
+          <AppearanceSettingsPanel includeDescription={false} />
         </div>
 
         {/* Footer */}

@@ -182,9 +182,9 @@ export function TopBar({ aiPanelOpen, onToggleAI, onSetStatusClick = () => {} })
           }}>
             {/* MDI cast — https://api.iconify.design/mdi:cast.svg */}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" aria-hidden>
-              <path fill="var(--text-muted)" d="M1 10v2a9 9 0 0 1 9 9h2c0-6.08-4.93-11-11-11m0 4v2a5 5 0 0 1 5 5h2a7 7 0 0 0-7-7m0 4v3h3a3 3 0 0 0-3-3M21 3H3c-1.11 0-2 .89-2 2v3h2V5h18v14h-7v2h7a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2"/>
+              <path fill="var(--text-primary)" d="M1 10v2a9 9 0 0 1 9 9h2c0-6.08-4.93-11-11-11m0 4v2a5 5 0 0 1 5 5h2a7 7 0 0 0-7-7m0 4v3h3a3 3 0 0 0-3-3M21 3H3c-1.11 0-2 .89-2 2v3h2V5h18v14h-7v2h7a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2"/>
             </svg>
-            <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-muted)' }}>Connect</span>
+            <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>Connect</span>
           </button>
 
           {/* Cisco AI button */}
