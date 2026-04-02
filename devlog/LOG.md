@@ -5,6 +5,22 @@
 
 ---
 
+### [2026-04-02] — Git: enterprise TopBar Connect push
+
+**Status:** 🟢 Done
+
+**What changed:**
+Committed the pending change in `src/enterprise-components/layout/TopBar.jsx`: the Connect control’s cast icon and label now use `var(--text-primary)` instead of `var(--text-muted)` for stronger hierarchy. Pushed branch `main` to `origin` (https://github.com/harsha17r/webex.git), commit `f64139c`.
+
+**Files touched:**
+- `src/enterprise-components/layout/TopBar.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Continue UI or settings work as planned; working tree clean on `main`.
+
+---
+
 ### [2026-04-02] — Appearance panel inside Settings modal
 
 **Status:** 🟢 Done
