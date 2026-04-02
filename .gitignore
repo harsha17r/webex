@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Local MCP / AI tool configs (may contain API tokens — never commit)
+.mcp.json
+.claude/
+.agents/
+.windsurf/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
