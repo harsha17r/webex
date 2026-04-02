@@ -10,15 +10,11 @@ import { Dropdown } from '../../enterprise-components/Dropdown'
  *
  * Section 1 — Welcome:
  *   "Welcome, {name}!" h1 (20px 600 white), marginBottom 24
- *   Banner row: LEFT text panel + RIGHT image panel
- *     LEFT: bg #494949, borderRadius 8px 0 0 8px, border #494949 (no right border)
- *           padding 32px 40px, column gap 32, text group gap 4
- *     RIGHT: bg #494949, borderRadius 0 8px 8px 0, border #494949 (no left border)
- *            flex 1, minHeight 180
+ *   Banner row: LEFT illustration + RIGHT copy (single #1A1A1A fill + 1px hairline border)
  *
  * Section 2 — Meetings:
  *   Header row: "Meetings" h2 + "Connect your calendar" btn
- *   3 tiles row, gap 20: each bg #494949, radius 8, padding 20px 16px, column gap 10
+ *   3 tiles row, gap 20: each bg #3A3A3A, radius 12, padding 20px 24px; icon + label in one row
  * ───────────────────────────────────────────────────────── */
 
 function StartDropItem({ label, onClick }) {
@@ -94,19 +90,23 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
     {/* Full-area card — fills the scrollable column, small padding all sides */}
     <div style={{
       margin: 4,
-      minHeight: 'calc(100% - 8px)',
+      height: 'calc(100% - 8px)',
       background: '#1A1A1A',
       border: '1px solid #494949',
       borderRadius: 12,
-      padding: '32px 32px 40px',
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      display: 'flex', flexDirection: 'column',
       boxSizing: 'border-box',
       position: 'relative',
+      overflow: 'hidden',
       fontFamily: "'Inter', system-ui, sans-serif",
     }}>
 
-      {/* Inner content column — max 960px, centered */}
-      <div style={{ width: 'clamp(560px, 85%, 960px)', display: 'flex', flexDirection: 'column', gap: 64 }}>
+      {/* Full-width scroll wrapper — scrollbar sits at right edge of the card */}
+      {/* paddingBottom 340 = checklist height (~300px) + 20px gap + buffer, so last card scrolls clear */}
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '32px 32px 340px', boxSizing: 'border-box' }}>
+
+      {/* Inner content column — centered */}
+      <div style={{ width: 'clamp(560px, 85%, 960px)', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 40 }}>
 
         {/* ── Section 1 — Welcome banner (hidden after first meeting) ── */}
         <AnimatePresence>
@@ -125,12 +125,19 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
                 Welcome, {profile.name}!
               </h1>
 
-              {/* Banner row */}
-              <div style={{ display: 'flex', width: '100%', minHeight: 200 }}>
+              {/* Banner row — fills match page card; hairline border for edge */}
+              <div style={{
+                display: 'flex',
+                width: '100%',
+                minHeight: 200,
+                borderRadius: 12,
+                overflow: 'hidden',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                boxSizing: 'border-box',
+                background: '#1A1A1A',
+              }}>
                 <div style={{
                   width: 320, flexShrink: 0,
-                  background: '#494949',
-                  borderRadius: '12px 0 0 12px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   padding: 24, boxSizing: 'border-box',
                 }}>
@@ -148,8 +155,7 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
 
                 <div style={{
                   flex: 1,
-                  background: '#494949',
-                  borderRadius: '0 8px 8px 0',
+                  minWidth: 0,
                   padding: '32px 40px',
                   display: 'flex', flexDirection: 'column',
                   justifyContent: 'center', gap: 32,
@@ -191,7 +197,7 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
           {/* Header block — heading + personal room tightly grouped */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 
           {/* Header row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -306,32 +312,34 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
           </div>
           </div>{/* end header block */}
 
-          {/* Action tiles */}
-          <div style={{ display: 'flex', gap: 20, position: 'relative' }}>
+          {/* Action tiles — icon + label on one row */}
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'stretch', gap: 30, position: 'relative', marginBottom: 40 }}>
 
             {/* ── Start tile (with dropdown) ── */}
-            <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
               <div
                 ref={startTileRef}
                 onMouseEnter={() => { setTileHover('start'); cancelCloseDelay() }}
                 onMouseLeave={() => { setTileHover(null); startCloseDelay() }}
                 onClick={() => setStartDropOpen(o => !o)}
                 style={{
-                  flex: 1, background: fromMeeting
+                  width: '100%',
+                  background: fromMeeting
                     ? (tileHover === 'start' || startDropOpen ? '#2BAB7E' : '#1D8160')
                     : (tileHover === 'start' || startDropOpen ? '#444444' : '#3A3A3A'),
-                  borderRadius: 8, padding: '20px 24px',
-                  display: 'flex', flexDirection: 'column', gap: 10,
+                  borderRadius: 12, padding: '20px 24px',
+                  display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
                   cursor: 'pointer', transition: 'background 0.15s',
                   boxSizing: 'border-box',
                 }}
               >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path fill="#FFFFFF" d="M3 7a3 3 0 0 1 3-3h5a3 3 0 0 1 3 3v.32l2.43-1.68a1.25 1.25 0 0 1 1.97 1.03v6.66a1.25 1.25 0 0 1-1.97 1.03L14 12.68V13a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7zm9 5.46V13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v.54l3.61-2.49a.25.25 0 0 1 .39.21v6.48a.25.25 0 0 1-.39.21L12 12.46z"/>
+                {/* Iconify mdi:video — filled */}
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden style={{ flexShrink: 0 }}>
+                  <path fill="#FFFFFF" d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11z"/>
                 </svg>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1 }}>
                   <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Start a meeting</span>
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ transform: startDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, transform: startDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
                     <path d="M3 6l5 5 5-5" stroke={fromMeeting ? 'rgba(255,255,255,0.7)' : '#AAAAAA'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
@@ -374,40 +382,51 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
               onMouseLeave={() => setTileHover(null)}
               onClick={() => setJoinOpen(true)}
               style={{
-                flex: 1, background: tileHover === 'join' || joinOpen ? '#444444' : '#3A3A3A',
-                borderRadius: 8, padding: '20px 24px',
-                display: 'flex', flexDirection: 'column', gap: 10,
+                flex: 1, minWidth: 0,
+                background: tileHover === 'join' || joinOpen ? '#444444' : '#3A3A3A',
+                borderRadius: 12, padding: '20px 24px',
+                display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
                 cursor: 'pointer', transition: 'background 0.15s',
                 boxSizing: 'border-box',
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path fill="#FFFFFF" d="M10 2a8 8 0 1 1 0 16A8 8 0 0 1 10 2zm0 1a7 7 0 1 0 0 14A7 7 0 0 0 10 3zm.5 3.5a.5.5 0 0 1 .5.5v2.5H14a.5.5 0 0 1 0 1h-3V13a.5.5 0 0 1-1 0v-2.5H7a.5.5 0 0 1 0-1h3V7a.5.5 0 0 1 .5-.5z"/>
+              {/* Iconify line-md:link — static stroke (source uses animated dash; full path for UI) */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden style={{ flexShrink: 0 }}>
+                <path
+                  fill="none"
+                  stroke="#FFFFFF"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13 6l2-2c1-1 3-1 4 0l1 1c1 1 1 3 0 4l-5 5c-1 1-3 1-4 0M11 18l-2 2c-1 1-3 1-4 0l-1-1c-1-1-1-3 0-4l5-5c1-1 3-1 4 0"
+                />
               </svg>
               <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Join a meeting</span>
             </div>
 
             {/* ── Schedule tile ── */}
-            <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
               <div
                 ref={scheduleTileRef}
                 onMouseEnter={() => { setTileHover('schedule'); cancelSchedDelay() }}
                 onMouseLeave={() => { setTileHover(null); schedCloseDelay() }}
                 onClick={() => setScheduleDropOpen(o => !o)}
                 style={{
+                  width: '100%',
                   background: tileHover === 'schedule' || scheduleDropOpen ? '#444444' : '#3A3A3A',
-                  borderRadius: 8, padding: '20px 24px',
-                  display: 'flex', flexDirection: 'column', gap: 10,
+                  borderRadius: 12, padding: '20px 24px',
+                  display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
                   cursor: 'pointer', transition: 'background 0.15s',
                   boxSizing: 'border-box',
                 }}
               >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path fill="#FFFFFF" d="M14.5 3A2.5 2.5 0 0 1 17 5.5v4.1a5.5 5.5 0 0 0-1-.393V7H4v7.5A1.5 1.5 0 0 0 5.5 16h3.707q.149.524.393 1H5.5A2.5 2.5 0 0 1 3 14.5v-9A2.5 2.5 0 0 1 5.5 3zm0 1h-9A1.5 1.5 0 0 0 4 5.5V6h12v-.5A1.5 1.5 0 0 0 14.5 4M19 14.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0m-4-2a.5.5 0 0 0-1 0V14h-1.5a.5.5 0 0 0 0 1H14v1.5a.5.5 0 0 0 1 0V15h1.5a.5.5 0 0 0 0-1H15z"/>
+                {/* Iconify mdi:calendar-plus — filled */}
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden style={{ flexShrink: 0 }}>
+                  <path fill="#FFFFFF" d="M19 19V8H5v11zM16 1h2v2h1a2 2 0 0 1 2 2v14c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2V5c0-1.11.89-2 2-2h1V1h2v2h8zm-5 8.5h2v3h3v2h-3v3h-2v-3H8v-2h3z"/>
                 </svg>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1 }}>
                   <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Schedule</span>
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ transform: scheduleDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, transform: scheduleDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
                     <path d="M3 6l5 5 5-5" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
@@ -445,16 +464,17 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
 
           </div>
 
-          {/* Past meeting card — appears after returning from a meeting */}
+          {/* Calendar view — appears when calendar is connected OR after returning from a meeting */}
           <AnimatePresence>
-            {fromMeeting && (
+            {(calendarConnected || fromMeeting) && (
               <motion.div
                 key="past-meeting"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 28, delay: 0.1 }}
+                style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
               >
-                <PastMeetingCard elapsed={meetingElapsed} profile={profile} />
+                <PastMeetingCard elapsed={meetingElapsed} profile={profile} calendarConnected={calendarConnected} fromMeeting={fromMeeting} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -463,8 +483,9 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
 
       </div>
 
+      </div>{/* end scroll wrapper */}
 
-    </div>
+    </div>{/* end outer card */}
 
     <AnimatePresence>
       {preJoinOpen && <PreJoinModal onClose={() => setPreJoinOpen(false)} />}
@@ -623,22 +644,24 @@ function JoinMeetingModal({ onClose }) {
         <div style={{ display: 'flex', gap: 10 }}>
           <button
             onClick={onClose}
+            type="button"
             style={{
               flex: 1, padding: '11px 0',
-              background: '#2A2A2A', border: '1px solid #494949', borderRadius: 9,
-              fontSize: 14, fontWeight: 500, color: '#AAAAAA',
+              background: '#2A2A2A', border: 'none', borderRadius: 9999,
+              fontSize: 14, fontWeight: 500, color: '#FFFFFF',
               cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
             }}
           >
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleJoin}
             disabled={!value.trim()}
             style={{
-              flex: 2, padding: '11px 0',
+              flex: 2, padding: '10px 0',
               background: value.trim() ? '#1D8160' : '#1A2E28',
-              border: 'none', borderRadius: 9,
+              border: 'none', borderRadius: 9999,
               fontSize: 14, fontWeight: 600, color: value.trim() ? '#FFFFFF' : '#3A6A55',
               cursor: value.trim() ? 'pointer' : 'default',
               fontFamily: "'Inter', system-ui, sans-serif",
@@ -1601,38 +1624,441 @@ function MeetingDetailModal({ onClose, elapsed, profile, initialTab = 'About' })
 
 /* ── State 4: Past ─────────────────────────────────────── */
 function MeetingRow({ elapsed, profile, chipHover, setChipHover, onClick, onChipClick }) {
+  const [hov, setHov] = useState(false)
   const mins      = Math.max(1, Math.floor(elapsed / 60))
   const endTime   = new Date()
   const startTime = new Date(endTime - elapsed * 1000)
   const timeRange = `${fmt12(startTime)} – ${fmt12(endTime)}`
+  const initials  = profile.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
 
   return (
-    <CardShell accent="#494949" onClick={onClick}>
-      <span style={{ fontSize: 15, fontWeight: 500, color: '#FFFFFF' }}>
-        Test call with {profile.name}
-      </span>
-      <span style={{ fontSize: 13, color: '#767676' }}>
-        {timeRange} · {mins} min duration
-      </span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
-        {CHIPS.map(chip => (
-          <button
-            key={chip}
-            onMouseEnter={() => setChipHover(chip)}
-            onMouseLeave={() => setChipHover(null)}
-            onClick={e => { e.stopPropagation(); onChipClick?.(CHIP_TAB_MAP[chip]) }}
-            style={{
-              background: chipHover === chip ? '#383838' : '#2A2A2A',
-              border: '1px solid #3A3A3A',
-              borderRadius: 5, padding: '3px 10px',
-              fontSize: 12, fontWeight: 500, color: '#FFFFFF', lineHeight: '18px',
-              cursor: 'pointer', transition: 'background 0.15s',
-              fontFamily: "'Inter', system-ui, sans-serif",
-            }}
-          >{chip}</button>
-        ))}
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '16px 20px',
+        background: hov ? '#2A2A2A' : '#222222',
+        border: '1px solid #2E2E2E',
+        borderRadius: 12,
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'background 0.12s',
+        fontFamily: "'Inter', system-ui, sans-serif",
+      }}
+    >
+      {/* Avatar */}
+      <div style={{
+        width: 40, height: 40, borderRadius: '50%',
+        background: '#7C3EC3', flexShrink: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <span style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF' }}>{initials}</span>
       </div>
-    </CardShell>
+
+      {/* Body */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
+
+        {/* Row 1 — Title */}
+        <span style={{ fontSize: 16, fontWeight: 500, color: '#FFFFFF' }}>
+          Test call with {profile.name}
+        </span>
+
+        {/* Row 2 — time · duration */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 14, fontWeight: 500, color: '#999CA2' }}>{timeRange} · {mins} min</span>
+        </div>
+
+        {/* Row 3 — Chips */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {CHIPS.map(chip => (
+            <button
+              key={chip}
+              onMouseEnter={() => setChipHover(chip)}
+              onMouseLeave={() => setChipHover(null)}
+              onClick={e => { e.stopPropagation(); onChipClick?.(CHIP_TAB_MAP[chip]) }}
+              style={{
+                background: chipHover === chip ? '#383838' : '#2A2A2A',
+                border: '1px solid #3A3A3A',
+                borderRadius: 5, padding: '3px 10px',
+                fontSize: 12, fontWeight: 500, color: '#FFFFFF', lineHeight: '18px',
+                cursor: 'pointer', transition: 'background 0.15s',
+                fontFamily: "'Inter', system-ui, sans-serif",
+              }}
+            >{chip}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Trailing share icon */}
+      <div style={{ flexShrink: 0, opacity: hov ? 1 : 0.35, transition: 'opacity 0.15s' }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M13 4v4C6.425 9.028 3.98 14.788 3 20c-.037.206 5.384-5.962 10-6v4l8-7z"/>
+        </svg>
+      </div>
+    </div>
+  )
+}
+
+/* ── Upcoming (future) meeting rows — Figma node 1675-4077 ── */
+/* ── Fake meeting definitions (static metadata, times computed dynamically) ── */
+const FAKE_MEETING_META = [
+  { title: 'Q2 Planning Session',    space: 'Strategy · Finance',      initials: 'AK', avatarColor: '#5B5BD6', durationMins: 60  },
+  { title: '1:1 with Sarah Chen',    space: "Sarah's Room",             initials: 'SC', avatarColor: '#E5534B', durationMins: 30  },
+  { title: 'Product Roadmap Review', space: 'Product · Engineering',    initials: 'MJ', avatarColor: '#2E7D32', durationMins: 60  },
+]
+const FAKE_OFFSETS_MINS = [30, 150, 240]   // +30 min, +2h 30m, +4h from now
+
+function makeFakeMeetings() {
+  const now = new Date()
+  return FAKE_MEETING_META.map((meta, i) => {
+    const start = new Date(now.getTime() + FAKE_OFFSETS_MINS[i] * 60000)
+    const end   = new Date(start.getTime() + meta.durationMins * 60000)
+    return { ...meta, start, end }
+  })
+}
+
+function fmtDate(d) {
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+}
+
+function minsFromNow(date) {
+  return Math.round((date - new Date()) / 60000)
+}
+
+function UpcomingMeetingRow({ title, space, initials, avatarColor, start, end, isNext }) {
+  const [hov,      setHov]      = useState(false)
+  const [joinHov,  setJoinHov]  = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+
+  const timeRange  = `${fmtDate(start)} – ${fmtDate(end)}`
+  const diff       = minsFromNow(start)
+  const startsInTxt = diff > 0 ? `Starts in ${diff}m` : 'Starting now'
+
+  return (
+    <>
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={() => setModalOpen(true)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '16px 20px',
+        background: hov ? '#2A2A2A' : '#222222',
+        border: '1px solid #2E2E2E',
+        borderRadius: 12,
+        cursor: 'pointer',
+        transition: 'background 0.12s',
+        fontFamily: "'Inter', system-ui, sans-serif",
+      }}
+    >
+      {/* Avatar */}
+      <div style={{
+        width: 40, height: 40, borderRadius: '50%',
+        background: avatarColor, flexShrink: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <span style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF' }}>{initials}</span>
+      </div>
+
+      {/* Body */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
+
+        {/* Row 1 — Title + space */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+          <span style={{ fontSize: 16, fontWeight: 500, color: '#FFFFFF', whiteSpace: 'nowrap' }}>{title}</span>
+          <span style={{ fontSize: 13, color: '#999CA2', flexShrink: 0 }}>·</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999CA2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span style={{ fontSize: 16, fontWeight: 500, color: '#E9E9E9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{space}</span>
+          </div>
+        </div>
+
+        {/* Row 2 — time · starts in (only for isNext) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 14, fontWeight: 500, color: '#999CA2' }}>{timeRange}</span>
+          {isNext && (
+            <>
+              <span style={{ fontSize: 12, color: '#999CA2' }}>·</span>
+              <span style={{ fontSize: 14, fontWeight: 500, color: '#4A9EFF' }}>{startsInTxt}</span>
+            </>
+          )}
+        </div>
+
+        {/* Row 3 — Join chip (only for isNext) */}
+        {isNext && (
+          <div>
+            <button
+              onMouseEnter={() => setJoinHov(true)}
+              onMouseLeave={() => setJoinHov(false)}
+              onClick={e => e.stopPropagation()}
+              style={{
+                background: joinHov ? '#1565B8' : '#1170CF',
+                border: 'none', borderRadius: 5,
+                padding: '4px 10px',
+                fontSize: 14, fontWeight: 500, color: '#FFFFFF',
+                cursor: 'pointer', transition: 'background 0.15s',
+                fontFamily: "'Inter', system-ui, sans-serif",
+              }}
+            >Join meeting</button>
+          </div>
+        )}
+      </div>
+
+      {/* Trailing share icon */}
+      <div style={{ flexShrink: 0, opacity: hov ? 1 : 0.35, transition: 'opacity 0.15s' }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M13 4v4C6.425 9.028 3.98 14.788 3 20c-.037.206 5.384-5.962 10-6v4l8-7z"/>
+        </svg>
+      </div>
+    </div>
+
+    <AnimatePresence>
+      {modalOpen && (
+        <UpcomingMeetingModal
+          title={title}
+          space={space}
+          start={start}
+          end={end}
+          initials={initials}
+          avatarColor={avatarColor}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
+    </AnimatePresence>
+    </>
+  )
+}
+
+/* ── Upcoming Meeting Modal ────────────────────────────── */
+const UPCOMING_TABS = ['About', 'Meeting summary', 'Transcript', 'Chat messages']
+
+const MEETING_PARTICIPANTS = {
+  AK: [
+    { initials: 'AK', color: '#5B5BD6', name: 'Alex Kim' },
+    { initials: 'MR', color: '#9C27B0', name: 'Maya Roberts' },
+    { initials: 'JW', color: '#0277BD', name: 'James Wilson' },
+  ],
+  SC: [
+    { initials: 'SC', color: '#E5534B', name: 'Sarah Chen' },
+  ],
+  MJ: [
+    { initials: 'MJ', color: '#2E7D32', name: 'Michael Johnson' },
+    { initials: 'PS', color: '#C2185B', name: 'Priya Sharma' },
+    { initials: 'TC', color: '#E65100', name: 'Tom Chen' },
+  ],
+}
+
+function UpcomingMeetingModal({ title, space, start, end, initials, avatarColor, onClose }) {
+  const [activeTab,  setActiveTab]  = useState('About')
+  const [partsOpen,  setPartsOpen]  = useState(true)
+  const { profile } = useProfile()
+  const userInitials = profile.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
+
+  const dateStr    = start.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+  const timeRange  = `${fmtDate(start)} – ${fmtDate(end)}`
+  const durationMins = Math.round((end - start) / 60000)
+
+  const otherParticipants = MEETING_PARTICIPANTS[initials] ?? []
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.18 }}
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 200, fontFamily: "'Inter', system-ui, sans-serif",
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 14 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 14 }}
+        transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+        onClick={e => e.stopPropagation()}
+        style={{
+          width: 920, height: '74vh',
+          background: '#141414', border: '1px solid #2E2E2E',
+          borderRadius: 12, display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        }}
+      >
+        {/* Title area */}
+        <div style={{ padding: '28px 28px 0', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div>
+              <h2 style={{ fontSize: 22, fontWeight: 600, color: '#FFFFFF', margin: 0, lineHeight: '30px' }}>{title}</h2>
+              <p style={{ fontSize: 13, color: '#888888', margin: '4px 0 0', lineHeight: '20px' }}>{dateStr}</p>
+            </div>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, display: 'flex', alignItems: 'center', borderRadius: 6, marginTop: -4 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 3L13 13M13 3L3 13" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
+          {/* Tabs */}
+          <div style={{ display: 'flex', gap: 2, marginTop: 20, paddingBottom: 12, borderBottom: '1px solid #242424' }}>
+            {UPCOMING_TABS.map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  background: activeTab === tab ? '#323232' : 'none',
+                  border: 'none', cursor: 'pointer', padding: '6px 14px',
+                  borderRadius: 20, fontSize: 14,
+                  fontWeight: activeTab === tab ? 600 : 400,
+                  color: activeTab === tab ? '#FFFFFF' : '#888888',
+                  transition: 'background 0.12s, color 0.12s',
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                }}
+              >{tab}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content row */}
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+
+          {/* Left scrollable area */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
+            {activeTab === 'About' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+                {/* Time */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ marginTop: 1, flexShrink: 0 }}>
+                    <circle cx="9" cy="9" r="7" stroke="#888888" strokeWidth="1.3"/>
+                    <path d="M9 5.5V9l2.5 2" stroke="#888888" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <span style={{ fontSize: 14, color: '#E9E9E9', lineHeight: '20px' }}>{dateStr}</span>
+                    <span style={{ fontSize: 14, color: '#888888', lineHeight: '18px' }}>{timeRange} · {durationMins} min</span>
+                  </div>
+                </div>
+                {/* Space */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                  <span style={{ fontSize: 14, color: '#E9E9E9' }}>{space}</span>
+                </div>
+                {/* Participants count */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ flexShrink: 0 }}>
+                    <circle cx="7" cy="6.5" r="2.8" stroke="#888888" strokeWidth="1.3"/>
+                    <path d="M1.5 15.5c0-3.04 2.46-5.5 5.5-5.5" stroke="#888888" strokeWidth="1.3" strokeLinecap="round"/>
+                    <circle cx="13" cy="7" r="2.1" stroke="#888888" strokeWidth="1.3"/>
+                    <path d="M11 15.5c0-2.21 1.79-4 4-4" stroke="#888888" strokeWidth="1.3" strokeLinecap="round"/>
+                  </svg>
+                  <span style={{ fontSize: 14, color: '#E9E9E9' }}>{otherParticipants.length + 1} participants invited</span>
+                </div>
+                {/* Description */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ marginTop: 2, flexShrink: 0 }}>
+                    <path d="M3 5h12M3 9h9M3 13h6" stroke="#888888" strokeWidth="1.3" strokeLinecap="round"/>
+                  </svg>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 500, color: '#E9E9E9', margin: '0 0 6px' }}>Description</p>
+                    <p style={{ fontSize: 14, color: '#666666', margin: 0, lineHeight: '20px' }}>No description added.</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Not started state for all other tabs */
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                height: '100%', gap: 14, paddingBottom: 40,
+              }}>
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#383838" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M12 7v5l3 3"/>
+                </svg>
+                <p style={{ fontSize: 15, fontWeight: 500, color: '#555555', margin: 0 }}>This meeting hasn't started yet</p>
+                <p style={{ fontSize: 13, color: '#3A3A3A', margin: 0, textAlign: 'center', maxWidth: 320, lineHeight: '20px' }}>
+                  {activeTab === 'Meeting summary' && 'The AI-generated summary will appear here once the meeting ends.'}
+                  {activeTab === 'Transcript' && 'The full transcript will be available after the meeting ends.'}
+                  {activeTab === 'Chat messages' && 'Chat messages from the meeting will appear here after it ends.'}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Participants panel — About tab only */}
+          {activeTab === 'About' && (
+            <div style={{
+              width: 256, flexShrink: 0,
+              borderLeft: '1px solid #242424',
+              padding: '20px 20px',
+              display: 'flex', flexDirection: 'column', gap: 14,
+              overflowY: 'auto',
+            }}>
+              <button
+                onClick={() => setPartsOpen(x => !x)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                }}
+              >
+                <svg
+                  width="14" height="14" viewBox="0 0 14 14" fill="none"
+                  style={{ transform: partsOpen ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.15s', flexShrink: 0 }}
+                >
+                  <path d="M3 5l4 4 4-4" stroke="#AAAAAA" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#888888' }}>Participants</span>
+              </button>
+
+              {partsOpen && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {/* Current user */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    {profile.photoUrl ? (
+                      <img
+                        src={profile.photoUrl}
+                        alt={profile.name}
+                        style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: 36, height: 36, borderRadius: '50%',
+                        background: '#3D4A5C',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 13, fontWeight: 600, color: '#FFFFFF', flexShrink: 0,
+                      }}>
+                        {userInitials}
+                      </div>
+                    )}
+                    <span style={{ fontSize: 14, color: '#E9E9E9' }}>{profile.name}</span>
+                  </div>
+                  {/* Other participants */}
+                  {otherParticipants.map(p => (
+                    <div key={p.initials} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{
+                        width: 36, height: 36, borderRadius: '50%',
+                        background: p.color,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 13, fontWeight: 600, color: '#FFFFFF', flexShrink: 0,
+                      }}>
+                        {p.initials}
+                      </div>
+                      <span style={{ fontSize: 14, color: '#E9E9E9' }}>{p.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
@@ -1666,74 +2092,164 @@ function WeekMeetingBlock({ title, timeRange, mins, onClick }) {
   )
 }
 
-function WeekView({ viewDate, meetingDate, elapsed, profile, onMeetingClick }) {
-  const weekStart = getWeekStart(viewDate)
-  const today     = new Date()
-  const endTime   = new Date(meetingDate)
-  const startTime = new Date(endTime - elapsed * 1000)
-  const mins      = Math.max(1, Math.floor(elapsed / 60))
+function WeekView({ viewDate, meetingDate, elapsed, profile, onMeetingClick, fromMeeting, calendarConnected, fakeMeetings = [] }) {
+  const GRID_START_HOUR = 7   // 7 AM
+  const GRID_HOURS      = 19  // 7 AM → 2 AM next day
+  const HOUR_HEIGHT     = 60  // px per hour = 1 px per minute
+
+  const weekStart  = getWeekStart(viewDate)
+  const today      = new Date()
+  const days       = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
+
+  // Frozen test-call times (avoid re-computing every render)
+  const testCallRef = useRef(fromMeeting ? {
+    start: new Date(Date.now() - elapsed * 1000),
+    end:   new Date(),
+    title: `Test call with ${profile.name}`,
+    avatarColor: '#7C3EC3',
+    type: 'completed',
+  } : null)
+  const testCall = testCallRef.current
+
+  // Return meetings that fall on a given day
+  const getMeetingsForDay = (day) => {
+    const result = []
+    if (testCall && isSameDay(testCall.start, day)) result.push(testCall)
+    if (calendarConnected) {
+      fakeMeetings.forEach(m => {
+        if (isSameDay(m.start, day)) result.push({ ...m, type: 'upcoming' })
+      })
+    }
+    return result
+  }
+
+  // Convert a Date to px offset from grid top (handles past-midnight)
+  const toPx = (date) => {
+    let h = date.getHours()
+    if (h < GRID_START_HOUR) h += 24   // past midnight → treat as 24 + h
+    return (h - GRID_START_HOUR) * 60 + date.getMinutes()
+  }
+
+  // Current-time line position
+  const nowPx = toPx(today)
+
+  // Hour labels: empty string for the first slot (top-of-grid)
+  const hourLabels = Array.from({ length: GRID_HOURS }, (_, i) => {
+    if (i === 0) return ''
+    const h = (GRID_START_HOUR + i) % 24
+    return h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h - 12} PM`
+  })
 
   return (
-    <div style={{
-      display: 'flex',
-      border: '1px solid #2E2E2E',
-      borderRadius: 8,
-      overflow: 'hidden',
-    }}>
-      {DAY_ABBR.map((abbr, i) => {
-        const day       = addDays(weekStart, i)
-        const isToday   = isSameDay(day, today)
-        const hasMeeting = isSameDay(day, meetingDate)
-        const isWeekend = i >= 5
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
 
-        return (
-          <div key={abbr} style={{
-            flex: 1,
-            borderRight: i < 6 ? '1px solid #2E2E2E' : 'none',
-            display: 'flex', flexDirection: 'column',
-            background: isWeekend ? 'rgba(0,0,0,0.18)' : 'transparent',
-          }}>
-
-            {/* Column header */}
-            <div style={{
+      {/* ── Week header ── */}
+      <div style={{ display: 'flex', borderBottom: '1px solid #2A2A2A' }}>
+        <div style={{ width: 52, flexShrink: 0 }} /> {/* gutter */}
+        {days.map((day, i) => {
+          const isToday   = isSameDay(day, today)
+          const isWeekend = i >= 5
+          const hasDot    = getMeetingsForDay(day).length > 0
+          return (
+            <div key={i} style={{
+              flex: 1, borderLeft: '1px solid #2A2A2A',
               display: 'flex', flexDirection: 'column', alignItems: 'center',
-              padding: '10px 4px 8px', gap: 4,
-              borderBottom: '1px solid #2E2E2E',
-              background: '#1E1E1E',
+              padding: '8px 4px 10px', gap: 4,
+              background: isWeekend ? 'rgba(0,0,0,0.18)' : 'transparent',
             }}>
-              <span style={{
-                fontSize: 11, fontWeight: 500, letterSpacing: '0.04em',
-                textTransform: 'uppercase',
-                color: isToday ? '#FFFFFF' : '#767676',
-              }}>{abbr}</span>
-              <div style={{
-                width: 28, height: 28, borderRadius: '50%',
-                background: isToday ? '#ffffff' : 'transparent',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <span style={{
-                  fontSize: 13,
-                  fontWeight: isToday ? 600 : 400,
-                  color: isToday ? '#4d4d4d' : (isWeekend ? '#595959' : '#E9E9E9'),
-                }}>{day.getDate()}</span>
+              <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase', color: isToday ? '#FFFFFF' : '#767676' }}>{DAY_ABBR[i]}</span>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: isToday ? '#FFFFFF' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 13, fontWeight: isToday ? 600 : 400, color: isToday ? '#1A1A1A' : (isWeekend ? '#595959' : '#E9E9E9') }}>{day.getDate()}</span>
               </div>
+              {hasDot && <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#2E96E8' }} />}
             </div>
+          )
+        })}
+      </div>
 
-            {/* Day content */}
-            <div style={{ flex: 1, padding: '8px 6px', minHeight: 160 }}>
-              {hasMeeting && (
-                <WeekMeetingBlock
-                  title={`Test call with ${profile.name}`}
-                  timeRange={`${fmt12(startTime)} – ${fmt12(endTime)}`}
-                  mins={mins}
-                  onClick={onMeetingClick}
-                />
+      {/* ── Time grid ── */}
+      <div style={{ display: 'flex' }}>
+
+        {/* Time labels */}
+        <div style={{ width: 52, flexShrink: 0, position: 'relative' }}>
+          {hourLabels.map((label, i) => (
+            <div key={i} style={{ height: HOUR_HEIGHT, position: 'relative' }}>
+              {label && (
+                <span style={{
+                  position: 'absolute', top: -7, right: 10,
+                  fontSize: 11, color: '#484848', whiteSpace: 'nowrap',
+                }}>{label}</span>
               )}
             </div>
+          ))}
+        </div>
 
-          </div>
-        )
-      })}
+        {/* Day columns */}
+        {days.map((day, dayIdx) => {
+          const isToday   = isSameDay(day, today)
+          const isWeekend = dayIdx >= 5
+          const dayMeetings = getMeetingsForDay(day)
+
+          return (
+            <div key={dayIdx} style={{
+              flex: 1, borderLeft: '1px solid #242424',
+              position: 'relative',
+              height: GRID_HOURS * HOUR_HEIGHT,
+              background: isToday ? 'rgba(46,150,232,0.025)' : (isWeekend ? 'rgba(0,0,0,0.08)' : 'transparent'),
+            }}>
+
+              {/* Hour grid lines */}
+              {hourLabels.map((_, i) => (
+                i > 0 && <div key={i} style={{
+                  position: 'absolute', top: i * HOUR_HEIGHT,
+                  left: 0, right: 0, height: 1,
+                  background: '#1E1E1E', pointerEvents: 'none',
+                }} />
+              ))}
+
+              {/* Current-time indicator */}
+              {isToday && nowPx >= 0 && nowPx <= GRID_HOURS * 60 && (
+                <div style={{ position: 'absolute', top: nowPx, left: 0, right: 0, height: 2, background: '#2E96E8', zIndex: 3, pointerEvents: 'none' }}>
+                  <div style={{ position: 'absolute', left: -4, top: -3, width: 8, height: 8, borderRadius: '50%', background: '#2E96E8' }} />
+                </div>
+              )}
+
+              {/* Meeting blocks */}
+              {dayMeetings.map((m, mi) => {
+                const top      = toPx(m.start)
+                const durMins  = Math.round((m.end - m.start) / 60000)
+                const blkH     = Math.max(durMins, 22)
+                const isDone   = m.type === 'completed'
+                const color    = m.avatarColor
+                return (
+                  <div
+                    key={mi}
+                    onClick={() => isDone && onMeetingClick?.()}
+                    style={{
+                      position: 'absolute', top, left: 4, right: 4, height: blkH,
+                      background: isDone ? '#2A1F3D' : `${color}22`,
+                      borderLeft: `3px solid ${color}`,
+                      borderRadius: 4, padding: '3px 7px',
+                      overflow: 'hidden', boxSizing: 'border-box',
+                      cursor: isDone ? 'pointer' : 'default', zIndex: 1,
+                    }}
+                  >
+                    <p style={{ fontSize: 11, fontWeight: 600, color: '#FFFFFF', margin: 0, lineHeight: '15px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {m.title}
+                    </p>
+                    {blkH > 28 && (
+                      <p style={{ fontSize: 10, color: '#AAAAAA', margin: '1px 0 0', lineHeight: '13px' }}>
+                        {fmt12(m.start)}
+                      </p>
+                    )}
+                  </div>
+                )
+              })}
+
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -1865,7 +2381,7 @@ function ViewDropPanel({ activeSeg, onSelect }) {
   )
 }
 
-function PastMeetingCard({ elapsed, profile }) {
+function PastMeetingCard({ elapsed, profile, calendarConnected, fromMeeting }) {
   const [chipHover,      setChipHover]      = useState(null)
   const [detailOpen,     setDetailOpen]     = useState(false)
   const [initialTab,     setInitialTab]     = useState('About')
@@ -1873,6 +2389,7 @@ function PastMeetingCard({ elapsed, profile }) {
   const [viewDate,       setViewDate]       = useState(new Date())
   const [meetingDate]                       = useState(() => new Date())
   const [datePickerOpen, setDatePickerOpen] = useState(false)
+  const [fakeMeetings]                      = useState(() => makeFakeMeetings())
   const [viewDropOpen,   setViewDropOpen]   = useState(false)
   const dateLabelRef                        = useRef(null)
   const viewDropRef                         = useRef(null)
@@ -1915,25 +2432,27 @@ function PastMeetingCard({ elapsed, profile }) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif" }}>
 
       {/* ── Date navigation bar ── */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '12px 0' }}>
 
         {/* Left: arrows + label + return to today */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button onClick={navPrev} style={{
-            width: 28, height: 28, borderRadius: 6, background: '#494949', border: 'none',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: '#FFFFFF', fontSize: 16,
-            fontFamily: "'Inter', system-ui, sans-serif",
-          }}>‹</button>
-          <button onClick={navNext} style={{
-            width: 28, height: 28, borderRadius: 6, background: '#494949', border: 'none',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: '#FFFFFF', fontSize: 16,
-            fontFamily: "'Inter', system-ui, sans-serif",
-          }}>›</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <button onClick={navPrev} style={{
+              width: 28, height: 28, borderRadius: 6, background: '#494949', border: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: '#FFFFFF', fontSize: 16,
+              fontFamily: "'Inter', system-ui, sans-serif",
+            }}>‹</button>
+            <button onClick={navNext} style={{
+              width: 28, height: 28, borderRadius: 6, background: '#494949', border: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: '#FFFFFF', fontSize: 16,
+              fontFamily: "'Inter', system-ui, sans-serif",
+            }}>›</button>
+          </div>
           <button
             ref={dateLabelRef}
             onClick={() => setDatePickerOpen(o => !o)}
@@ -1989,11 +2508,17 @@ function PastMeetingCard({ elapsed, profile }) {
       </div>
 
       {/* ── View content ── */}
+      <div style={{ paddingTop: 8 }}>
 
       {activeSeg === 'Day' && (
-        isSameDay(viewDate, meetingDate) ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <MeetingRow elapsed={elapsed} profile={profile} chipHover={chipHover} setChipHover={setChipHover} onClick={() => { setInitialTab('About'); setDetailOpen(true) }} onChipClick={tab => { setInitialTab(tab); setDetailOpen(true) }} />
+        isSameDay(viewDate, today) && (calendarConnected || fromMeeting) ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {fromMeeting && (
+              <MeetingRow elapsed={elapsed} profile={profile} chipHover={chipHover} setChipHover={setChipHover} onClick={() => { setInitialTab('About'); setDetailOpen(true) }} onChipClick={tab => { setInitialTab(tab); setDetailOpen(true) }} />
+            )}
+            {calendarConnected && fakeMeetings.map((m, i) => (
+              <UpcomingMeetingRow key={m.title} {...m} isNext={i === 0} />
+            ))}
           </div>
         ) : (
           <div style={{
@@ -2005,7 +2530,7 @@ function PastMeetingCard({ elapsed, profile }) {
             </svg>
             <span style={{ fontSize: 14, color: '#ffffff' }}>No meetings scheduled</span>
             {viewDate >= new Date(today.getFullYear(), today.getMonth(), today.getDate()) && (
-              <button style={{
+              <button type="button" style={{
                 marginTop: 6,
                 display: 'flex', alignItems: 'center', gap: 7,
                 background: 'transparent',
@@ -2033,12 +2558,18 @@ function PastMeetingCard({ elapsed, profile }) {
           elapsed={elapsed}
           profile={profile}
           onMeetingClick={() => { setInitialTab('About'); setDetailOpen(true) }}
+          onChipClick={tab => { setInitialTab(tab); setDetailOpen(true) }}
+          fromMeeting={fromMeeting}
+          calendarConnected={calendarConnected}
+          fakeMeetings={fakeMeetings}
         />
       )}
 
       {activeSeg === 'Calendar' && (
         <CalendarView viewDate={viewDate} meetingDate={meetingDate} />
       )}
+
+      </div>{/* end scrollable view content */}
 
       <AnimatePresence>
         {detailOpen && (

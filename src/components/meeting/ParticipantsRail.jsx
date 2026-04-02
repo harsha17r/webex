@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CiscoAIIcon } from '../layout/CiscoAIRail'
 
 /* ─────────────────────────────────────────────────────────
  * ParticipantsRail
@@ -36,14 +37,12 @@ function CiscoAIAvatar() {
   return (
     <div style={{
       width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-      background: 'linear-gradient(135deg, #0051AF 0%, #0087EA 60%, #00BCEB 100%)',
+      background: '#161616',
+      border: '1px solid #2E2E2E',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxSizing: 'border-box',
     }}>
-      <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="13" stroke="rgba(255,255,255,0.6)" strokeWidth="2" fill="none"/>
-        <ellipse cx="23" cy="9" rx="7" ry="7" fill="rgba(255,255,255,0.35)"/>
-        <ellipse cx="23" cy="9" rx="4.5" ry="5.5" fill="rgba(116,191,75,0.6)"/>
-      </svg>
+      <CiscoAIIcon size={30} />
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useProfile } from '../../context/ProfileContext'
+import { CiscoAIIcon } from '../../components/layout/CiscoAIRail'
 import { MeetingAIRail, SummaryIcon } from '../../components/meeting/MeetingAIRail'
 import { AppsRail }          from '../../components/meeting/AppsRail'
 import { ParticipantsRail } from '../../components/meeting/ParticipantsRail'
@@ -104,6 +105,11 @@ export function MeetingScreen() {
   const videoBtnRef          = useRef(null)
   const videoMenuRef         = useRef(null)
   const [videoMenuOpen, setVideoMenuOpen] = useState(false)
+  const [ccOpen, setCcOpen] = useState(false)
+  const [ccOn, setCcOn] = useState(false)
+  const [manualCaptioning, setManualCaptioning] = useState(false)
+  const ccBtnRef   = useRef(null)
+  const ccMenuRef  = useRef(null)
 
   const initial = profile.name?.charAt(0).toUpperCase() || 'U'
 
@@ -359,6 +365,18 @@ export function MeetingScreen() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [videoMenuOpen])
 
+  /* ── CC menu: click-outside to close ── */
+  useEffect(() => {
+    if (!ccOpen) return
+    function handleClickOutside(e) {
+      const insideBtn  = ccBtnRef.current?.contains(e.target)
+      const insideMenu = ccMenuRef.current?.contains(e.target)
+      if (!insideBtn && !insideMenu) setCcOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [ccOpen])
+
   function turnOnAI() {
     setNudge(false)
     setSummaryActive(true)
@@ -412,10 +430,7 @@ export function MeetingScreen() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span style={{ fontSize: 14, fontWeight: 400, color: '#FFFFFF', fontVariantNumeric: 'tabular-nums', display: 'inline-block', minWidth: 44 }}>{fmt(elapsed)}</span>
-            {/* Signal strength — green = good, yellow = degraded */}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill={navigator.onLine ? '#4DB848' : '#F5A623'}>
-              <path d="M1 20v-6h3v6zm4.75 0v-8h3v8zm4.75 0V9h3v11zm4.75 0V7h3v13zM20 20V4h3v16z"/>
-            </svg>
+            <NetworkStatusIcon />
             {summaryActive && <AIStatusIcon />}
           </div>
         </div>
@@ -625,18 +640,81 @@ export function MeetingScreen() {
           pointerEvents: uiVisible ? 'auto' : 'none',
         }}
       >
-        {/* Closed Captions pill */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          background: '#222222', borderRadius: 9999,
-          padding: '10px 16px', cursor: 'pointer',
-        }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <path fill="#888888" d="M5 20q-.825 0-1.412-.587T3 18V6q0-.825.588-1.412T5 4h14q.825 0 1.413.588T21 6v12q0 .825-.587 1.413T19 20zm0-2h14V6H5zm2-3h3q.425 0 .713-.288T11 14v-.5q0-.225-.15-.375t-.375-.15h-.45q-.225 0-.375.15t-.15.375h-2v-3h2q0 .225.15.375t.375.15h.45q.225 0 .375-.15T11 10.5V10q0-.425-.288-.712T10 9H7q-.425 0-.712.288T6 10v4q0 .425.288.713T7 15m10-6h-3q-.425 0-.712.288T13 10v4q0 .425.288.713T14 15h3q.425 0 .713-.288T18 14v-.5q0-.225-.15-.375t-.375-.15h-.45q-.225 0-.375.15t-.15.375h-2v-3h2q0 .225.15.375t.375.15h.45q.225 0 .375-.15T18 10.5V10q0-.425-.288-.712T17 9M5 18V6z"/>
-          </svg>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M3 5l3 3 3-3" stroke="#888888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+        {/* Closed Captions split button */}
+        <div style={{ position: 'relative' }}>
+          <CcSplitBtn
+            ccBtnRef={ccBtnRef}
+            ccOn={ccOn}
+            ccMenuOpen={ccOpen}
+            onToggleCc={() => setCcOn(o => !o)}
+            onOpenMenu={() => setCcOpen(o => !o)}
+          />
+
+          {/* CC dropdown */}
+          <AnimatePresence>
+            {ccOpen && (
+              <motion.div
+                ref={ccMenuRef}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  position: 'absolute', bottom: 'calc(100% + 10px)', left: 0,
+                  width: 300, zIndex: 40,
+                }}
+              >
+                {/* Arrow notch */}
+                <div style={{
+                  position: 'absolute', bottom: -5, left: 50,
+                  width: 10, height: 10,
+                  background: '#1A1A1A',
+                  border: '1px solid #383838',
+                  borderTopColor: 'transparent',
+                  borderLeftColor: 'transparent',
+                  borderRadius: '0 0 3px 0',
+                  transform: 'rotate(45deg)',
+                  zIndex: 2,
+                }} />
+                <div style={{
+                  background: '#1A1A1A',
+                  border: '1px solid #383838',
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                }}>
+                  <CcMenuItem label="Spoken language" value="English" />
+                  <CcMenuItem label="Caption language" value="English" />
+                  <div style={{ height: 1, background: '#383838' }} />
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '14px 20px',
+                  }}>
+                    <span style={{ fontSize: 15, fontWeight: 500, color: '#FFFFFF' }}>Allow manual captioning</span>
+                    <button
+                      onClick={() => setManualCaptioning(v => !v)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    >
+                      <div style={{
+                        width: 38, height: 22, borderRadius: 11,
+                        background: manualCaptioning ? '#0073E6' : '#383838',
+                        position: 'relative', transition: 'background 0.2s',
+                      }}>
+                        <div style={{
+                          position: 'absolute', top: 3,
+                          left: manualCaptioning ? 19 : 3,
+                          width: 16, height: 16, borderRadius: '50%',
+                          background: '#FFFFFF', transition: 'left 0.2s',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                        }} />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Main controls — absolutely centred so unequal side widths don't shift it */}
@@ -746,30 +824,46 @@ export function MeetingScreen() {
               position: 'absolute', top: 65,
               right: railOpen ? 391 : 20, width: 380,
               transition: 'right 0.45s cubic-bezier(0.34, 1.2, 0.64, 1)',
+              zIndex: 30,
+            }}
+          >
+            {/* Arrow notch pointing at AI Assistant button */}
+            <div style={{
+              position: 'absolute',
+              top: -5, right: 68,
+              width: 10, height: 10,
+              background: '#111111',
+              border: '1px solid #595959',
+              borderBottomColor: 'transparent',
+              borderRightColor: 'transparent',
+              borderRadius: '3px 0 0 0',
+              transform: 'rotate(45deg)',
+              zIndex: 2,
+            }} />
+            <div style={{
               background: '#111111',
               border: '1px solid #595959',
               borderRadius: 8,
               padding: '24px 24px 20px',
               display: 'flex', flexDirection: 'column', gap: 16,
               boxShadow: '0px 16px 40px 0px rgba(0,0,0,0.24)',
-              zIndex: 30,
               boxSizing: 'border-box',
-            }}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <SummaryIcon size={20} />
-                <span style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF', lineHeight: '28px' }}>
-                  See AI Assistant in action
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <SummaryIcon size={20} />
+                  <span style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF', lineHeight: '28px' }}>
+                    See AI Assistant in action
+                  </span>
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#D4D4D4', lineHeight: '20px' }}>
+                  You'll get a summary, transcript, and action items when the meeting ends.
                 </span>
               </div>
-              <span style={{ fontSize: 14, fontWeight: 500, color: '#D4D4D4', lineHeight: '20px' }}>
-                You'll get a summary, transcript, and action items when the meeting ends.
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 16 }}>
-              <NudgeBtn variant="cancel" onClick={() => setNudge(false)}>Skip</NudgeBtn>
-              <NudgeBtn variant="confirm" onClick={turnOnAI}>Turn on</NudgeBtn>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 16 }}>
+                <NudgeBtn variant="cancel" onClick={() => setNudge(false)}>Skip</NudgeBtn>
+                <NudgeBtn variant="confirm" onClick={turnOnAI}>Turn on</NudgeBtn>
+              </div>
             </div>
           </motion.div>
         )}
@@ -945,7 +1039,7 @@ const REACTIONS = [
 ]
 
 function ReactPanel({ menuRef, btnRef, onClose }) {
-  const [gestureOn, setGestureOn] = useState(true)
+  const [gestureOn, setGestureOn] = useState(false)
   const [hovered,   setHovered]   = useState(null)
 
   const rect       = btnRef.current?.getBoundingClientRect()
@@ -2064,6 +2158,85 @@ function TileIconBtn({ children, title, onClick, active = false }) {
   )
 }
 
+function CcSplitBtn({ ccBtnRef, ccOn, ccMenuOpen, onToggleCc, onOpenMenu }) {
+  const [hovMain, setHovMain] = useState(false)
+  const [hovChev, setHovChev] = useState(false)
+
+  const baseBg   = 'rgba(34,34,34,0.5)'
+  const hoverBg  = 'rgba(50,50,50,0.7)'
+  const activeBg = 'rgba(60,60,60,0.85)'
+  const chevBg   = ccMenuOpen ? activeBg : hovChev ? hoverBg : baseBg
+
+  const shared = {
+    border: 'none', cursor: 'pointer', backdropFilter: 'blur(24px)',
+    fontFamily: "'Inter', system-ui, sans-serif",
+    transition: 'background 0.15s',
+  }
+
+  return (
+    <div ref={ccBtnRef} style={{ display: 'flex', alignItems: 'stretch', borderRadius: 9999, overflow: 'hidden' }}>
+      <button
+        onClick={onToggleCc}
+        onMouseEnter={() => setHovMain(true)}
+        onMouseLeave={() => setHovMain(false)}
+        style={{
+          ...shared,
+          background: hovMain ? hoverBg : baseBg,
+          padding: '10px 12px 10px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill={ccOn ? '#FFFFFF' : '#AAAAAA'} d="M5 20q-.825 0-1.412-.587T3 18V6q0-.825.588-1.412T5 4h14q.825 0 1.413.588T21 6v12q0 .825-.587 1.413T19 20zm0-2h14V6H5zm2-3h3q.425 0 .713-.288T11 14v-.5q0-.225-.15-.375t-.375-.15h-.45q-.225 0-.375.15t-.15.375h-2v-3h2q0 .225.15.375t.375.15h.45q.225 0 .375-.15T11 10.5V10q0-.425-.288-.712T10 9H7q-.425 0-.712.288T6 10v4q0 .425.288.713T7 15m10-6h-3q-.425 0-.712.288T13 10v4q0 .425.288.713T14 15h3q.425 0 .713-.288T18 14v-.5q0-.225-.15-.375t-.375-.15h-.45q-.225 0-.375.15t-.15.375h-2v-3h2q0 .225.15.375t.375.15h.45q.225 0 .375-.15T18 10.5V10q0-.425-.288-.712T17 9M5 18V6z"/>
+        </svg>
+      </button>
+      <div style={{ width: 1, background: 'rgba(255,255,255,0.1)', alignSelf: 'stretch', margin: '10px 0' }} />
+      <button
+        onClick={onOpenMenu}
+        onMouseEnter={() => setHovChev(true)}
+        onMouseLeave={() => setHovChev(false)}
+        style={{
+          ...shared,
+          background: chevBg,
+          width: 28,
+          flexShrink: 0,
+          padding: '10px 8px 10px 4px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ transform: ccMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+          <path d="M3 5l3 3 3-3" stroke={ccMenuOpen ? '#FFFFFF' : '#AAAAAA'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  )
+}
+
+function CcMenuItem({ label, value }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 20px',
+        cursor: 'pointer',
+        background: hovered ? '#222222' : 'transparent',
+        transition: 'background 0.1s',
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <span style={{ fontSize: 13, fontWeight: 400, color: '#888888', lineHeight: '18px' }}>{label}</span>
+        <span style={{ fontSize: 15, fontWeight: 500, color: '#FFFFFF', lineHeight: '21px' }}>{value}</span>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M6 4l4 4-4 4" stroke="#888888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </div>
+  )
+}
+
 function NamePill({ label, micOn }) {
   return (
     <div style={{
@@ -2352,6 +2525,70 @@ function CamIcon({ on, size = 20 }) {
   )
 }
 
+function NetworkStatusIcon() {
+  const [hovered, setHovered] = useState(false)
+  const [isOnline, setIsOnline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine)
+
+  useEffect(() => {
+    function onOnline() { setIsOnline(true) }
+    function onOffline() { setIsOnline(false) }
+    window.addEventListener('online', onOnline)
+    window.addEventListener('offline', onOffline)
+    return () => {
+      window.removeEventListener('online', onOnline)
+      window.removeEventListener('offline', onOffline)
+    }
+  }, [])
+
+  const tooltipText = isOnline
+    ? 'Your network connection and CPU usage are good, allowing you to have the full experience.'
+    : 'Your connection is limited or you appear offline. Reconnect for the best experience.'
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill={isOnline ? '#4DB848' : '#F5A623'} style={{ cursor: 'default' }} aria-hidden>
+        <path d="M1 20v-6h3v6zm4.75 0v-8h3v8zm4.75 0V9h3v11zm4.75 0V7h3v13zM20 20V4h3v16z"/>
+      </svg>
+
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 8px)',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: '#1A1A1A',
+              border: '1px solid #383838',
+              borderRadius: 8,
+              padding: '8px 12px',
+              width: 300,
+              fontSize: 12,
+              fontWeight: 400,
+              color: '#E9E9E9',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              lineHeight: '18px',
+              pointerEvents: 'none',
+              whiteSpace: 'normal',
+              zIndex: 100,
+            }}
+          >
+            {tooltipText}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD — AIStatusIcon pulse
  *
@@ -2396,7 +2633,7 @@ function AIStatusIcon() {
               borderRadius: 8,
               padding: '8px 12px',
               width: 220,
-              fontSize: 2,
+              fontSize: 12,
               fontWeight: 400,
               color: '#E9E9E9',
               fontFamily: "'Inter', system-ui, sans-serif",
@@ -2413,40 +2650,3 @@ function AIStatusIcon() {
     </div>
   )
 }
-
-function CiscoAIIcon({ size = 20 }) {
-  const s = size
-  return (
-    <svg width={s} height={s} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="cisco-ring" x1="20" y1="100" x2="80" y2="0" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#0051AF"/>
-          <stop offset="0.67" stopColor="#0087EA"/>
-          <stop offset="1" stopColor="#00BCEB"/>
-        </linearGradient>
-        <linearGradient id="cisco-lens-a" x1="0" y1="0" x2="70" y2="70" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#0087EA"/>
-          <stop offset="0.84" stopColor="#63FFF7"/>
-        </linearGradient>
-        <linearGradient id="cisco-lens-b" x1="20" y1="100" x2="80" y2="0" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#0051AF"/>
-          <stop offset="0.67" stopColor="#0087EA"/>
-          <stop offset="1" stopColor="#00BCEB"/>
-        </linearGradient>
-        <radialGradient id="cisco-top" cx="100%" cy="100%" r="50%">
-          <stop offset="60%" stopColor="rgba(0,188,235,0)"/>
-          <stop offset="100%" stopColor="#00BCEB"/>
-        </radialGradient>
-      </defs>
-      {/* Outer ring */}
-      <circle cx="50" cy="50" r="44" stroke="url(#cisco-ring)" strokeWidth="8" fill="none"/>
-      {/* Bottom lens */}
-      <ellipse cx="64" cy="60" rx="22" ry="27" fill="url(#cisco-lens-a)" opacity="0.9"/>
-      {/* Inner lens (gradient green fade) */}
-      <ellipse cx="64" cy="42" rx="18" ry="22" fill="url(#cisco-lens-b)" opacity="0.65"/>
-      {/* Top lens (radial fade) */}
-      <ellipse cx="64" cy="30" rx="22" ry="18" fill="url(#cisco-top)"/>
-    </svg>
-  )
-}
-

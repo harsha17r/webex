@@ -236,7 +236,7 @@ export function SetPasswordScreen() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') { if (allValid) { navigate('/home', { state: { name, email } }) } else { setSubmitted(true); setWiggleTrigger(t => t + 1) } } }}
+                  onKeyDown={e => { if (e.key === 'Enter') { if (allValid) { navigate('/home', { state: { name, email, fromOnboarding: true } }) } else { setSubmitted(true); setWiggleTrigger(t => t + 1) } } }}
                   onFocus={() => setInputFocused(true)}
                   onBlur={() => setInputFocused(false)}
                   style={{
@@ -280,7 +280,7 @@ export function SetPasswordScreen() {
             {/* Set Password button */}
             <button
               onClick={() => {
-                if (allValid) { navigate('/home', { state: { name, email } }); return }
+                if (allValid) { navigate('/home', { state: { name, email, fromOnboarding: true } }); return }
                 setSubmitted(true)
                 setWiggleTrigger(t => t + 1)
               }}

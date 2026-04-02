@@ -70,6 +70,22 @@ const icons = {
       <path fill="currentColor" d="m17.331 3.461l.11.102l.102.11a1.93 1.93 0 0 1-.103 2.606l-3.603 3.617a1.9 1.9 0 0 1-.794.477l-1.96.591a.84.84 0 0 1-1.047-.567a.85.85 0 0 1 .005-.503l.621-1.942c.093-.289.252-.55.465-.765l3.612-3.625a1.904 1.904 0 0 1 2.592-.1M12.891 4H4.5A2.5 2.5 0 0 0 2 6.5v2.264a18 18 0 0 1 1.72-1.411c.647-.458 1.342-.86 1.979-1.026c.322-.085.662-.118.987-.042c.34.08.633.272.846.582c.463.674.126 1.404-.194 1.924c-.167.272-.374.556-.576.834l-.023.03c-.211.292-.421.582-.609.881c-.158.285-.2.622-.13.865q.054.174.166.265c.073.061.19.119.379.136c.33.03.759-.083 1.286-.272a.5.5 0 1 1 .338.94c-.52.188-1.14.38-1.714.328a1.66 1.66 0 0 1-.928-.363a1.5 1.5 0 0 1-.486-.753c-.16-.546-.05-1.165.224-1.648l.005-.009l.006-.01c.21-.337.443-.657.655-.948l.01-.014c.213-.291.399-.547.545-.785c.326-.53.298-.724.222-.835a.4.4 0 0 0-.25-.175c-.113-.026-.278-.024-.505.036c-.46.12-1.038.438-1.654.875c-.853.604-1.701 1.38-2.299 1.985V13.5A2.5 2.5 0 0 0 4.5 16h11a2.5 2.5 0 0 0 2.5-2.5V7.134l-3.455 3.468c-.338.34-.755.59-1.213.728l-1.96.591a1.84 1.84 0 0 1-2.295-1.238a1.85 1.85 0 0 1 .011-1.094l.622-1.942c.14-.44.383-.839.709-1.165z"/>
     </svg>
   ),
+  apphub: (
+    <svg width="20" height="20" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+      <rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+      <rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+      <rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+    </svg>
+  ),
+  apphub_filled: (
+    <svg width="20" height="20" viewBox="0 0 20 20">
+      <rect x="2" y="2" width="7" height="7" rx="1.5" fill="currentColor"/>
+      <rect x="11" y="2" width="7" height="7" rx="1.5" fill="currentColor"/>
+      <rect x="2" y="11" width="7" height="7" rx="1.5" fill="currentColor"/>
+      <rect x="11" y="11" width="7" height="7" rx="1.5" fill="currentColor"/>
+    </svg>
+  ),
   more: (
     <svg width="20" height="20" viewBox="0 0 20 20">
       <circle cx="5" cy="10" r="1.5" fill="currentColor"/>
@@ -107,6 +123,7 @@ const groupA = [
 
 const groupB = [
   { key: 'team',       label: 'Team'       },
+  { key: 'apphub',    label: 'App Hub'    },
   { key: 'whiteboard', label: 'Whiteboard' },
 ]
 
@@ -121,20 +138,6 @@ const MORE_ITEMS = [
         <rect x="2" y="5" width="13" height="12" rx="2" stroke="var(--text-primary)" strokeWidth="1.4"/>
         <path d="M15 9.5L20 7V15L15 12.5" stroke="var(--text-primary)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
         <circle cx="8" cy="11" r="2" fill="var(--text-primary)" opacity="0.6"/>
-      </svg>
-    ),
-  },
-  {
-    key: 'apphub',
-    label: 'App Hub',
-    subtitle: 'Find workflows and apps',
-    bg: 'var(--border-strong)',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <rect x="2" y="2" width="8" height="8" rx="2" stroke="var(--text-primary)" strokeWidth="1.4"/>
-        <rect x="12" y="2" width="8" height="8" rx="2" stroke="var(--text-primary)" strokeWidth="1.4"/>
-        <rect x="2" y="12" width="8" height="8" rx="2" stroke="var(--text-primary)" strokeWidth="1.4"/>
-        <rect x="12" y="12" width="8" height="8" rx="2" stroke="var(--text-primary)" strokeWidth="1.4"/>
       </svg>
     ),
   },
@@ -268,7 +271,7 @@ function NavItem({ navKey, label, active, onClick }) {
   )
 }
 
-export function Sidebar({ activeTab, onTabChange }) {
+export function Sidebar({ activeTab, onTabChange, onSettingsClick }) {
   const [moreOpen, setMoreOpen] = useState(false)
   const moreRef    = useRef(null)
   const closeTimer = useRef(null)
@@ -386,7 +389,7 @@ export function Sidebar({ activeTab, onTabChange }) {
             navKey={item.key}
             label={item.label}
             active={activeTab === item.key}
-            onClick={onTabChange}
+            onClick={item.key === 'settings' ? () => onSettingsClick?.() : onTabChange}
           />
         ))}
       </div>

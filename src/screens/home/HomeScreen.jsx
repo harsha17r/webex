@@ -8,20 +8,30 @@ import { CiscoAIRail } from '../../components/layout/CiscoAIRail'
 import { MeetingsTab } from './MeetingsTab'
 import { MessagesTab } from './MessagesTab'
 import { OnboardingChecklist } from '../../components/OnboardingChecklist'
+import { PreJoinModal } from '../meeting/PreJoinModal'
+import { NotificationSettingsModal } from '../../components/modals/NotificationSettingsModal'
+import { SetStatusModal } from '../../components/modals/SetStatusModal'
 
 export function HomeScreen() {
   const [activeTab, setActiveTab]         = useState('meet')
   const [aiPanelOpen, setAiPanelOpen]     = useState(true)
   const [calendarConnected, setCalendar]  = useState(false)
+  const [preJoinOpen, setPreJoinOpen]     = useState(false)
+  const [settingsOpen, setSettingsOpen]   = useState(false)
+  const [statusModalOpen, setStatusModalOpen] = useState(false)
   const location = useLocation()
   const { updateProfile } = useProfile()
-  const { fromMeeting = false, elapsed: meetingElapsed = 0 } = location.state ?? {}
+  const { fromMeeting = false, elapsed: meetingElapsed = 0, fromOnboarding = false } = location.state ?? {}
 
   // Always apply name + email coming from the onboarding flow
+  // Reset checklist dismissed state on fresh onboarding entry
   useEffect(() => {
     const { name, email } = location.state ?? {}
     if (name || email) {
       updateProfile({ ...(name && { name }), ...(email && { email }) })
+    }
+    if (fromOnboarding) {
+      localStorage.removeItem('webex_smb_checklist_dismissed')
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -38,6 +48,7 @@ export function HomeScreen() {
       <TopBar
         aiPanelOpen={aiPanelOpen}
         onToggleAI={() => setAiPanelOpen(v => !v)}
+        onSetStatusClick={() => setStatusModalOpen(true)}
       />
 
       {/* Body row: Sidebar + Content area */}
@@ -45,7 +56,7 @@ export function HomeScreen() {
 
         {/* Sidebar — paddingTop 13 so nav starts at y:76 (63 topbar + 13) */}
         <div style={{ paddingTop: 13, background: 'var(--bg-primary)', flexShrink: 0 }}>
-          <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+          <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onSettingsClick={() => setSettingsOpen(true)} />
         </div>
 
         {/* Content area: scrollable main + AI rail */}
@@ -59,8 +70,14 @@ export function HomeScreen() {
               {activeTab === 'meet'    && <MeetingsTab calendarConnected={calendarConnected} fromMeeting={fromMeeting} meetingElapsed={meetingElapsed} />}
             </div>
 
-            {/* Checklist — persists across tab switches, anchored to content area only */}
-            <OnboardingChecklist onCalendarConnect={() => setCalendar(true)} />
+            {/* Checklist — visually hidden on message tab to avoid overlapping compose */}
+            <div style={activeTab === 'message' ? { position: 'absolute', visibility: 'hidden', pointerEvents: 'none' } : {}}>
+              <OnboardingChecklist
+                onCalendarConnect={() => setCalendar(true)}
+                onTestCall={() => setPreJoinOpen(true)}
+                fromMeeting={fromMeeting}
+              />
+            </div>
           </div>
 
           {/* AI Rail — slides in/out with spring */}
@@ -81,6 +98,20 @@ export function HomeScreen() {
 
         </div>
       </div>
+
+      <AnimatePresence>
+        {preJoinOpen && <PreJoinModal onClose={() => setPreJoinOpen(false)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {settingsOpen && <NotificationSettingsModal onClose={() => setSettingsOpen(false)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {statusModalOpen && (
+          <SetStatusModal onClose={() => setStatusModalOpen(false)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

@@ -5,6 +5,680 @@
 
 ---
 
+### [2026-04-02 21:30] — Settings modal: General, Audio panels + custom meeting reminder
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added two new content panels to `NotificationSettingsModal.jsx` (both SMB and enterprise versions). General panel shows all real Webex settings: startup checkbox, Outlook availability toggle, Landing screen dropdown, Recent sessions link, Default file location, Local time zone dropdown, Multitasking checkbox, Carbon aware mode with nested sub-option (dims when parent unchecked), and Translation language dropdown. Audio panel adds three sub-sections (Ringer/Alerts, Speaker, Microphone) each with a wide device dropdown, Test button, level meter (22 tick marks), and an interactive volume slider with blue fill via CSS custom property `--pct`. Microphone section includes auto-adjust and spacebar-unmute checkboxes; volume slider dims when auto-adjust is on. Sound effect section has Directional audio toggle. CSS additions to `index.css`: `.volume-slider` for the range input and `.no-spinner` to hide browser spinners. Replaced Meeting Notifications radio buttons with a dropdown (`SoundDropdown`) that includes a "Custom" option — selecting it animates open a stepper (`−`/`+` buttons + direct input) with a Minutes/Hours segmented toggle and a live preview line. Unit switching converts values automatically.
+
+**Files touched:**
+- `src/components/modals/NotificationSettingsModal.jsx`
+- `src/enterprise-components/modals/NotificationSettingsModal.jsx`
+- `src/index.css`
+
+**Next up:**
+Continue filling in other settings panels (Video, Notifications, Appearance, etc.) using the same pattern established for General and Audio.
+
+---
+
+### [2026-04-02 18:00] — Enterprise calendar nav: wider gap between chevrons
+
+**Status:** 🟢 Done
+
+**What changed:**
+In **`PastMeetingCard`** date bar (`src/screens/enterprise-home/MeetingsTab.jsx`), wrapped the **prev/next** chevron buttons in a row with **`gap: 14`** (was **8** between every item in that row). Spacing from the arrow pair to the date label stays **8**.
+
+**Files touched:**
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-01 18:15] — Full-page scroll + SMB meeting card visual parity
+
+**Status:** 🟢 Done
+
+**What changed:**
+Two fixes. (1) **SMB meeting card** (`src/screens/home/MeetingsTab.jsx`): Replaced old `CardShell`-based `MeetingRow` with the enterprise-style layout — purple avatar circle with initials, title/time/chip rows, trailing share icon on hover. `CardShell` removed as unused. (2) **Enterprise full-page scroll** (`src/screens/enterprise-home/MeetingsTab.jsx`): Removed fixed-height container pattern. Outer card changed from `height: calc(100% - 8px)` to `minHeight: calc(100% - 8px)`, `overflow: hidden` removed. Stripped `flex: 1, minHeight: 0` from inner content column, Section 2 wrapper, and `PastMeetingCard` root div. Internal `overflowY: auto` view-content zone replaced with plain `paddingTop: 8` wrapper — content now grows naturally and the outer HomeScreen scroll container handles all scrolling. WeekView flex/scroll containment also removed; it renders at full natural height (1140px grid) within page flow. Removed orphaned `scrollRef` and auto-scroll `useEffect` from WeekView.
+
+**Files touched:**
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Move on to next design task as directed by user.
+
+---
+
+### [2026-04-02 17:00] — Meeting tiles: icon + label horizontal (fix)
+
+**Status:** 🟢 Done
+
+**What changed:**
+Corrected **Start / Join / Schedule** tiles in **consumer + enterprise `MeetingsTab`** so **icon and label share one row** (`flexDirection: 'row'`, `alignItems: 'center'`, `gap: 12`), not a vertical stack. Dropped the fixed **112px** tile height. Restored **empty-state “Schedule a meeting”** and **`WelcomeScreen` “Join a meeting”** to **horizontal** icon + text for consistency.
+
+**Files touched:**
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `src/screens/onboarding/WelcomeScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-02 16:00] — Meeting action tiles: icon above label
+
+**Status:** 🟢 Done
+
+**What changed:**
+Reworked **Start / Join / Schedule** meeting tiles in **consumer and enterprise `MeetingsTab`** so each tile uses a **tall column**: icon at the **top** (left-aligned), label row (and chevrons for Start/Schedule) pinned to the **bottom** via **`marginTop: 'auto'`** and **`minHeight: 112`**, with **`borderRadius: 12`** and **`minWidth: 0`** on flex children for consistent row layout. Empty-calendar **“Schedule a meeting”** pill in **`PastMeetingCard`** now stacks icon above text (centered). **Onboarding `WelcomeScreen`** **“Join a meeting”** secondary CTA uses the same vertical stacking with **`minHeight: 88`** and **`type="button"`**.
+
+**Files touched:**
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `src/screens/onboarding/WelcomeScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-02 14:30] — Test-meeting banner unified fill
+
+**Status:** 🟢 Done
+
+**What changed:**
+Moved the welcome banner’s **`#1A1A1A`** fill to the **outer wrapper only**; illustration and text columns are **transparent** so left and right always share one background. Added **`minWidth: 0`** on the text column for safer flex sizing. Figma block comment updated to match.
+
+**Files touched:**
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-02 12:00] — Test-meeting welcome banner styling
+
+**Status:** 🟢 Done
+
+**What changed:**
+Updated the **“Try a quick test meeting”** welcome banner in **Meetings** so its panels use the same **`#1A1A1A`** fill as the parent meetings card instead of **`#494949`**, so it visually blends with the page background. Wrapped the banner row in a single container with **`borderRadius: 12`**, **`overflow: hidden`**, and a thin **`1px solid rgba(255, 255, 255, 0.1)`** outline so the block still reads as a defined region without a heavy border. Removed redundant per-panel border radii now that the wrapper clips corners.
+
+**Files touched:**
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-01] — Join meeting modal buttons
+
+**Status:** 🟢 Done
+
+**What changed:**
+In **`JoinMeetingModal`** inside **`MeetingsTab.jsx`** (consumer + enterprise): **Join** uses pill corners (`borderRadius: 9999`), **`#1D8160`** fill and **`#FFFFFF`** label when the field has text; **Cancel** has **no border**, solid **`#2A2A2A`** fill, pill shape, white label. Added **`type="button"`** on both.
+
+**Files touched:**
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-01] — Meeting AI rail placeholder copy
+
+**Status:** 🟢 Done
+
+**What changed:**
+Updated the **Cisco AI** meeting rail input **placeholder** from “ENTER YOUR QUERY” / “Enter your query” to **“Ask me anything about this meeting”** in consumer and enterprise **MeetingAIRail** (rendered by `MeetingScreen.jsx` routes).
+
+**Files touched:**
+- `src/components/meeting/MeetingAIRail.jsx`
+- `src/enterprise-components/meeting/MeetingAIRail.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-01 23:10] — Enterprise HomeScreen crash fix
+
+**Status:** 🟢 Done
+
+**What changed:**
+`src/screens/enterprise-home/HomeScreen.jsx` referenced **`statusModalOpen` / `setStatusModalOpen`** without declaring **`useState`** (regression vs consumer `HomeScreen`). That threw on render → blank route. Added **`const [statusModalOpen, setStatusModalOpen] = useState(false)`**.
+
+**Files touched:**
+- `src/screens/enterprise-home/HomeScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-01 22:50] — Set Status modal white screen fix
+
+**Status:** 🟢 Done
+
+**What changed:**
+Replaced **Motion** opacity/exit layers on **SetStatusModal** portal with **plain fixed `div`s** and **`backgroundColor: rgba(0,0,0,0.72)`** so the overlay cannot stick at opacity 0. **`body` / `#root`** now set **`background-color: #111`** and default **text** color to avoid white flash behind portals. **`color-scheme: dark`** on overlay + **`.set-status-datetime`** for native datetime control.
+
+**Files touched:**
+- `src/components/modals/SetStatusModal.jsx`
+- `src/index.css`
+- `devlog/LOG.md`
+
+**Next up:**
+Re-add short CSS fade-in if desired (without relying on parent AnimatePresence).
+
+---
+
+### [2026-04-01 22:35] — Status auto-expiry + modal focus trap
+
+**Status:** 🟢 Done
+
+**What changed:**
+**Profile:** `statusExpiresAt` (ISO) on save via exported **`computeStatusExpiresAt`** (presets + custom). **Hydration** clears stale status if expiry is in the past and rewrites sessionStorage. **`useEffect`** schedules **`setTimeout`** to clear `statusText` / expiry fields when the deadline passes; **`updateProfile`** is **`useCallback`**-stable. **SetStatusModal:** **`computeStatusExpiresAt`** on non-empty save; empty save clears expiry + custom time; **focus trap** (Tab cycles focusables inside dialog), **initial focus** first control, **restore focus** on unmount; **`ref` + `tabIndex={-1}`** on dialog panel.
+
+**Files touched:**
+- `src/context/ProfileContext.jsx`
+- `src/components/modals/SetStatusModal.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Optional Escape to close duration/emoji popovers before dismissing modal.
+
+---
+
+### [2026-04-01 22:20] — Set Status modal (top bar)
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added **`SetStatusModal`** (`components/modals/SetStatusModal.jsx`): dark panel with mac dots, **Status** textarea (75-char grapheme count), emoji grid picker + insertion at caret, **Clear status after** pill dropdown (30m–14d + Custom with `datetime-local`), preset rows, **Cancel** / **Save**. Save calls **`updateProfile`** with `statusText`, `statusClearAfter`, `statusCustomUntil` (ISO when custom). **ProfileContext** default profile extended with those fields (session-persisted). **TopBar** (consumer + enterprise) **`onSetStatusClick`** opens modal; label shows truncated saved status or “Set your status”. **HomeScreen** both variants wire `statusModalOpen` + `AnimatePresence`.
+
+**Files touched:**
+- `src/components/modals/SetStatusModal.jsx` (new)
+- `src/context/ProfileContext.jsx`
+- `src/components/layout/TopBar.jsx`
+- `src/enterprise-components/layout/TopBar.jsx`
+- `src/screens/home/HomeScreen.jsx`
+- `src/screens/enterprise-home/HomeScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Optional auto-clear timer from `statusClearAfter`; focus trap in modal.
+
+---
+
+### [2026-04-01 21:55] — Welcome Space header hover states
+
+**Status:** 🟢 Done
+
+**What changed:**
+`WelcomeSpaceChatView` in home + enterprise `MessageStage.jsx` uses **`welcomeHover`** state with `onMouseEnter` / `onMouseLeave` for: star (soft wash), schedule chip (lighter grey + border), Meet (`#239872`), section pills (selected lift to `#484848`, unselected `rgba(255,255,255,0.08)` + label `#B8B8B8`), and tray icons (10% white wash + `#C8C8C8` icons). Shared hover tokens next to existing Welcome constants. Transitions **0.12s ease** on background / border / color.
+
+**Files touched:**
+- `src/screens/home/MessageStage.jsx`
+- `src/screens/enterprise-home/MessageStage.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Optional `:focus-visible` rings for keyboard users.
+
+---
+
+### [2026-04-01 21:40] — Welcome Space Iconify assets + Meet #1D8160
+
+**Status:** 🟢 Done
+
+**What changed:**
+Inlined SVGs from Iconify API in home + enterprise `WelcomeSpaceChatView`: **tabler:calendar-plus** (white on grey schedule chip), **ph:push-pin-bold**, **stash:search-solid**, **mingcute:settings-3-line** (full paths per API). Left outlined star unchanged. **Meet** uses **`#1D8160`**. Fixed accidental typo in enterprise mingcute path (`0-3.44`).
+
+**Files touched:**
+- `src/screens/home/MessageStage.jsx`
+- `src/screens/enterprise-home/MessageStage.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None unless icons need `?color=` tweaks from Iconify.
+
+---
+
+### [2026-04-01 21:25] — Welcome Space header icons refresh
+
+**Status:** 🟢 Done
+
+**What changed:**
+Welcome Space chrome in **home + enterprise** `MessageStage.jsx`: **outlined star** (amber stroke, Lucide-style polygon) for favorite; **schedule** control left of Meet is a **#404040** circular button with subtle border and **white** calendar + clock glyph; second-row tray is **pin → search → settings** only (removed heart/lists). Search uses **Lucide-style** magnifying glass (`search`); pin uses **map-pin** silhouette; settings uses hub + spokes gear. New token `WELCOME_SPACE_SCHEDULE_BTN_BG`.
+
+**Files touched:**
+- `src/screens/home/MessageStage.jsx`
+- `src/screens/enterprise-home/MessageStage.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Install/use `better-icons` locally if you want exact Iconify IDs inlined; optional pushpin vs map-pin per product spec.
+
+---
+
+### [2026-04-01 21:05] — Enterprise Welcome Space header parity
+
+**Status:** 🟢 Done
+
+**What changed:**
+Aligned **`src/screens/enterprise-home/MessageStage.jsx`** `WelcomeSpaceChatView` with the consumer screen: shared tokens (`#0D4A3C` Meet, amber filled star, `#3A3A3A` selected chip, grey tray icons), two-row header (white circular calendar + pill Meet), pill tabs with grey unselected text, and right tray (heart + list lines, search, simplified gear). Home `MessageStage.jsx` tray icons updated to match (heart + lines, cog spokes). Build verified.
+
+**Files touched:**
+- `src/screens/enterprise-home/MessageStage.jsx`
+- `src/screens/home/MessageStage.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+User QA on Welcome Space in both variants; optional Meet hex tweak to `#005d3e` if design asks.
+
+---
+
+### [2026-04-01 20:50] — Welcome row tray right inset
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added **`trayPaddingRight: 12`** on the absolute badge/⋮ tray so the cluster sits slightly left of the card edge for a better hit area. Bumped **`textGutterUnread` / `textGutterRead`** by the same 12px so title/preview truncation stays aligned with the tray. Home + enterprise `MessagesTab.jsx`.
+
+**Files touched:**
+- `src/screens/home/MessagesTab.jsx`
+- `src/screens/enterprise-home/MessagesTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None unless user wants a different inset value.
+
+---
+
+### [2026-04-01 20:40] — Welcome row: no ⋮ bg, stable text width
+
+**Status:** 🟢 Done
+
+**What changed:**
+**⋮** control is **transparent** (no hover fill). Title/preview no longer reflow on hover: middle column uses fixed **`textGutterUnread` / `textGutterRead`** padding; badge + rail sit in an **absolutely positioned** trailing tray so expanding rail does not steal **flex** width from the text block. Storyboard note updated. Home + enterprise `MessagesTab.jsx`.
+
+**Files touched:**
+- `src/screens/home/MessagesTab.jsx`
+- `src/screens/enterprise-home/MessagesTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Tune gutter px if real badge width differs; optional `LayoutGroup` polish.
+
+---
+
+### [2026-04-01 20:25] — Welcome row hover: badge slides, ⋮ rail expands
+
+**Status:** 🟢 Done
+
+**What changed:**
+Trailing actions now **collapse** by default: the **unread pill stays flush right** while the **⋮ rail animates from width 0 → 32px** on hover (`layoutSpring`), so the badge **moves left** as the menu appears on the **far right**. Inner ⋮ still uses a second **spring** for opacity/scale. Unread pill wrapped in **`motion.div` `layout`** for smoother repositioning. Storyboard text updated. Consumer + enterprise `MessagesTab.jsx`.
+
+**Files touched:**
+- `src/screens/home/MessagesTab.jsx`
+- `src/screens/enterprise-home/MessagesTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Optional `LayoutGroup` if further polish on cross-element motion; hook ⋮ to menu.
+
+---
+
+### [2026-04-01 20:05] — Welcome row ⋮ layout + vertical icon
+
+**Status:** 🟢 Done
+
+**What changed:**
+Replaced awkward absolute positioning with a flex **trailing rail**: unread pill first, then a fixed **32px** column at the far right for the more control so preview text ellipses cleanly and never runs under the icon. Swapped to **vertical** three-dot SVG (`cy` 4 / 9 / 14). Tuned **Interface Craft** spring (`stiffness` 380, `damping` 34, `mass` 0.82) and `scale` 0.86 → 1 for hover. Storyboard documents layout vs motion. Consumer + enterprise `MessagesTab.jsx`.
+
+**Files touched:**
+- `src/screens/home/MessagesTab.jsx`
+- `src/screens/enterprise-home/MessagesTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Hook ⋮ to a menu; adjust `railPx` / `gapTrail` if density changes.
+
+---
+
+### [2026-04-01 19:45] — Welcome Space list row polish
+
+**Status:** 🟢 Done
+
+**What changed:**
+Aligned **Welcome Space** row avatar to **40×40** like **Recommended messages**, removed the gradient ring in favor of a flat `#2E2E2E` circle and **W**. Dropped the green timestamp; unread is **bold title + white pill** (`#FFFFFF` background, `#1A1A1A` count). Added hover-only **⋯** control: `motion` spring (`stiffness` / `damping` / `mass`) animates **opacity** and **scale** (Interface Craft storyboard comment + `WELCOME_ROW_MORE` config); control is absolutely positioned so it doesn’t consume layout when hidden, `stopPropagation` on the button. Title **fontSize 16** matches the recommended row. Applied to consumer and enterprise `MessagesTab.jsx`.
+
+**Files touched:**
+- `src/screens/home/MessagesTab.jsx`
+- `src/screens/enterprise-home/MessagesTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Wire ⋯ to a real menu if needed; tweak `right` offsets if badge + icon overlap on very narrow sidebars.
+
+---
+
+### [2026-04-01 19:15] — Welcome Space row + space thread stage
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added a **Welcome Space** conversation row (gradient-ring **W** avatar, two-line preview, WhatsApp-style **unread**: bold title, `#53DD6C` timestamp, pill badge **1**) on **All** (below **Recommended messages**) and **Spaces** (above **Create a space**). First open clears unread for the session via `welcomeSpaceUnread`. **Spaces** main pane routes `selectedItem === 'welcome-space'` to a new **Welcome Space** stage: title row with star, green **Meet**, layout/more icons; sub-tabs (Messages, People, Content, Meetings, + Apps); seeded thread (space-created line, **You** + link preview card + welcome copy); composer mirroring existing toolbar patterns. Implemented in both consumer and enterprise `MessagesTab.jsx` / `MessageStage.jsx` pairs.
+
+**Files touched:**
+- `src/screens/home/MessagesTab.jsx`
+- `src/screens/enterprise-home/MessagesTab.jsx`
+- `src/screens/home/MessageStage.jsx`
+- `src/screens/enterprise-home/MessageStage.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+User may tune copy, colors, or wire Meet/tabs to real behavior; consider extracting duplicated `WelcomeSpaceChatView` / list row to a shared module if both trees stay identical.
+
+---
+
+### [2026-04-01 18:30] — Messages tab dropdown arrow notches
+
+**Status:** 🟢 Done
+
+**What changed:**
+Enabled the existing `Dropdown` popover arrow on all Messages tab menus. Filter, More options, and Compose each use `anchor="bottom-center"`; they now pass `showArrow` plus `arrowColor="#111111"` and `arrowBorder="#595959"` so the diamond notch matches `FilterPanel`, `MoreOptionsPanel`, and `ComposePanel` fills and borders. Applied identically in consumer (`src/components/Dropdown.jsx`) and enterprise (`src/enterprise-components/Dropdown.jsx`) trees via `MessagesTab.jsx` in `screens/home` and `screens/enterprise-home`.
+
+**Files touched:**
+- `src/screens/home/MessagesTab.jsx`
+- `src/screens/enterprise-home/MessagesTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Continue with the next UI task as directed; verify notch alignment in the browser if any anchor overlap looks off.
+
+---
+
+### [2026-04-01 17:45] — Proper time-grid week view
+
+**Status:** 🟢 Done
+
+**What changed:**
+Completely rewrote `WeekView` in `MeetingsTab.jsx` from a "day picker + card list" to a real time-grid calendar. The grid shows 19 hours (7 AM – 2 AM) at 60px per hour. A fixed week header row (day names + date circles + dot indicators) sits above a scrollable time grid. Time labels (`8 AM`, `9 PM`, etc.) run down the left gutter at 52px wide. Each of the 7 day columns is positioned relative and renders: (1) horizontal 1px divider lines per hour, (2) a blue current-time indicator line with a dot on today's column, (3) absolutely-positioned meeting blocks sized by duration. Meeting blocks have a colored left border (purple for test call, the meeting's own avatarColor for upcoming), a dark tinted background, and show title + start time. Test call block is clickable and opens the detail modal. Meetings past midnight (Product Roadmap at ~12 AM) correctly appear in the next day's column via the `toPx()` function. On mount the grid auto-scrolls to 2 hours before current time. Changed the outer scroll container to `overflow: hidden` when Week is active so WeekView handles its own scroll.
+
+**Files touched:**
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Move on to next design task as directed by user.
+
+---
+
+### [2026-04-01 17:15] — Participants panel added to UpcomingMeetingModal
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added a right-side participants panel to `UpcomingMeetingModal` in `MeetingsTab.jsx`, matching the layout pattern used in `MeetingDetailModal`. The modal's content area is now a flex row: left scrollable area (About content or "not started" empty state) + right 256px participants panel visible only on the About tab. Added `MEETING_PARTICIPANTS` constant — a lookup keyed by meeting initials (AK/SC/MJ) defining fake attendee arrays with name, initials, and avatar color per meeting. `UpcomingMeetingModal` now also accepts `initials` and `avatarColor` props (passed from `UpcomingMeetingRow`). The panel shows the current user at the top (from `useProfile`, using their photo or initials fallback) followed by the meeting-specific participants. Panel is collapsible via a chevron button (`partsOpen` state, defaults open). The "participants invited" count in the About left column now reflects the actual participant count dynamically.
+
+**Files touched:**
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Move on to next design task as directed by user.
+
+---
+
+### [2026-04-01 16:30] — Dynamic fake meeting times, smart Join button, upcoming meeting modal
+
+**Status:** 🟢 Done
+
+**What changed:**
+Replaced static `FAKE_MEETINGS` constant with `makeFakeMeetings()` — computes three meeting start times dynamically relative to now (+30 min, +2h 30m, +4h). Times are frozen on mount via `useState(() => makeFakeMeetings())` in `PastMeetingCard` so they don't drift. `UpcomingMeetingRow` now accepts `start: Date, end: Date, isNext: boolean` — only the first (soonest) card shows the "Starts in Xm" countdown and blue "Join meeting" button; the other two show just the time range. Removed "Today ·" from all meeting card subtitles (upcoming and test call). Added `UpcomingMeetingModal` — same shell as `MeetingDetailModal` (920px, 74vh, spring animation), with About/Meeting summary/Transcript/Chat messages tabs; non-About tabs show a "hasn't started yet" empty state with contextual copy. `WeekView` updated to receive `fakeMeetings` prop and use Date objects instead of H/M arithmetic.
+
+**Files touched:**
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Consider same treatment for SMB track if needed. Otherwise move on to next design task.
+
+---
+
+### [2026-04-01 15:00] — Upcoming meeting cards rebuilt to match Figma (node 1675-4077)
+
+**Status:** 🟢 Done
+
+**What changed:**
+Completely replaced the old `UpcomingMeetingRow` (CardShell + green join button) with a new component built to match Figma node 1675-4077. Each row is now: 40×40 colored avatar circle with initials (left) → body column with 3 rows (title + `lucide:users` + space name / Today · time · countdown / blue "Join meeting" chip) → `tabler:share-3` trailing icon that fades in on hover (right). Card background `#222222` with hover `#2A2A2A`, rows separated by `#2E2E2E` border, all wrapped in a `border-radius:12px` container. `FAKE_MEETINGS` data updated with per-meeting avatar color, initials, space name, and start/end hours so the "in Xm" countdown is computed dynamically from current time. `WeekView` fake-block rendering updated to derive timeRange and mins from `startH/endH/startM/endM`.
+
+**Files touched:**
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Check if the SMB track (`src/screens/home/MeetingsTab.jsx`) needs the same treatment. Otherwise polish pass — tweaking avatar colors or meeting content copy.
+
+---
+
+### [2026-04-01 12:00] — Shared Cisco AI icon for meeting UI
+
+**Status:** 🟢 Done
+
+**What changed:**
+Exported `CiscoAIIcon` from both `CiscoAIRail.jsx` layout files (same 32×32 ring + lens artwork as the home AI rail). Gradient defs now use React `useId()` so multiple icons on one screen do not collide. Both `MeetingScreen.jsx` files import this component and drop the old inline 100×100 SVG that scaled poorly in the toolbar and Cisco AI video tile. `MeetingAIRail.jsx` (SMB + enterprise) now imports the shared icon instead of duplicating it. `ParticipantsRail.jsx` AI row avatar uses the same mark inside a 40px circular frame instead of the flat white-stroke placeholder.
+
+**Files touched:**
+- `src/components/layout/CiscoAIRail.jsx`
+- `src/enterprise-components/layout/CiscoAIRail.jsx`
+- `src/screens/meeting/MeetingScreen.jsx`
+- `src/screens/enterprise-meeting/MeetingScreen.jsx`
+- `src/components/meeting/MeetingAIRail.jsx`
+- `src/enterprise-components/meeting/MeetingAIRail.jsx`
+- `src/components/meeting/ParticipantsRail.jsx`
+- `src/enterprise-components/meeting/ParticipantsRail.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Optional: align `MeetingsTab.jsx` local `CiscoAIAvatar` with the shared `CiscoAIIcon` if product wants one asset everywhere.
+
+---
+
+### [2026-03-31] — Sidebar Settings opens NotificationSettingsModal; default nav = General
+
+**Status:** 🟢 Done
+
+**What changed:**
+Both `Sidebar` components accept `onSettingsClick` prop; clicking the Settings nav item calls it instead of `onTabChange`. Both `HomeScreen` files manage `settingsOpen` state, import the respective `NotificationSettingsModal`, and render it in `AnimatePresence`. Both `NotificationSettingsModal` files default `activeNav` to `'general'` (first nav item) so the modal opens with General selected even though its content panel is empty.
+
+**Files touched:**
+- `src/components/layout/Sidebar.jsx`
+- `src/enterprise-components/layout/Sidebar.jsx`
+- `src/screens/home/HomeScreen.jsx`
+- `src/screens/enterprise-home/HomeScreen.jsx`
+- `src/components/modals/NotificationSettingsModal.jsx`
+- `src/enterprise-components/modals/NotificationSettingsModal.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Add content for General / other empty nav panels if needed.
+
+---
+
+### [2026-03-31] — SMB NotificationSettingsModal: SectionCard matches enterprise
+
+**Status:** 🟢 Done
+
+**What changed:**
+`src/components/modals/NotificationSettingsModal.jsx` — `SectionCard` header bar now matches enterprise: `padding: '14px 16px'`, section title `fontSize: 18` (was 10px/14px title).
+
+**Files touched:**
+- `src/components/modals/NotificationSettingsModal.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+As needed.
+
+---
+
+### [2026-03-31] — Setup profile modal: remove Adjust appearance shortcut
+
+**Status:** 🟢 Done
+
+**What changed:**
+Removed the bottom-left "Adjust appearance" control from the right-panel action bar in both consumer and enterprise `SetupProfileModal`. Footer row now uses `justifyContent: 'flex-end'` when not in crop mode so Cancel / Update changes stay right-aligned; crop mode still uses `space-between`. Dropped `onOpenAppearances` prop and removed `onOpenAppearances` from `OnboardingChecklist`’s `SetupProfileModal` usage (appearance remains available from the checklist’s own row).
+
+**Files touched:**
+- `src/components/modals/SetupProfileModal.jsx`
+- `src/enterprise-components/modals/SetupProfileModal.jsx`
+- `src/components/OnboardingChecklist.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+As needed.
+
+---
+
+### [2026-03-31] — Onboarding checklist: wire "Test call" to PreJoinModal
+
+**Status:** 🟢 Done
+
+**What changed:**
+Connected the "Test call to check audio & video" checklist item to the PreJoinModal in both consumer and enterprise flows. `OnboardingChecklist` now accepts `onTestCall` (callback) and `fromMeeting` (boolean) props. Clicking the test-call row calls `onTestCall` which opens the PreJoinModal managed by `HomeScreen`. If `fromMeeting` is true (user already returned from a meeting), the test-call task is pre-checked via `useState` initializer. Both `HomeScreen` files import `PreJoinModal`, manage `preJoinOpen` state, and render it in an `AnimatePresence` wrapper.
+
+**Files touched:**
+- `src/components/OnboardingChecklist.jsx`
+- `src/enterprise-components/OnboardingChecklist.jsx`
+- `src/screens/home/HomeScreen.jsx`
+- `src/screens/enterprise-home/HomeScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Verify the full flow: checklist → PreJoin → meeting → return → test-call auto-checked.
+
+---
+
+### [2026-03-31] — Meetings tab tiles: filled MDI + line-md link for Join
+
+**Status:** 🟢 Done
+
+**What changed:**
+`MeetingsTab.jsx` (home + enterprise-home) — Action tiles use consistent **filled** icons from Iconify: **mdi:video** (Start), **mdi:calendar-plus** (Schedule). **Join** uses **`line-md:link`** geometry (https://api.iconify.design/line-md:link.svg) as a **static** stroke glyph (no SMIL `animate`; full path, white stroke) so it matches the asset without runtime dash animation. All at 20×20, 24×24 viewBox where applicable.
+
+**Files touched:**
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Optional: if Join must be strictly filled, swap to `mdi:link-variant` or similar.
+
+---
+
+### [2026-03-31] — SSO loading: center-aligned block below logo
+
+**Status:** 🟢 Done
+
+**What changed:**
+`SSOLoadingScreen.jsx` — Content under the Webex logo uses `alignItems: 'center'` on the animated column; heading keeps `width: '100%'` with `textAlign: 'center'`. Step list wrapper is a centered flex column; each `StepRow` is `width: 'auto'`, `maxWidth: '100%'`, `justifyContent: 'center'` so the icon + label cluster sits centered like the heading. Label span uses `flex: 0 1 auto` so rows don’t stretch full width.
+
+**Files touched:**
+- `src/screens/onboarding/sso/SSOLoadingScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+As needed for SSO / onboarding.
+
+---
+
+### [2026-03-31] — SSO loading: ~6s total duration
+
+**Status:** 🟢 Done
+
+**What changed:**
+`SSOLoadingScreen.jsx` — Scaled `TIMING` so navigation to `/profile-review` runs at **6000ms** (was 3200ms). Intermediate milestones use the same relative pacing as before (factor 6000/3200); storyboard comment updated to match.
+
+**Files touched:**
+- `src/screens/onboarding/sso/SSOLoadingScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Tune individual step durations if UX needs faster/slower segments.
+
+---
+
+### [2026-03-31] — SSO loading: step list layout
+
+**Status:** 🟢 Done
+
+**What changed:**
+`SSOLoadingScreen.jsx` — Removed the `borderTop` separator between the heading block and the three step rows. Step list is now one continuous block with clearer alignment: each row uses a fixed 28px-wide column for spinner/checkmark so labels share a common left edge; labels use `lineHeight: 1.4`, `flex: 1`, and `minWidth: 0` for tidy wrapping. Content column uses `alignItems: 'stretch'`; step wrapper is explicitly `textAlign: 'left'`. Dropped unused `C.border` palette key.
+
+**Files touched:**
+- `src/screens/onboarding/sso/SSOLoadingScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Continue onboarding / SSO polish as needed.
+
+---
+
+### [2026-03-31] — TopBar Connect: MDI cast icon
+
+**Status:** 🟢 Done
+
+**What changed:**
+Swapped the Connect button glyph to **Material Design Icons `mdi:cast`** (Iconify `https://api.iconify.design/mdi:cast.svg`), inlined at 16×24 viewBox with `fill="var(--text-muted)"` so it matches the Connect label. Updated both consumer and enterprise `TopBar.jsx`.
+
+**Files touched:**
+- `src/components/layout/TopBar.jsx`
+- `src/enterprise-components/layout/TopBar.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Continue feature work as planned.
+
+---
+
+### [2026-03-31] — TopBar Connect: monitor + phone icon
+
+**Status:** 🟢 Done
+
+**What changed:**
+Replaced the hand-drawn share-nodes style glyph on the Connect button with **Lucide `monitor-smartphone`** (Iconify / better-icons: `lucide:monitor-smartphone`), chosen after API search for “monitor smartphone” as the clearest “connect to desk / room device” metaphor. Inline SVG uses `viewBox="0 0 24 24"`, 16×16 display, `stroke="var(--text-muted)"`, stroke width 2 to match Lucide. The stand path uses explicit double `v` segments (`v-3.96v3.15`) so the path is valid SVG. Applied identically in consumer and enterprise TopBar.
+
+**Files touched:**
+- `src/components/layout/TopBar.jsx`
+- `src/enterprise-components/layout/TopBar.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Optional: run `npx better-icons` locally if the CLI is installed for future icon pulls; verify Connect control styling against Figma if specs change.
+
+---
+
 ### [2026-03-29 12:30] — Calendar sync: in-card connection storyboard animation
 
 **Status:** 🟢 Done

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { AnimatePresence } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { MessageStage } from './MessageStage'
 import { Dropdown } from '../../enterprise-components/Dropdown'
 
@@ -62,6 +62,28 @@ const COMPOSE_ITEMS = [
 const FILTER_WIDTH      = 240
 const MORE_OPTIONS_WIDTH = 310
 
+const WELCOME_SPACE_PREVIEW = "👋 Welcome to Webex! But, more importantly, welcome to where you'll do the best work ever. In Spaces, you can send messages…"
+
+/* ─────────────────────────────────────────────────────────
+ * ANIMATION STORYBOARD — Welcome Space row (badge + ⋮ swap-in)
+ *
+ *   idle          unread pill flush right; ⋮ rail width 0
+ *   hover enter   rail 0 → 32px (layout spring) → pill slides left; ⋮ fades/scales in
+ *   hover leave   reverse
+ *   text          fixed paddingRight gutter — copy width stable during hover
+ * ───────────────────────────────────────────────────────── */
+const WELCOME_ROW_MORE = {
+  layoutSpring: { type: 'spring', stiffness: 340, damping: 32, mass: 0.78 },
+  spring:       { type: 'spring', stiffness: 420, damping: 36, mass: 0.8 },
+  hidden:       { opacity: 0, scale: 0.88 },
+  show:         { opacity: 1, scale: 1 },
+  railPx:       32,
+  gapTrail:     8,
+  trayPaddingRight: 12,
+  textGutterUnread: 86,
+  textGutterRead:   52,
+}
+
 /* ── SidebarElement ────────────────────────────────────── */
 
 function SidebarElement({ name, color, selected, onClick }) {
@@ -110,6 +132,141 @@ function SidebarElement({ name, color, selected, onClick }) {
       </div>
 
 
+    </div>
+  )
+}
+
+function WelcomeSpaceListRow({ selected, unread, preview, onClick }) {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={onClick}
+      style={{
+        position: 'relative',
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '12px 14px',
+        borderRadius: 12,
+        cursor: 'pointer',
+        background: selected ? '#2E2E2E' : hovered ? '#2A2A2A' : 'transparent',
+        transition: 'background 0.12s',
+        boxSizing: 'border-box',
+      }}
+    >
+      <div style={{
+        width: 40, height: 40, flexShrink: 0,
+        borderRadius: '50%',
+        background: '#2E2E2E',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <span style={{ fontSize: 15, fontWeight: 700, color: '#FFFFFF', lineHeight: 1 }}>W</span>
+      </div>
+      <div style={{
+        flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3,
+        paddingRight: unread ? WELCOME_ROW_MORE.textGutterUnread : WELCOME_ROW_MORE.textGutterRead,
+      }}>
+        <span style={{
+          fontSize: 16,
+          fontWeight: unread ? 700 : 500,
+          color: '#FFFFFF',
+          lineHeight: '1.25em',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          Welcome Space
+        </span>
+        <span style={{
+          fontSize: 13,
+          fontWeight: 400,
+          color: '#8A8A8A',
+          lineHeight: '18px',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {preview}
+        </span>
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: 0,
+          bottom: 0,
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          gap: WELCOME_ROW_MORE.gapTrail,
+          paddingRight: WELCOME_ROW_MORE.trayPaddingRight,
+        }}
+      >
+        {unread && (
+          <motion.div
+            layout
+            transition={WELCOME_ROW_MORE.layoutSpring}
+            style={{ display: 'inline-flex' }}
+          >
+            <span style={{
+              minWidth: 20, height: 20, padding: '0 6px', borderRadius: 9999,
+              background: '#FFFFFF',
+              color: '#1A1A1A', fontSize: 11, fontWeight: 700,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              lineHeight: 1,
+            }}>
+              1
+            </span>
+          </motion.div>
+        )}
+        <motion.div
+          initial={false}
+          animate={{ width: hovered ? WELCOME_ROW_MORE.railPx : 0 }}
+          transition={WELCOME_ROW_MORE.layoutSpring}
+          style={{
+            overflow: 'hidden',
+            flexShrink: 0,
+            height: 36,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            pointerEvents: hovered ? 'auto' : 'none',
+          }}
+        >
+          <motion.div
+            initial={false}
+            animate={hovered ? WELCOME_ROW_MORE.show : WELCOME_ROW_MORE.hidden}
+            transition={WELCOME_ROW_MORE.spring}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: WELCOME_ROW_MORE.railPx,
+              flexShrink: 0,
+            }}
+          >
+            <button
+              type="button"
+              aria-label="Conversation actions"
+              onClick={e => { e.stopPropagation() }}
+              style={{
+                width: 30, height: 30, borderRadius: 8,
+                border: 'none', cursor: 'pointer',
+                background: 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: 0,
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+                <circle cx="9" cy="4" r="1.5" fill="#CCCCCC"/>
+                <circle cx="9" cy="9" r="1.5" fill="#CCCCCC"/>
+                <circle cx="9" cy="14" r="1.5" fill="#CCCCCC"/>
+              </svg>
+            </button>
+          </motion.div>
+        </motion.div>
+      </div>
     </div>
   )
 }
@@ -364,6 +521,7 @@ export function MessagesTab() {
   const [spacePress,       setSpacePress]       = useState(false)
   const [spaceView,        setSpaceView]        = useState(null)
   const [joinedPublicSpaceIds, setJoinedPublicSpaceIds] = useState(() => new Set())
+  const [welcomeSpaceUnread, setWelcomeSpaceUnread] = useState(true)
 
   const filterRef    = useRef(null)
   const filterTimer  = useRef(null)
@@ -394,6 +552,12 @@ export function MessagesTab() {
       else next.delete(spaceId)
       return next
     })
+  }
+
+  function openWelcomeSpace() {
+    setWelcomeSpaceUnread(false)
+    setSelectedItem('welcome-space')
+    setSpaceView(null)
   }
 
   return (
@@ -525,21 +689,35 @@ export function MessagesTab() {
           flexDirection: 'column',
         }}>
           {activeFilter === 'All' && (
-            <SidebarElement
-              name="Recommended messages"
-              color="#1170CF"
-              selected={selectedItem === 'recommended'}
-              onClick={() => setSelectedItem('recommended')}
-            />
+            <>
+              <SidebarElement
+                name="Recommended messages"
+                color="#1170CF"
+                selected={selectedItem === 'recommended'}
+                onClick={() => setSelectedItem('recommended')}
+              />
+              <WelcomeSpaceListRow
+                selected={selectedItem === 'welcome-space'}
+                unread={welcomeSpaceUnread}
+                preview={WELCOME_SPACE_PREVIEW}
+                onClick={openWelcomeSpace}
+              />
+            </>
           )}
           {activeFilter === 'Spaces' && (
-            <div style={{ padding: '4px 2px 0' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '4px 2px 0' }}>
+              <WelcomeSpaceListRow
+                selected={selectedItem === 'welcome-space'}
+                unread={welcomeSpaceUnread}
+                preview={WELCOME_SPACE_PREVIEW}
+                onClick={openWelcomeSpace}
+              />
               <button
                 onMouseEnter={() => setSpaceHover(true)}
                 onMouseLeave={() => { setSpaceHover(false); setSpacePress(false) }}
                 onMouseDown={() => setSpacePress(true)}
                 onMouseUp={() => setSpacePress(false)}
-                onClick={() => setSpaceView('create-space')}
+                onClick={() => { setSelectedItem(null); setSpaceView('create-space') }}
                 style={{
                   width: '100%', height: 44,
                   background: spacePress ? '#3A3A3A' : spaceHover ? '#2E2E2E' : '#282828',
@@ -650,29 +828,31 @@ export function MessagesTab() {
             )
             : activeFilter === 'Spaces' && spaceView
               ? <MessageStage view={spaceView} onClose={() => setSpaceView(null)} />
-              : activeFilter === 'Spaces'
-                ? (
-                  <div style={{
-                    flex: 1, background: '#1A1A1A',
-                    display: 'flex', flexDirection: 'column',
-                    alignItems: 'center', justifyContent: 'center',
-                    gap: 10, fontFamily: "'Inter', system-ui, sans-serif",
-                  }}>
+              : activeFilter === 'Spaces' && selectedItem === 'welcome-space'
+                ? <MessageStage view="welcome-space" />
+                : activeFilter === 'Spaces'
+                  ? (
                     <div style={{
-                      width: 52, height: 52, borderRadius: '50%',
-                      background: '#242424', border: '1px solid #2E2E2E',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      marginBottom: 4,
+                      flex: 1, background: '#1A1A1A',
+                      display: 'flex', flexDirection: 'column',
+                      alignItems: 'center', justifyContent: 'center',
+                      gap: 10, fontFamily: "'Inter', system-ui, sans-serif",
                     }}>
-                      <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
-                        <path fill="#444444" d="M9 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8M6 6a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-1.991 5A2 2 0 0 0 2 13c0 1.691.833 2.966 2.135 3.797C5.417 17.614 7.145 18 9 18q.617 0 1.21-.057a5.5 5.5 0 0 1-.618-.958Q9.301 17 9 17c-1.735 0-3.257-.364-4.327-1.047C3.623 15.283 3 14.31 3 13c0-.553.448-1 1.009-1h5.59q.277-.538.658-1zM14.5 19a4.5 4.5 0 1 0 0-9a4.5 4.5 0 0 0 0 9m0-7a.5.5 0 0 1 .5.5V14h1.5a.5.5 0 0 1 0 1H15v1.5a.5.5 0 0 1-1 0V15h-1.5a.5.5 0 0 1 0-1H14v-1.5a.5.5 0 0 1 .5-.5"/>
-                      </svg>
+                      <div style={{
+                        width: 52, height: 52, borderRadius: '50%',
+                        background: '#242424', border: '1px solid #2E2E2E',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        marginBottom: 4,
+                      }}>
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                          <path fill="#444444" d="M9 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8M6 6a3 3 0 1 1 6 0a3 3 0 0 1-6 0m-1.991 5A2 2 0 0 0 2 13c0 1.691.833 2.966 2.135 3.797C5.417 17.614 7.145 18 9 18q.617 0 1.21-.057a5.5 5.5 0 0 1-.618-.958Q9.301 17 9 17c-1.735 0-3.257-.364-4.327-1.047C3.623 15.283 3 14.31 3 13c0-.553.448-1 1.009-1h5.59q.277-.538.658-1zM14.5 19a4.5 4.5 0 1 0 0-9a4.5 4.5 0 0 0 0 9m0-7a.5.5 0 0 1 .5.5V14h1.5a.5.5 0 0 1 0 1H15v1.5a.5.5 0 0 1-1 0V15h-1.5a.5.5 0 0 1 0-1H14v-1.5a.5.5 0 0 1 .5-.5"/>
+                        </svg>
+                      </div>
+                      <p style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF', margin: 0 }}>No spaces yet</p>
+                      <p style={{ fontSize: 13, color: '#555555', margin: 0 }}>Create a space to start a group conversation.</p>
                     </div>
-                    <p style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF', margin: 0 }}>No spaces yet</p>
-                    <p style={{ fontSize: 13, color: '#555555', margin: 0 }}>Create a space to start a group conversation.</p>
-                  </div>
-                )
-                : activeFilter === 'Public'
+                  )
+                  : activeFilter === 'Public'
                   ? (
                     <MessageStage
                       view="public-spaces"
@@ -694,6 +874,9 @@ export function MessagesTab() {
             anchor="bottom-center"
             dropdownWidth={FILTER_WIDTH}
             offsetY={6}
+            showArrow
+            arrowColor="#111111"
+            arrowBorder="#595959"
           >
             <FilterPanel
               activeTypeFilter={activeTypeFilter}
@@ -714,6 +897,9 @@ export function MessagesTab() {
             anchor="bottom-center"
             dropdownWidth={MORE_OPTIONS_WIDTH}
             offsetY={6}
+            showArrow
+            arrowColor="#111111"
+            arrowBorder="#595959"
           >
             <MoreOptionsPanel checked={checkedOptions} onToggle={toggleOption} />
           </Dropdown>
@@ -731,6 +917,9 @@ export function MessagesTab() {
             anchor="bottom-center"
             dropdownWidth={240}
             offsetY={6}
+            showArrow
+            arrowColor="#111111"
+            arrowBorder="#595959"
           >
             <ComposePanel onClose={() => setComposeOpen(false)} />
           </Dropdown>

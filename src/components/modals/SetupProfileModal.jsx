@@ -28,7 +28,7 @@ const SWATCHES = [
 const VIEWPORT = 280
 const CIRCLE   = 240
 
-export function SetupProfileModal({ onClose, onSave, onOpenAppearances }) {
+export function SetupProfileModal({ onClose, onSave }) {
   const { profile, updateProfile } = useProfile()
 
   const [draftName,   setDraftName]   = useState(profile.name)
@@ -510,7 +510,10 @@ export function SetupProfileModal({ onClose, onSave, onOpenAppearances }) {
           {/* Action buttons */}
           <div style={{
             padding: '16px 20px',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12,
+            display: 'flex',
+            justifyContent: cropMode ? 'space-between' : 'flex-end',
+            alignItems: 'center',
+            gap: 12,
             flexShrink: 0,
           }}>
             {cropMode ? (
@@ -545,31 +548,7 @@ export function SetupProfileModal({ onClose, onSave, onOpenAppearances }) {
                 </button>
               </>
             ) : (
-              <>
-                {/* Left: appearance shortcut */}
-                <button
-                  onClick={e => { e.stopPropagation(); onOpenAppearances?.() }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    background: 'transparent', border: 'none',
-                    fontSize: 12, fontWeight: 500, color: '#888888',
-                    cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
-                    padding: '6px 2px',
-                    transition: 'color 0.15s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#CCCCCC'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#888888'}
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2"/>
-                    <circle cx="7" cy="7" r="2" fill="currentColor"/>
-                    <path d="M7 1.5V2.5M7 11.5V12.5M1.5 7H2.5M11.5 7H12.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                  </svg>
-                  Adjust appearance
-                </button>
-
-                {/* Right: cancel + save */}
-                <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ display: 'flex', gap: 12 }}>
                   <button
                     onClick={onClose}
                     style={{
@@ -598,8 +577,7 @@ export function SetupProfileModal({ onClose, onSave, onOpenAppearances }) {
                   >
                     Update changes
                   </button>
-                </div>
-              </>
+              </div>
             )}
           </div>
 

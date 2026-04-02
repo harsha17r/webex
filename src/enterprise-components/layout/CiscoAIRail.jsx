@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useId } from 'react'
 
 /* ─────────────────────────────────────────────────────────
  * CiscoAIRail
@@ -18,27 +18,32 @@ const SUGGESTIONS = [
   'How do I find and message someone?',
 ]
 
-function CiscoAIIcon({ size = 56 }) {
+export function CiscoAIIcon({ size = 56 }) {
+  const uid = useId().replace(/:/g, '')
+  const ring = `${uid}-rail-ring`
+  const lens = `${uid}-rail-lens`
+  const inner = `${uid}-rail-m`
+
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden>
       <defs>
-        <linearGradient id="rail-ring" x1="0" y1="1" x2="1" y2="0">
+        <linearGradient id={ring} x1="0" y1="1" x2="1" y2="0">
           <stop offset="0%"   stopColor="#0051AF"/>
           <stop offset="67%"  stopColor="#0087EA"/>
           <stop offset="100%" stopColor="#00BCEB"/>
         </linearGradient>
-        <linearGradient id="rail-lens" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id={lens} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%"  stopColor="#0087EA"/>
           <stop offset="84%" stopColor="#63FFF7"/>
         </linearGradient>
-        <linearGradient id="rail-inner" x1="0" y1="0" x2="0.65" y2="1">
+        <linearGradient id={inner} x1="0" y1="0" x2="0.65" y2="1">
           <stop offset="35%"  stopColor="rgba(116,191,75,0)"/>
           <stop offset="96%"  stopColor="#74BF4B"/>
         </linearGradient>
       </defs>
-      <circle cx="16" cy="16" r="13" stroke="url(#rail-ring)" strokeWidth="2.5" fill="none"/>
-      <ellipse cx="23" cy="9" rx="7" ry="7" fill="url(#rail-lens)" opacity="0.85"/>
-      <ellipse cx="23" cy="9" rx="4.5" ry="5.5" fill="url(#rail-inner)" opacity="0.9"/>
+      <circle cx="16" cy="16" r="13" stroke={`url(#${ring})`} strokeWidth="2.5" fill="none"/>
+      <ellipse cx="23" cy="9" rx="7" ry="7" fill={`url(#${lens})`} opacity="0.85"/>
+      <ellipse cx="23" cy="9" rx="4.5" ry="5.5" fill={`url(#${inner})`} opacity="0.9"/>
     </svg>
   )
 }

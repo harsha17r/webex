@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CiscoAIIcon } from '../layout/CiscoAIRail'
 
 /* ─────────────────────────────────────────────────────────
  * MeetingAIRail
@@ -19,31 +20,6 @@ export function SummaryIcon({ size = 20, color = '#FFFFFF' }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
       stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10">
       <path d="M16 3h2.6A2.4 2.4 0 0 1 21 5.4v15.2a2.4 2.4 0 0 1-2.4 2.4H5.4A2.4 2.4 0 0 1 3 20.6V5.4A2.4 2.4 0 0 1 5.4 3H8M7 13h4m-4-3h10M7 16h2M8.8 1h6.4a.8.8 0 0 1 .8.8v2.4a.8.8 0 0 1-.8.8H8.8a.8.8 0 0 1-.8-.8V1.8a.8.8 0 0 1 .8-.8m5.506 12.776l-.377 1.508a.2.2 0 0 1-.145.145l-1.508.377c-.202.05-.202.338 0 .388l1.508.377a.2.2 0 0 1 .145.145l.377 1.508c.05.202.338.202.388 0l.377-1.508a.2.2 0 0 1 .145-.145l1.508-.377c.202-.05.202-.337 0-.388l-1.508-.377a.2.2 0 0 1-.145-.145l-.377-1.508c-.05-.202-.338-.202-.388 0"/>
-    </svg>
-  )
-}
-
-function CiscoAIIcon({ size = 56 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <defs>
-        <linearGradient id="mrail-ring" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0%"   stopColor="#0051AF"/>
-          <stop offset="67%"  stopColor="#0087EA"/>
-          <stop offset="100%" stopColor="#00BCEB"/>
-        </linearGradient>
-        <linearGradient id="mrail-lens" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%"  stopColor="#0087EA"/>
-          <stop offset="84%" stopColor="#63FFF7"/>
-        </linearGradient>
-        <linearGradient id="mrail-inner" x1="0" y1="0" x2="0.65" y2="1">
-          <stop offset="35%"  stopColor="rgba(116,191,75,0)"/>
-          <stop offset="96%"  stopColor="#74BF4B"/>
-        </linearGradient>
-      </defs>
-      <circle cx="16" cy="16" r="13" stroke="url(#mrail-ring)" strokeWidth="2.5" fill="none"/>
-      <ellipse cx="23" cy="9" rx="7" ry="7" fill="url(#mrail-lens)" opacity="0.85"/>
-      <ellipse cx="23" cy="9" rx="4.5" ry="5.5" fill="url(#mrail-inner)" opacity="0.9"/>
     </svg>
   )
 }
@@ -264,7 +240,7 @@ export function MeetingAIRail({ onClose, summaryActive, onSummaryToggle }) {
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Enter your query"
+            placeholder="Ask me anything about this meeting"
             style={{
               flex: 1, background: 'transparent',
               border: 'none', outline: 'none',

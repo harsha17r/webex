@@ -10,15 +10,11 @@ import { Dropdown } from '../../components/Dropdown'
  *
  * Section 1 — Welcome:
  *   "Welcome, {name}!" h1 (20px 600 white), marginBottom 24
- *   Banner row: LEFT text panel + RIGHT image panel
- *     LEFT: bg #494949, borderRadius 8px 0 0 8px, border #494949 (no right border)
- *           padding 32px 40px, column gap 32, text group gap 4
- *     RIGHT: bg #494949, borderRadius 0 8px 8px 0, border #494949 (no left border)
- *            flex 1, minHeight 180
+ *   Banner row: LEFT illustration + RIGHT copy (single #1A1A1A fill + 1px hairline border)
  *
  * Section 2 — Meetings:
  *   Header row: "Meetings" h2 + "Connect your calendar" btn
- *   3 tiles row, gap 20: each bg #494949, radius 8, padding 20px 16px, column gap 10
+ *   3 tiles row, gap 20: each bg #3A3A3A, radius 12, padding 20px 24px; icon + label in one row
  * ───────────────────────────────────────────────────────── */
 
 function StartDropItem({ label, onClick }) {
@@ -106,7 +102,7 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
     }}>
 
       {/* Inner content column — max 960px, centered */}
-      <div style={{ width: 'clamp(560px, 85%, 960px)', display: 'flex', flexDirection: 'column', gap: 64 }}>
+      <div style={{ width: 'clamp(560px, 85%, 960px)', display: 'flex', flexDirection: 'column', gap: 40 }}>
 
         {/* ── Section 1 — Welcome banner (hidden after first meeting) ── */}
         <AnimatePresence>
@@ -125,12 +121,19 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
                 Welcome, {profile.name}!
               </h1>
 
-              {/* Banner row */}
-              <div style={{ display: 'flex', width: '100%', minHeight: 200 }}>
+              {/* Banner row — fills match page card; hairline border for edge */}
+              <div style={{
+                display: 'flex',
+                width: '100%',
+                minHeight: 200,
+                borderRadius: 12,
+                overflow: 'hidden',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                boxSizing: 'border-box',
+                background: '#1A1A1A',
+              }}>
                 <div style={{
                   width: 320, flexShrink: 0,
-                  background: '#494949',
-                  borderRadius: '12px 0 0 12px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   padding: 24, boxSizing: 'border-box',
                 }}>
@@ -148,8 +151,7 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
 
                 <div style={{
                   flex: 1,
-                  background: '#494949',
-                  borderRadius: '0 8px 8px 0',
+                  minWidth: 0,
                   padding: '32px 40px',
                   display: 'flex', flexDirection: 'column',
                   justifyContent: 'center', gap: 32,
@@ -305,32 +307,34 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
           </div>
           </div>{/* end header block */}
 
-          {/* Action tiles */}
-          <div style={{ display: 'flex', gap: 20, position: 'relative' }}>
+          {/* Action tiles — icon + label on one row */}
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'stretch', gap: 20, position: 'relative' }}>
 
             {/* ── Start tile (with dropdown) ── */}
-            <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
               <div
                 ref={startTileRef}
                 onMouseEnter={() => { setTileHover('start'); cancelCloseDelay() }}
                 onMouseLeave={() => { setTileHover(null); startCloseDelay() }}
                 onClick={() => setStartDropOpen(o => !o)}
                 style={{
-                  flex: 1, background: fromMeeting
+                  width: '100%',
+                  background: fromMeeting
                     ? (tileHover === 'start' || startDropOpen ? '#2BAB7E' : '#1D8160')
                     : (tileHover === 'start' || startDropOpen ? '#444444' : '#3A3A3A'),
-                  borderRadius: 8, padding: '20px 24px',
-                  display: 'flex', flexDirection: 'column', gap: 10,
+                  borderRadius: 12, padding: '20px 24px',
+                  display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
                   cursor: 'pointer', transition: 'background 0.15s',
                   boxSizing: 'border-box',
                 }}
               >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path fill="#FFFFFF" d="M3 7a3 3 0 0 1 3-3h5a3 3 0 0 1 3 3v.32l2.43-1.68a1.25 1.25 0 0 1 1.97 1.03v6.66a1.25 1.25 0 0 1-1.97 1.03L14 12.68V13a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7zm9 5.46V13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v.54l3.61-2.49a.25.25 0 0 1 .39.21v6.48a.25.25 0 0 1-.39.21L12 12.46z"/>
+                {/* Iconify mdi:video — filled */}
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden style={{ flexShrink: 0 }}>
+                  <path fill="#FFFFFF" d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11z"/>
                 </svg>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1 }}>
                   <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Start a meeting</span>
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ transform: startDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, transform: startDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
                     <path d="M3 6l5 5 5-5" stroke={fromMeeting ? 'rgba(255,255,255,0.7)' : '#AAAAAA'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
@@ -373,40 +377,51 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
               onMouseLeave={() => setTileHover(null)}
               onClick={() => setJoinOpen(true)}
               style={{
-                flex: 1, background: tileHover === 'join' || joinOpen ? '#444444' : '#3A3A3A',
-                borderRadius: 8, padding: '20px 24px',
-                display: 'flex', flexDirection: 'column', gap: 10,
+                flex: 1, minWidth: 0,
+                background: tileHover === 'join' || joinOpen ? '#444444' : '#3A3A3A',
+                borderRadius: 12, padding: '20px 24px',
+                display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
                 cursor: 'pointer', transition: 'background 0.15s',
                 boxSizing: 'border-box',
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path fill="#FFFFFF" d="M10 2a8 8 0 1 1 0 16A8 8 0 0 1 10 2zm0 1a7 7 0 1 0 0 14A7 7 0 0 0 10 3zm.5 3.5a.5.5 0 0 1 .5.5v2.5H14a.5.5 0 0 1 0 1h-3V13a.5.5 0 0 1-1 0v-2.5H7a.5.5 0 0 1 0-1h3V7a.5.5 0 0 1 .5-.5z"/>
+              {/* Iconify line-md:link — static stroke (source uses animated dash; full path for UI) */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden style={{ flexShrink: 0 }}>
+                <path
+                  fill="none"
+                  stroke="#FFFFFF"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13 6l2-2c1-1 3-1 4 0l1 1c1 1 1 3 0 4l-5 5c-1 1-3 1-4 0M11 18l-2 2c-1 1-3 1-4 0l-1-1c-1-1-1-3 0-4l5-5c1-1 3-1 4 0"
+                />
               </svg>
               <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Join a meeting</span>
             </div>
 
             {/* ── Schedule tile ── */}
-            <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
               <div
                 ref={scheduleTileRef}
                 onMouseEnter={() => { setTileHover('schedule'); cancelSchedDelay() }}
                 onMouseLeave={() => { setTileHover(null); schedCloseDelay() }}
                 onClick={() => setScheduleDropOpen(o => !o)}
                 style={{
+                  width: '100%',
                   background: tileHover === 'schedule' || scheduleDropOpen ? '#444444' : '#3A3A3A',
-                  borderRadius: 8, padding: '20px 24px',
-                  display: 'flex', flexDirection: 'column', gap: 10,
+                  borderRadius: 12, padding: '20px 24px',
+                  display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
                   cursor: 'pointer', transition: 'background 0.15s',
                   boxSizing: 'border-box',
                 }}
               >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path fill="#FFFFFF" d="M14.5 3A2.5 2.5 0 0 1 17 5.5v4.1a5.5 5.5 0 0 0-1-.393V7H4v7.5A1.5 1.5 0 0 0 5.5 16h3.707q.149.524.393 1H5.5A2.5 2.5 0 0 1 3 14.5v-9A2.5 2.5 0 0 1 5.5 3zm0 1h-9A1.5 1.5 0 0 0 4 5.5V6h12v-.5A1.5 1.5 0 0 0 14.5 4M19 14.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0m-4-2a.5.5 0 0 0-1 0V14h-1.5a.5.5 0 0 0 0 1H14v1.5a.5.5 0 0 0 1 0V15h1.5a.5.5 0 0 0 0-1H15z"/>
+                {/* Iconify mdi:calendar-plus — filled */}
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden style={{ flexShrink: 0 }}>
+                  <path fill="#FFFFFF" d="M19 19V8H5v11zM16 1h2v2h1a2 2 0 0 1 2 2v14c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2V5c0-1.11.89-2 2-2h1V1h2v2h8zm-5 8.5h2v3h3v2h-3v3h-2v-3H8v-2h3z"/>
                 </svg>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1 }}>
                   <span style={{ fontSize: 14, fontWeight: 500, color: '#FFFFFF' }}>Schedule</span>
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ transform: scheduleDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, transform: scheduleDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
                     <path d="M3 6l5 5 5-5" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
@@ -622,22 +637,24 @@ function JoinMeetingModal({ onClose }) {
         <div style={{ display: 'flex', gap: 10 }}>
           <button
             onClick={onClose}
+            type="button"
             style={{
               flex: 1, padding: '11px 0',
-              background: '#2A2A2A', border: '1px solid #494949', borderRadius: 9,
-              fontSize: 14, fontWeight: 500, color: '#AAAAAA',
+              background: '#2A2A2A', border: 'none', borderRadius: 9999,
+              fontSize: 14, fontWeight: 500, color: '#FFFFFF',
               cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
             }}
           >
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleJoin}
             disabled={!value.trim()}
             style={{
               flex: 2, padding: '11px 0',
               background: value.trim() ? '#1D8160' : '#1A2E28',
-              border: 'none', borderRadius: 9,
+              border: 'none', borderRadius: 9999,
               fontSize: 14, fontWeight: 600, color: value.trim() ? '#FFFFFF' : '#3A6A55',
               cursor: value.trim() ? 'pointer' : 'default',
               fontFamily: "'Inter', system-ui, sans-serif",
@@ -794,30 +811,6 @@ const INITIAL_ACTION_ITEMS = [
   { id: 2, text: 'Use the \'Catch me up\' chip if you ever join a meeting late.' },
   { id: 3, text: 'Check back in the meeting detail view after your next call to review the summary and transcript.' },
 ]
-
-/* ── Shared card primitives ────────────────────────────── */
-
-function CardShell({ children, accent = '#2E2E2E', onClick }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <div
-      onClick={onClick}
-      onMouseEnter={onClick ? () => setHov(true) : undefined}
-      onMouseLeave={onClick ? () => setHov(false) : undefined}
-      style={{
-        background: hov ? '#232323' : '#1E1E1E',
-        border: '1px solid #2E2E2E',
-        borderLeft: `3px solid ${accent}`,
-        borderRadius: 8,
-        padding: '12px 14px',
-        display: 'flex', flexDirection: 'column', gap: 6,
-        fontFamily: "'Inter', system-ui, sans-serif",
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'background 0.12s',
-      }}
-    >{children}</div>
-  )
-}
 
 /* ── Cisco AI avatar (used in detail modal participants) ── */
 function CiscoAIAvatar({ size = 36 }) {
@@ -1600,38 +1593,76 @@ function MeetingDetailModal({ onClose, elapsed, profile, initialTab = 'About' })
 
 /* ── State 4: Past ─────────────────────────────────────── */
 function MeetingRow({ elapsed, profile, chipHover, setChipHover, onClick, onChipClick }) {
+  const [hov, setHov] = useState(false)
   const mins      = Math.max(1, Math.floor(elapsed / 60))
   const endTime   = new Date()
   const startTime = new Date(endTime - elapsed * 1000)
   const timeRange = `${fmt12(startTime)} – ${fmt12(endTime)}`
+  const initials  = profile.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
 
   return (
-    <CardShell accent="#494949" onClick={onClick}>
-      <span style={{ fontSize: 15, fontWeight: 500, color: '#FFFFFF' }}>
-        Test call with {profile.name}
-      </span>
-      <span style={{ fontSize: 13, color: '#767676' }}>
-        {timeRange} · {mins} min duration
-      </span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
-        {CHIPS.map(chip => (
-          <button
-            key={chip}
-            onMouseEnter={() => setChipHover(chip)}
-            onMouseLeave={() => setChipHover(null)}
-            onClick={e => { e.stopPropagation(); onChipClick?.(CHIP_TAB_MAP[chip]) }}
-            style={{
-              background: chipHover === chip ? '#383838' : '#2A2A2A',
-              border: '1px solid #3A3A3A',
-              borderRadius: 5, padding: '3px 10px',
-              fontSize: 12, fontWeight: 500, color: '#FFFFFF', lineHeight: '18px',
-              cursor: 'pointer', transition: 'background 0.15s',
-              fontFamily: "'Inter', system-ui, sans-serif",
-            }}
-          >{chip}</button>
-        ))}
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '16px 20px',
+        background: hov ? '#2A2A2A' : '#222222',
+        border: '1px solid #2E2E2E',
+        borderRadius: 12,
+        cursor: 'pointer',
+        transition: 'background 0.12s',
+        fontFamily: "'Inter', system-ui, sans-serif",
+      }}
+    >
+      {/* Avatar */}
+      <div style={{
+        width: 40, height: 40, borderRadius: '50%',
+        background: '#7C3EC3', flexShrink: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <span style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF' }}>{initials}</span>
       </div>
-    </CardShell>
+
+      {/* Body */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
+        {/* Row 1 — title */}
+        <span style={{ fontSize: 16, fontWeight: 500, color: '#FFFFFF', whiteSpace: 'nowrap' }}>
+          Test call with {profile.name}
+        </span>
+        {/* Row 2 — time */}
+        <span style={{ fontSize: 14, fontWeight: 500, color: '#999CA2' }}>
+          {timeRange} · {mins} min
+        </span>
+        {/* Row 3 — chips */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+          {CHIPS.map(chip => (
+            <button
+              key={chip}
+              onMouseEnter={() => setChipHover(chip)}
+              onMouseLeave={() => setChipHover(null)}
+              onClick={e => { e.stopPropagation(); onChipClick?.(CHIP_TAB_MAP[chip]) }}
+              style={{
+                background: chipHover === chip ? '#383838' : '#2A2A2A',
+                border: '1px solid #3A3A3A',
+                borderRadius: 5, padding: '3px 10px',
+                fontSize: 12, fontWeight: 500, color: '#FFFFFF', lineHeight: '18px',
+                cursor: 'pointer', transition: 'background 0.15s',
+                fontFamily: "'Inter', system-ui, sans-serif",
+              }}
+            >{chip}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Trailing share icon */}
+      <div style={{ flexShrink: 0, opacity: hov ? 1 : 0.35, transition: 'opacity 0.15s' }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M13 4v4C6.425 9.028 3.98 14.788 3 20c-.037.206 5.384-5.962 10-6v4l8-7z"/>
+        </svg>
+      </div>
+    </div>
   )
 }
 
@@ -2004,7 +2035,7 @@ function PastMeetingCard({ elapsed, profile }) {
             </svg>
             <span style={{ fontSize: 14, color: '#ffffff' }}>No meetings scheduled</span>
             {viewDate >= new Date(today.getFullYear(), today.getMonth(), today.getDate()) && (
-              <button style={{
+              <button type="button" style={{
                 marginTop: 6,
                 display: 'flex', alignItems: 'center', gap: 7,
                 background: 'transparent',

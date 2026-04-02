@@ -350,8 +350,8 @@ function ActionRow({ label, sound, onSoundChange, when, onWhenChange, whenOption
 function SectionCard({ title, children }) {
   return (
     <div style={{ borderRadius: 6, overflow: 'hidden', border: '1px solid #1E1E1E' }}>
-      <div style={{ background: '#252525', padding: '10px 16px' }}>
-        <span style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF' }}>{title}</span>
+      <div style={{ background: '#111111', padding: '14px 16px' }}>
+        <span style={{ fontSize: 18, fontWeight: 600, color: '#FFFFFF' }}>{title}</span>
       </div>
       {children}
     </div>
@@ -421,10 +421,292 @@ function SoundRow({ label, value, onChange, disabled }) {
   )
 }
 
+/* ── AudioPanel helpers ─────────────────────────────────── */
+
+function AudioDeviceRow({ device }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+      <div style={{
+        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '6px 10px', borderRadius: 4,
+        background: '#2A2A2A', border: '1px solid #3A3A3A', cursor: 'pointer',
+      }}>
+        <span style={{ fontSize: 13, color: '#CCCCCC' }}>{device}</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M4 5.5l3-3 3 3M4 8.5l3 3 3-3" stroke="#5DB3F0" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+      <button style={{
+        padding: '6px 16px', background: '#2A2A2A',
+        border: '1px solid #3A3A3A', borderRadius: 4,
+        fontSize: 13, color: '#CCCCCC', cursor: 'pointer',
+        fontFamily: "'Inter', system-ui, sans-serif", flexShrink: 0,
+      }}>Test</button>
+    </div>
+  )
+}
+
+function LevelRow({ label, activeTicks = 0 }) {
+  const TOTAL = 22
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+      <span style={{ fontSize: 13, color: '#CCCCCC', width: 92, textAlign: 'right', flexShrink: 0 }}>{label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginLeft: 10 }}>
+        {Array.from({ length: TOTAL }).map((_, i) => (
+          <div key={i} style={{
+            width: 2, height: 11, borderRadius: 1,
+            background: i < activeTicks ? '#1170CF' : '#3A3A3A',
+          }} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function VolumeRow({ label, value, onChange, disabled }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+      <span style={{ fontSize: 13, color: '#CCCCCC', width: 92, textAlign: 'right', flexShrink: 0 }}>{label}</span>
+      <div style={{ flex: 1, marginLeft: 10 }}>
+        <input
+          type="range" min={0} max={100} value={value}
+          onChange={e => onChange(Number(e.target.value))}
+          disabled={disabled}
+          className="volume-slider"
+          style={{ '--pct': `${value}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function AudioPanel() {
+  const [ringerVolume,    setRingerVolume]    = useState(95)
+  const [speakerVolume,   setSpeakerVolume]   = useState(25)
+  const [micVolume,       setMicVolume]       = useState(55)
+  const [autoAdjustMic,   setAutoAdjustMic]   = useState(true)
+  const [unmuteSpacer,    setUnmuteSpacer]    = useState(true)
+  const [directionalAudio, setDirectionalAudio] = useState(false)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+
+      {/* Divider */}
+      <div style={{ height: 1, background: '#2A2A2A', marginBottom: 24 }} />
+
+      {/* Ringer/Alerts */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 18, fontWeight: 600, color: '#FFFFFF', marginBottom: 12 }}>Ringer/Alerts</div>
+        <AudioDeviceRow device="All Devices" />
+        <LevelRow label="Output level:" activeTicks={0} />
+        <VolumeRow label="Volume:" value={ringerVolume} onChange={setRingerVolume} />
+      </div>
+
+      {/* Speaker */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 18, fontWeight: 600, color: '#FFFFFF', marginBottom: 12 }}>Speaker</div>
+        <AudioDeviceRow device="MacBook Air Speakers (Built-in)" />
+        <LevelRow label="Output level:" activeTicks={0} />
+        <VolumeRow label="Volume:" value={speakerVolume} onChange={setSpeakerVolume} />
+      </div>
+
+      {/* Microphone */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 18, fontWeight: 600, color: '#FFFFFF', marginBottom: 12 }}>Microphone</div>
+        <AudioDeviceRow device="MacBook Air Microphone (Built-in)" />
+        <LevelRow label="Input level:" activeTicks={1} />
+        <VolumeRow label="Volume:" value={micVolume} onChange={setMicVolume} disabled={autoAdjustMic} />
+        <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Checkbox checked={autoAdjustMic} onChange={setAutoAdjustMic} />
+            <span style={{ fontSize: 14, color: '#FFFFFF' }}>Automatically adjust my microphone volume</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="7" stroke="#888888" strokeWidth="1.3"/>
+              <path d="M8 7.5v3M8 5.2v.6" stroke="#888888" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Checkbox checked={unmuteSpacer} onChange={setUnmuteSpacer} />
+            <span style={{ fontSize: 14, color: '#FFFFFF' }}>Unmute temporarily by holding Spacebar</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Sound effect */}
+      <div>
+        <div style={{ fontSize: 18, fontWeight: 600, color: '#FFFFFF', marginBottom: 10 }}>Sound effect</div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <div style={{ marginTop: 1, flexShrink: 0 }}>
+            <Checkbox checked={directionalAudio} onChange={setDirectionalAudio} />
+          </div>
+          <div>
+            <div style={{ fontSize: 14, color: '#FFFFFF', marginBottom: 4 }}>Directional audio</div>
+            <div style={{ fontSize: 12, color: '#888888', lineHeight: '18px' }}>
+              Processes the audio from the active speaker's voice so that it sounds like it's coming from the speaker's layout location on the screen. This option doesn't affect direct calls.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  )
+}
+
+/* ── GeneralPanel ───────────────────────────────────────── */
+
+function GeneralPanel() {
+  const [startOnBoot,    setStartOnBoot]    = useState(true)
+  const [outlookAvail,   setOutlookAvail]   = useState(false)
+  const [floatingWindow, setFloatingWindow] = useState(true)
+  const [optimizeEnergy, setOptimizeEnergy] = useState(false)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+
+      {/* Divider */}
+      <div style={{ height: 1, background: '#2A2A2A', marginBottom: 20 }} />
+
+      {/* Start Webex when my computer starts */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+        <Checkbox checked={startOnBoot} onChange={setStartOnBoot} />
+        <span style={{ fontSize: 14, color: '#FFFFFF' }}>Start Webex when my computer starts</span>
+      </div>
+
+      {/* Show Webex availability in Microsoft Outlook */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 28 }}>
+        <div style={{ marginTop: 1, flexShrink: 0 }}>
+          <Checkbox checked={outlookAvail} onChange={setOutlookAvail} />
+        </div>
+        <div>
+          <div style={{ fontSize: 14, color: '#FFFFFF', marginBottom: 6 }}>Show Webex availability in Microsoft Outlook</div>
+          <div style={{ fontSize: 12, color: '#888888', lineHeight: '18px', marginBottom: 6 }}>
+            See others' Webex availability in Microsoft Outlook. You can also make a Webex call or send a direct message from their Outlook profile.
+          </div>
+          <div style={{ fontSize: 12, color: '#888888', lineHeight: '18px' }}>
+            We recommend that you enable only one app at a time to show availability in Outlook.
+          </div>
+        </div>
+      </div>
+
+      {/* Landing screen */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', marginBottom: 4 }}>Landing screen</div>
+        <div style={{ fontSize: 13, color: '#CCCCCC', lineHeight: '20px', marginBottom: 10 }}>
+          Choose what you'd like to see first every time Webex opens.
+        </div>
+        <SoundDropdown
+          value="Messaging (default)"
+          onChange={() => {}}
+          options={['Messaging (default)', 'Meetings', 'Calling']}
+          width={200}
+        />
+      </div>
+
+      {/* Recent sessions */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', marginBottom: 4 }}>Recent sessions</div>
+        <div style={{ fontSize: 13, color: '#CCCCCC', lineHeight: '20px', marginBottom: 8 }}>
+          See devices that are currently signed in or have been active recently.
+        </div>
+        <span style={{ fontSize: 13, color: '#2E96E8', cursor: 'pointer' }}>Show Details</span>
+      </div>
+
+      {/* Default file location */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', marginBottom: 4 }}>Default file location</div>
+        <div style={{ fontSize: 13, color: '#CCCCCC', lineHeight: '20px', marginBottom: 10 }}>
+          All the files you stored during your use of Webex will be saved at the following location. This setting is for this computer only.
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 13, color: '#CCCCCC' }}>/Users/harsha/Downloads/</span>
+          <button style={{
+            padding: '5px 12px', background: '#2A2A2A',
+            border: '1px solid #3A3A3A', borderRadius: 4,
+            fontSize: 12, color: '#CCCCCC', cursor: 'pointer',
+            fontFamily: "'Inter', system-ui, sans-serif",
+          }}>Change</button>
+        </div>
+      </div>
+
+      {/* Local time zone */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', marginBottom: 4 }}>Local time zone</div>
+        <div style={{ fontSize: 13, color: '#CCCCCC', lineHeight: '20px', marginBottom: 10 }}>
+          We use this time zone to show others your local time in your profile. This is also used for notification settings, such as Quiet hours.
+        </div>
+        <SoundDropdown
+          value="(UTC-04:00) Indiana (East)"
+          onChange={() => {}}
+          options={['(UTC-04:00) Indiana (East)', '(UTC-05:00) Eastern (US & Canada)', '(UTC-08:00) Pacific (US & Canada)']}
+          width={270}
+        />
+      </div>
+
+      {/* Multitasking */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', marginBottom: 10 }}>Multitasking</div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <div style={{ marginTop: 1, flexShrink: 0 }}>
+            <Checkbox checked={floatingWindow} onChange={setFloatingWindow} />
+          </div>
+          <div>
+            <div style={{ fontSize: 14, color: '#FFFFFF', marginBottom: 4 }}>Show floating window for calls and meetings</div>
+            <div style={{ fontSize: 12, color: '#888888', lineHeight: '18px' }}>
+              Automatically show my Webex call or meeting in a floating mini window when other apps are in front.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Carbon aware mode */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', marginBottom: 10 }}>Carbon aware mode</div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <div style={{ marginTop: 1, flexShrink: 0 }}>
+            <Checkbox checked={optimizeEnergy} onChange={setOptimizeEnergy} />
+          </div>
+          <div>
+            <div style={{ fontSize: 14, color: '#FFFFFF', marginBottom: 4 }}>Optimize energy use</div>
+            <div style={{ fontSize: 12, color: '#888888', lineHeight: '18px', marginBottom: 12 }}>
+              Defer non-critical updates for up to 24 hours when power is coming from a high-carbon source.
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, opacity: optimizeEnergy ? 1 : 0.35, transition: 'opacity 0.15s' }}>
+              <div style={{ marginTop: 1, flexShrink: 0 }}>
+                <Checkbox checked={false} onChange={() => {}} />
+              </div>
+              <div>
+                <div style={{ fontSize: 13, color: '#CCCCCC', marginBottom: 4 }}>Optimize video in one-to-one meetings and calls</div>
+                <div style={{ fontSize: 12, color: '#888888', lineHeight: '18px' }}>
+                  Reduce video resolution in one-to-one meetings and calls when power is coming from a high-carbon source.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Translation language */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', marginBottom: 4 }}>Translation language</div>
+        <div style={{ fontSize: 13, color: '#CCCCCC', lineHeight: '20px', marginBottom: 10 }}>
+          Select a preferred language for translation.
+        </div>
+        <SoundDropdown
+          value="None"
+          onChange={() => {}}
+          options={['None', 'English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese']}
+          width={240}
+        />
+      </div>
+
+    </div>
+  )
+}
+
 /* ── Main component ────────────────────────────────────── */
 
 export function NotificationSettingsModal({ onClose, onSave }) {
-  const [activeNav,    setActiveNav]    = useState('notifications')
+  const [activeNav,    setActiveNav]    = useState('general')
   const [hoveredNav,   setHoveredNav]   = useState(null)
   const [atBottom,     setAtBottom]     = useState(false)
   const scrollRef        = useRef(null)
@@ -443,7 +725,9 @@ export function NotificationSettingsModal({ onClose, onSave }) {
   const [msgFav,        setMsgFav]        = useState('Open')
 
   // ── Meeting state ──
-  const [mtgVal,        setMtgVal]        = useState('5min')
+  const [mtgVal,        setMtgVal]        = useState('5 minutes before')
+  const [customMinutes, setCustomMinutes] = useState(30)
+  const [customUnit,    setCustomUnit]    = useState('minutes')
   const [mtgRing,       setMtgRing]       = useState('Off')
   const [mtgMute,       setMtgMute]       = useState(false)
   const [mtgJoin,       setMtgJoin]       = useState({ sound: 'Off' })
@@ -605,14 +889,18 @@ export function NotificationSettingsModal({ onClose, onSave }) {
               className="scrollbar-dark"
               style={{ overflowY: 'auto', height: '100%' }}
             >
-              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 36 }}>
 
-                {activeNav === 'notifications' ? (
+                {activeNav === 'general' ? (
+                  <GeneralPanel />
+                ) : activeNav === 'audio' ? (
+                  <AudioPanel />
+                ) : activeNav === 'notifications' ? (
                   <>
 
                     {/* ── Messaging Notifications ── */}
                     <SectionCard title="Messaging Notifications">
-                      <div style={{ background: '#111111', padding: '10px 10px 4px' }}>
+                      <div style={{ background: '#111111', padding: '16px 16px 8px' }}>
                         {[
                           { value: 'all',    label: 'All messages (default)',               sublabel: 'All messages, replies, and @mentions' },
                           { value: 'dm',     label: 'Direct messages and @mentions to me',  sublabel: "Direct messages and when you're mentioned in the space" },
@@ -653,23 +941,125 @@ export function NotificationSettingsModal({ onClose, onSave }) {
 
                     {/* ── Meeting Notifications ── */}
                     <SectionCard title="Meeting Notifications">
-                      <div style={{ background: '#111111', padding: '10px 10px 4px' }}>
-                        <span style={{ fontSize: 14, color: '#888888', padding: '0 6px', display: 'block', marginBottom: 6 }}>
+                      <div style={{ background: '#111111', padding: '16px 16px 14px' }}>
+                        <span style={{ fontSize: 14, color: '#888888', padding: '0 6px', display: 'block', marginBottom: 10 }}>
                           Remind me before scheduled meetings
                         </span>
-                        {[
-                          { value: '5min',    label: '5 minutes before start time' },
-                          { value: '1min',    label: '1 minute before start time' },
-                          { value: 'atstart', label: 'At start time' },
-                          { value: 'off',     label: 'Off' },
-                        ].map(opt => (
-                          <RadioOption
-                            key={opt.value}
-                            selected={mtgVal === opt.value}
-                            label={opt.label}
-                            onClick={() => setMtgVal(opt.value)}
+                        <div style={{ padding: '0 6px' }}>
+                          <SoundDropdown
+                            value={mtgVal}
+                            onChange={v => {
+                              setMtgVal(v)
+                              if (v !== 'Custom') { setCustomMinutes(30); setCustomUnit('minutes') }
+                            }}
+                            options={['5 minutes before', '1 minute before', 'At start time', 'Off', 'Custom']}
+                            width={220}
                           />
-                        ))}
+                          <AnimatePresence>
+                            {mtgVal === 'Custom' && (
+                              <motion.div
+                                key="custom-reminder"
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ type: 'tween', duration: 0.2, ease: 'easeInOut' }}
+                                style={{ overflow: 'hidden' }}
+                              >
+                                <div style={{
+                                  marginTop: 12, background: '#181818',
+                                  border: '1px solid #2A2A2A', borderRadius: 6,
+                                  padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10,
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+
+                                    {/* Stepper */}
+                                    <div style={{
+                                      display: 'flex', alignItems: 'center',
+                                      background: '#222222', border: '1px solid #3A3A3A', borderRadius: 6, overflow: 'hidden',
+                                    }}>
+                                      <button
+                                        onClick={() => setCustomMinutes(v => Math.max(1, v - 1))}
+                                        style={{
+                                          width: 32, height: 34, border: 'none', borderRight: '1px solid #3A3A3A',
+                                          background: 'transparent', color: '#AAAAAA', fontSize: 18, lineHeight: 1,
+                                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                          cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
+                                        }}
+                                      >−</button>
+                                      <input
+                                        type="number"
+                                        className="no-spinner"
+                                        value={customMinutes}
+                                        min={1}
+                                        max={customUnit === 'hours' ? 24 : 1440}
+                                        onChange={e => {
+                                          const v = parseInt(e.target.value, 10)
+                                          if (!isNaN(v)) {
+                                            const max = customUnit === 'hours' ? 24 : 1440
+                                            setCustomMinutes(Math.min(max, Math.max(1, v)))
+                                          }
+                                        }}
+                                        style={{
+                                          width: 52, height: 34, border: 'none',
+                                          background: 'transparent', color: '#FFFFFF',
+                                          fontSize: 15, fontWeight: 500, textAlign: 'center',
+                                          outline: 'none', fontFamily: "'Inter', system-ui, sans-serif",
+                                        }}
+                                      />
+                                      <button
+                                        onClick={() => {
+                                          const max = customUnit === 'hours' ? 24 : 1440
+                                          setCustomMinutes(v => Math.min(max, v + 1))
+                                        }}
+                                        style={{
+                                          width: 32, height: 34, border: 'none', borderLeft: '1px solid #3A3A3A',
+                                          background: 'transparent', color: '#AAAAAA', fontSize: 18, lineHeight: 1,
+                                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                          cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
+                                        }}
+                                      >+</button>
+                                    </div>
+
+                                    {/* Minutes / Hours segmented toggle */}
+                                    <div style={{ display: 'flex', borderRadius: 6, overflow: 'hidden', border: '1px solid #3A3A3A' }}>
+                                      {['minutes', 'hours'].map(unit => (
+                                        <button
+                                          key={unit}
+                                          onClick={() => {
+                                            if (customUnit === unit) return
+                                            if (unit === 'hours') {
+                                              setCustomMinutes(v => Math.min(24, Math.max(1, Math.round(v / 60) || 1)))
+                                            } else {
+                                              setCustomMinutes(v => Math.min(1440, v * 60))
+                                            }
+                                            setCustomUnit(unit)
+                                          }}
+                                          style={{
+                                            padding: '7px 14px', border: 'none',
+                                            background: customUnit === unit ? '#1170CF' : '#222222',
+                                            color: customUnit === unit ? '#FFFFFF' : '#777777',
+                                            fontSize: 13, fontWeight: customUnit === unit ? 500 : 400,
+                                            cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
+                                            transition: 'background 0.15s, color 0.15s',
+                                          }}
+                                        >
+                                          {unit.charAt(0).toUpperCase() + unit.slice(1)}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    <span style={{ fontSize: 13, color: '#555555' }}>before start</span>
+                                  </div>
+
+                                  {/* Preview */}
+                                  <span style={{ fontSize: 12, color: '#555555', fontStyle: 'italic' }}>
+                                    Reminder set for {customMinutes} {customUnit} before start time
+                                  </span>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
                       </div>
                       <div style={{ background: '#111111', borderTop: '1px solid #1A1A1A' }}>
                         <AccordionBody sectionId="meeting" openId={openAccordion} onToggle={toggleAccordion}>
@@ -720,7 +1110,7 @@ export function NotificationSettingsModal({ onClose, onSave }) {
 
                     {/* ── Calling Notifications ── */}
                     <SectionCard title="Calling Notifications">
-                      <div style={{ background: '#111111', padding: '10px 10px 4px' }}>
+                      <div style={{ background: '#111111', padding: '16px 16px 8px' }}>
                         <span style={{ fontSize: 14, color: '#888888', padding: '0 6px', display: 'block', marginBottom: 6 }}>
                           Notifications when you receive a direct call
                         </span>

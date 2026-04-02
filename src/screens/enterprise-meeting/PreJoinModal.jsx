@@ -197,26 +197,32 @@ export function PreJoinModal({ onClose }) {
                 {profile.name} - Test call
               </span>
             </div>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              background: '#222222', borderRadius: 8,
-              padding: '0 12px', height: 48,
-              cursor: 'pointer', boxSizing: 'border-box',
-            }}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M2 6.5C5.5 3 14.5 3 18 6.5"             stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M4.5 9C7 6.5 13 6.5 15.5 9"             stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M7.5 11.5C8.8 10.2 11.2 10.2 12.5 11.5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
-                <circle cx="10" cy="14.5" r="1.5" fill="#FFFFFF"/>
+            <div
+              onMouseEnter={e => { e.currentTarget.style.background = '#333333'; e.currentTarget.style.borderColor = '#555555' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#222222'; e.currentTarget.style.borderColor = '#3A3A3A' }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                background: '#222222', border: '1px solid #3A3A3A', borderRadius: 8,
+                padding: '0 16px', height: 40,
+                cursor: 'pointer', boxSizing: 'border-box',
+                whiteSpace: 'nowrap', flexShrink: 0,
+                transition: 'background 0.15s, border-color 0.15s',
+              }}
+            >
+              {/* MDI cast — same as TopBar Connect */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" aria-hidden style={{ flexShrink: 0 }}>
+                <path fill="#FFFFFF" d="M1 10v2a9 9 0 0 1 9 9h2c0-6.08-4.93-11-11-11m0 4v2a5 5 0 0 1 5 5h2a7 7 0 0 0-7-7m0 4v3h3a3 3 0 0 0-3-3M21 3H3c-1.11 0-2 .89-2 2v3h2V5h18v14h-7v2h7a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2"/>
               </svg>
-              <span style={{ fontSize: 14, fontWeight: 500, color: '#E9E9E9' }}>Connect</span>
+              <span style={{ fontSize: 14, fontWeight: 500, color: '#E9E9E9' }}>Connect to a device</span>
             </div>
           </div>
 
           {/* ── Video preview ── */}
           <div style={{
             position: 'relative', width: '100%', height: 421,
-            borderRadius: 8, overflow: 'hidden', background: '#141414',
+            borderRadius: 8, overflow: 'hidden',
+            background: cameraOn && !permDenied ? '#141414' : '#1E1E1E',
+            transition: 'background 0.25s',
           }}>
             <video
               ref={videoRef}

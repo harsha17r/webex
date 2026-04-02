@@ -312,6 +312,330 @@ function RecommendedMessagesView() {
   )
 }
 
+/** Meet button — brand green */
+const WELCOME_SPACE_MEET_BG = '#1D8160'
+const WELCOME_SPACE_STAR = '#E8A317'
+const WELCOME_SPACE_SCHEDULE_BTN_BG = '#404040'
+const WELCOME_SPACE_TRAY_ICON = '#A3A3A3'
+const WELCOME_SPACE_CHIP_SELECTED_BG = '#3A3A3A'
+const WELCOME_SPACE_MEET_HOVER = '#239872'
+const WELCOME_SPACE_SCHEDULE_HOVER_BG = '#4A4A4A'
+const WELCOME_SPACE_SCHEDULE_HOVER_BORDER = '#5C5C5C'
+const WELCOME_SPACE_CHIP_HOVER_SELECTED = '#484848'
+const WELCOME_SPACE_CHIP_HOVER_MUTED = 'rgba(255,255,255,0.08)'
+
+/** Full space thread chrome — reference header, pill chips, tray icons */
+function WelcomeSpaceChatView() {
+  const [spaceTab, setSpaceTab] = useState('messages')
+  const [welcomeHover, setWelcomeHover] = useState(null)
+
+  const tabs = [
+    { key: 'messages', label: 'Messages' },
+    { key: 'people', label: 'People (1)' },
+    { key: 'content', label: 'Content' },
+    { key: 'meetings', label: 'Meetings' },
+    { key: 'apps', label: '+ Apps' },
+  ]
+
+  return (
+    <div style={{
+      flex: 1, display: 'flex', flexDirection: 'column',
+      background: '#1A1A1A',
+      fontFamily: "'Inter', system-ui, sans-serif",
+      overflow: 'hidden',
+      minWidth: 0,
+    }}>
+      {/* Title row */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '16px 22px 12px',
+        borderBottom: '1px solid #2A2A2A',
+        flexShrink: 0, gap: 16,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <h1 style={{
+            fontSize: 18, fontWeight: 600, color: '#FFFFFF', margin: 0,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            Welcome Space
+          </h1>
+          <button type="button" aria-label="Favorite space" onMouseEnter={() => setWelcomeHover('star')} onMouseLeave={() => setWelcomeHover(null)} style={{
+            background: welcomeHover === 'star' ? 'rgba(255,255,255,0.08)' : 'transparent',
+            border: 'none', cursor: 'pointer', padding: 4, borderRadius: 8,
+            display: 'flex', alignItems: 'center', flexShrink: 0,
+            transition: 'background 0.12s ease',
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                stroke={WELCOME_SPACE_STAR}
+                strokeWidth="1.65"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <button
+            type="button"
+            aria-label="Schedule a meeting"
+            onMouseEnter={() => setWelcomeHover('schedule')}
+            onMouseLeave={() => setWelcomeHover(null)}
+            style={{
+              width: 38, height: 38, borderRadius: '50%',
+              border: `1px solid ${welcomeHover === 'schedule' ? WELCOME_SPACE_SCHEDULE_HOVER_BORDER : '#4F4F4F'}`,
+              cursor: 'pointer',
+              background: welcomeHover === 'schedule' ? WELCOME_SPACE_SCHEDULE_HOVER_BG : WELCOME_SPACE_SCHEDULE_BTN_BG,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: 0, flexShrink: 0,
+              transition: 'background 0.12s ease, border-color 0.12s ease',
+            }}
+          >
+            {/* tabler:calendar-plus */}
+            <svg xmlns="http://www.w3.org/2000/svg" width={18} height={18} viewBox="0 0 24 24" aria-hidden style={{ color: '#FFFFFF' }}>
+              <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12.5 21H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5m-4-9v4M8 3v4m-4 4h16m-4 8h6m-3-3v6" />
+            </svg>
+          </button>
+          <button type="button" onMouseEnter={() => setWelcomeHover('meet')} onMouseLeave={() => setWelcomeHover(null)} style={{
+            height: 36, padding: '0 18px', borderRadius: 9999, border: 'none', cursor: 'pointer',
+            background: welcomeHover === 'meet' ? WELCOME_SPACE_MEET_HOVER : WELCOME_SPACE_MEET_BG,
+            color: '#FFFFFF', fontSize: 13, fontWeight: 600,
+            fontFamily: "'Inter', system-ui, sans-serif",
+            transition: 'background 0.12s ease',
+          }}>
+            Meet
+          </button>
+        </div>
+      </div>
+
+      {/* Pills + tray utilities */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: 12,
+        padding: '10px 20px 12px',
+        borderBottom: '1px solid #2A2A2A',
+        flexShrink: 0,
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          flex: 1, minWidth: 0, overflowX: 'auto',
+        }}>
+          {tabs.map(t => {
+            const selected = spaceTab === t.key
+            const chipHot = welcomeHover === `chip:${t.key}`
+            const chipBg = selected
+              ? (chipHot ? WELCOME_SPACE_CHIP_HOVER_SELECTED : WELCOME_SPACE_CHIP_SELECTED_BG)
+              : (chipHot ? WELCOME_SPACE_CHIP_HOVER_MUTED : 'transparent')
+            const chipColor = selected
+              ? '#FFFFFF'
+              : (chipHot ? '#B8B8B8' : '#8E8E8E')
+            return (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => setSpaceTab(t.key)}
+                onMouseEnter={() => setWelcomeHover(`chip:${t.key}`)}
+                onMouseLeave={() => setWelcomeHover(null)}
+                style={{
+                  padding: '6px 14px', border: 'none', cursor: 'pointer', flexShrink: 0,
+                  borderRadius: 9999,
+                  fontSize: 13, fontWeight: selected ? 600 : 500,
+                  color: chipColor,
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                  background: chipBg,
+                  transition: 'background 0.12s ease, color 0.12s ease',
+                }}
+              >
+                {t.label}
+              </button>
+            )
+          })}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+          <button type="button" aria-label="Pin space" onMouseEnter={() => setWelcomeHover('pin')} onMouseLeave={() => setWelcomeHover(null)} style={{
+            background: welcomeHover === 'pin' ? 'rgba(255,255,255,0.1)' : 'transparent',
+            border: 'none', cursor: 'pointer', padding: 8, borderRadius: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: welcomeHover === 'pin' ? '#C8C8C8' : WELCOME_SPACE_TRAY_ICON,
+            transition: 'background 0.12s ease, color 0.12s ease',
+          }}>
+            {/* ph:push-pin-bold */}
+            <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 256 256" aria-hidden>
+              <path fill="currentColor" d="m238.15 78.54l-60.69-60.68a20 20 0 0 0-28.3 0L97.2 70c-12.43-3.33-36.68-5.72-61.74 14.5a20 20 0 0 0-1.6 29.73l45.46 45.47l-39.8 39.8a12 12 0 0 0 17 17l39.8-39.81l45.47 45.46a20 20 0 0 0 14.12 5.85c.46 0 .93 0 1.4-.05a20 20 0 0 0 14.56-7.95c4.69-6.23 11-16.13 14.44-28s3.45-22.88.16-33.4l51.7-51.87a20 20 0 0 0-.02-28.19m-74.26 68.79a12 12 0 0 0-2.23 13.84c3.43 6.86 6.9 21-6.28 40.65L54.08 100.53c21.09-14.59 39.53-6.64 41-6a11.67 11.67 0 0 0 13.81-2.29l54.43-54.61l55 55Z" />
+            </svg>
+          </button>
+          <button type="button" aria-label="Search" onMouseEnter={() => setWelcomeHover('search')} onMouseLeave={() => setWelcomeHover(null)} style={{
+            background: welcomeHover === 'search' ? 'rgba(255,255,255,0.1)' : 'transparent',
+            border: 'none', cursor: 'pointer', padding: 8, borderRadius: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: welcomeHover === 'search' ? '#C8C8C8' : WELCOME_SPACE_TRAY_ICON,
+            transition: 'background 0.12s ease, color 0.12s ease',
+          }}>
+            {/* stash:search-solid */}
+            <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" aria-hidden>
+              <path fill="currentColor" fillRule="evenodd" d="M10.44 2.75a7.69 7.69 0 1 0 4.615 13.842c.058.17.154.329.29.464l3.84 3.84a1.21 1.21 0 0 0 1.71-1.712l-3.84-3.84a1.2 1.2 0 0 0-.463-.289A7.69 7.69 0 0 0 10.44 2.75m-5.75 7.69a5.75 5.75 0 0 1 11.5 0a5.75 5.75 0 0 1-11.5 0" clipRule="evenodd" />
+            </svg>
+          </button>
+          <button type="button" aria-label="Space settings" onMouseEnter={() => setWelcomeHover('settings')} onMouseLeave={() => setWelcomeHover(null)} style={{
+            background: welcomeHover === 'settings' ? 'rgba(255,255,255,0.1)' : 'transparent',
+            border: 'none', cursor: 'pointer', padding: 8, borderRadius: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: welcomeHover === 'settings' ? '#C8C8C8' : WELCOME_SPACE_TRAY_ICON,
+            transition: 'background 0.12s ease, color 0.12s ease',
+          }}>
+            {/* mingcute:settings-3-line */}
+            <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" aria-hidden>
+              <g fill="none" fillRule="evenodd">
+                <path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
+                <path fill="currentColor" d="M14.035 2.809c.37-.266.89-.39 1.401-.203a10 10 0 0 1 2.982 1.725c.417.35.57.861.524 1.313c-.075.753.057 1.48.42 2.106c.32.557.802.997 1.39 1.307l.225.11c.414.187.782.576.875 1.113a10 10 0 0 1 0 3.44c-.083.484-.39.847-.753 1.051l-.122.063c-.69.31-1.254.79-1.616 1.416c-.362.627-.494 1.353-.419 2.106c.045.452-.107.964-.524 1.313a10 10 0 0 1-2.982 1.725a1.51 1.51 0 0 1-1.4-.203C13.42 20.75 12.723 20.5 12 20.5s-1.42.249-2.035.691a1.51 1.51 0 0 1-1.401.203a10 10 0 0 1-2.982-1.725a1.51 1.51 0 0 1-.524-1.313c.075-.753-.058-1.48-.42-2.106a3.4 3.4 0 0 0-1.39-1.307l-.225-.11a1.51 1.51 0 0 1-.875-1.113a10 10 0 0 1 0-3.44c.083-.484.39-.847.753-1.051l.122-.062c.69-.311 1.254-.79 1.616-1.417c.361-.626.494-1.353.419-2.106a1.51 1.51 0 0 1 .524-1.313a10 10 0 0 1 2.982-1.725a1.51 1.51 0 0 1 1.4.203c.615.442 1.312.691 2.036.691s1.42-.249 2.035-.691m.957 1.769c-.866.57-1.887.922-2.992.922s-2.126-.353-2.992-.922A8 8 0 0 0 7.068 5.7c.06 1.033-.145 2.093-.697 3.05c-.553.956-1.368 1.663-2.293 2.128a8 8 0 0 0 0 2.242c.925.465 1.74 1.172 2.293 2.13c.552.955.757 2.015.697 3.048a8 8 0 0 0 1.94 1.123c.866-.57 1.887-.922 2.992-.922s2.126.353 2.992.922a8 8 0 0 0 1.94-1.122c-.06-1.034.145-2.094.697-3.05c.552-.957 1.368-1.664 2.293-2.13a8 8 0 0 0 0-2.24c-.925-.466-1.74-1.173-2.293-2.13c-.552-.956-.757-2.016-.697-3.05a8 8 0 0 0-1.94-1.122ZM12 8a4 4 0 1 1 0 8a4 4 0 0 1 0-8m0 2a2 2 0 1 0 0 4a2 2 0 0 0 0-4" />
+              </g>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Thread */}
+      <div style={{
+        flex: 1, overflowY: 'auto', padding: '20px 24px 24px',
+        display: 'flex', flexDirection: 'column', gap: 16,
+      }}>
+        {spaceTab === 'messages' && (
+          <>
+            <p style={{
+              textAlign: 'center', fontSize: 12, color: '#6B7280', margin: 0, lineHeight: '18px',
+            }}>
+              This starts the &quot;Welcome Space&quot; space. 9/24/25, 10:42 PM
+            </p>
+
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', maxWidth: 720 }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                background: '#1170CF',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 13, fontWeight: 700, color: '#FFFFFF',
+              }}>
+                Y
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF' }}>You</span>
+                  <span style={{ fontSize: 12, color: '#6B7280' }}>10:42 PM</span>
+                </div>
+                <div style={{
+                  background: '#222222', border: '1px solid #333333', borderRadius: 12,
+                  overflow: 'hidden', marginBottom: 12, maxWidth: 420,
+                }}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '12px 14px', borderBottom: '1px solid #2E2E2E',
+                  }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 8,
+                      background: '#1A1A1A', border: '1px solid #333',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: '#3B9EFF' }}>WX</span>
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', margin: '0 0 4px', lineHeight: '18px' }}>
+                        Webex Help Center
+                      </p>
+                      <p style={{
+                        fontSize: 12, color: '#9CA3AF', margin: 0,
+                        lineHeight: '16px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                      }}>
+                        Cisco Webex is the industry leader in video conferencing and team collaboration…
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <p style={{
+                  fontSize: 14, color: '#E5E5E5', margin: 0, lineHeight: '22px', whiteSpace: 'pre-wrap',
+                }}>
+                  👋 Welcome to Webex! But, more importantly, welcome to where you&apos;ll do the best work ever. In Spaces, you can send messages, share files, set up meetings, and even meet instantly with other people in the space. Pretty cool, right? Try sending a few practice messages, GIFs or files — you can even edit, react and reply to messages. Have some fun! If you&apos;re looking for more, visit{' '}
+                  <span style={{ color: '#3B9EFF' }}>https://help.webex.com</span>
+                  {' '}or join the Webex Community.
+                </p>
+              </div>
+            </div>
+          </>
+        )}
+        {spaceTab !== 'messages' && (
+          <div style={{
+            flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#555555', fontSize: 14,
+          }}>
+            {tabs.find(t => t.key === spaceTab)?.label} — coming soon
+          </div>
+        )}
+      </div>
+
+      <div style={{
+        borderTop: '1px solid #2A2A2A',
+        padding: '12px 20px 16px',
+        flexShrink: 0,
+        background: '#1A1A1A',
+      }}>
+        <div style={{
+          border: '1px solid #2E2E2E', borderRadius: 12, background: '#1E1E1E',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '8px 10px 6px', borderBottom: '1px solid #2A2A2A',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+              <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 5px', borderRadius: 5, display: 'flex', alignItems: 'center' }}>
+                <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><path d="M16.5 10.5l-6.5 6.5a4.5 4.5 0 0 1-6.4-6.3L10 4a3 3 0 0 1 4.2 4.2L8 14.5a1.5 1.5 0 0 1-2.1-2.1L12 6" stroke="#666" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 5px', borderRadius: 5, display: 'flex', alignItems: 'center' }}>
+                <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="10" height="13" rx="2" stroke="#666" strokeWidth="1.4"/><path d="M7 3v13M13 7h3a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-3" stroke="#666" strokeWidth="1.4" strokeLinecap="round"/></svg>
+              </button>
+              <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 5px', borderRadius: 5, display: 'flex', alignItems: 'center' }}>
+                <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M10 5v11M7 16h6" stroke="#666" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 5px', borderRadius: 5, display: 'flex', alignItems: 'center' }}>
+                <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="#666" strokeWidth="1.4"/><circle cx="7.5" cy="8.5" r="1" fill="#666"/><circle cx="12.5" cy="8.5" r="1" fill="#666"/><path d="M7 12.5c.8 1.5 6 1.5 6 0" stroke="#666" strokeWidth="1.4" strokeLinecap="round"/></svg>
+              </button>
+              <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 5px', borderRadius: 5, display: 'flex', alignItems: 'center' }}>
+                <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="4" width="15" height="12" rx="2" stroke="#666" strokeWidth="1.4"/><circle cx="7" cy="8.5" r="1.5" fill="#666"/><path d="M2.5 14l4-4 3 3 2.5-2.5 4 4" stroke="#666" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 5px', borderRadius: 5, display: 'flex', alignItems: 'center' }}>
+                <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="#666" strokeWidth="1.4"/><text x="4.5" y="13.5" fontSize="6" fontWeight="700" fill="#666" fontFamily="sans-serif">GIF</text></svg>
+              </button>
+              <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 5px', borderRadius: 5, display: 'flex', alignItems: 'center' }}>
+                <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" stroke="#666" strokeWidth="1.4"/><path d="M13 10c0 3 5 3 5 0a8 8 0 1 0-5 7.4" stroke="#666" strokeWidth="1.4" strokeLinecap="round"/></svg>
+              </button>
+              <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 5px', borderRadius: 5, display: 'flex', alignItems: 'center' }}>
+                <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><path d="M10 2.5L3.5 5v5c0 3.8 2.8 7.3 6.5 8 3.7-.7 6.5-4.2 6.5-8V5L10 2.5z" stroke="#666" strokeWidth="1.4" strokeLinejoin="round"/></svg>
+              </button>
+            </div>
+            <span style={{ fontSize: 11, color: '#737373' }}>Shift + Enter for a new line</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', padding: '12px 14px 14px', gap: 10 }}>
+            <span style={{
+              flex: 1, fontSize: 14, color: '#737373', lineHeight: '22px',
+            }}>
+              Write a message to Welcome Space
+            </span>
+            <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M3 9h12M11 5l4 4-4 4" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <circle cx="9" cy="9" r="7" stroke="#555" strokeWidth="1.4"/>
+                <path d="M9 5v5l3 2" stroke="#555" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const PUBLIC_SPACES = [
   { id: 1, name: 'Lumon Industries',        letter: 'L', color: '#3A5A8C', people: 4812, date: 'Mon • 3/24/25', desc: 'Official company-wide space. All announcements, updates, and memos from Lumon leadership.' },
   { id: 2, name: 'Macrodata Refinement',    letter: 'M', color: '#5A3A7A', people: 4,    date: 'Fri • 3/21/25', desc: 'MDR team workspace. Refine numbers. Ask no questions. Stay focused on the work.' },
@@ -799,9 +1123,10 @@ function DefaultMessagesCarousel() {
 }
 
 export function MessageStage({ view, onClose, joinedPublicSpaceIds, onPublicSpaceJoinChange }) {
-  if (view === 'recommended')   return <RecommendedMessagesView />
-  if (view === 'new-message')   return <NewMessageView onClose={onClose} />
-  if (view === 'create-space')  return <CreateSpaceView onClose={onClose} />
+  if (view === 'recommended')    return <RecommendedMessagesView />
+  if (view === 'welcome-space')  return <WelcomeSpaceChatView />
+  if (view === 'new-message')    return <NewMessageView onClose={onClose} />
+  if (view === 'create-space')   return <CreateSpaceView onClose={onClose} />
   if (view === 'public-spaces') {
     return (
       <PublicSpacesView

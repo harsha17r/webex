@@ -147,10 +147,14 @@ function TaskRow({ task, done, onClick }) {
 
 const DISMISSED_KEY = 'webex_checklist_dismissed'
 
-export function OnboardingChecklist() {
-  const [open,      setOpen]      = useState(false)
+export function OnboardingChecklist({ onTestCall, fromMeeting = false }) {
+  const [open,      setOpen]      = useState(true)
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISSED_KEY) === 'true')
-  const [completed, setCompleted] = useState(new Set())
+  const [completed, setCompleted] = useState(() => {
+    const init = new Set()
+    if (fromMeeting) init.add('test-call')
+    return init
+  })
   const [notifModalOpen,      setNotifModalOpen]      = useState(false)
   const [appearancesOpen,     setAppearancesOpen]     = useState(false)
 
@@ -256,7 +260,8 @@ export function OnboardingChecklist() {
               task={task}
               done={completed.has(task.key)}
               onClick={() => {
-                if (task.key === 'notifications') setNotifModalOpen(true)
+                if (task.key === 'test-call') { if (!completed.has('test-call')) onTestCall?.() }
+                else if (task.key === 'notifications') setNotifModalOpen(true)
                 else if (task.key === 'appearance') setAppearancesOpen(true)
                 else toggleTask(task.key)
               }}

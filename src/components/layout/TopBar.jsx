@@ -34,9 +34,15 @@ function CiscoAISymbol({ size = 28 }) {
   )
 }
 
-export function TopBar({ aiPanelOpen, onToggleAI }) {
+const STATUS_PREVIEW_MAX = 28
+
+export function TopBar({ aiPanelOpen, onToggleAI, onSetStatusClick = () => {} }) {
   const [aiHover, setAiHover] = useState(false)
   const { profile } = useProfile()
+  const raw = profile.statusText?.trim()
+  const statusLabel = raw
+    ? (raw.length > STATUS_PREVIEW_MAX ? `${raw.slice(0, STATUS_PREVIEW_MAX)}…` : raw)
+    : null
 
   return (
     <div style={{
@@ -82,11 +88,16 @@ export function TopBar({ aiPanelOpen, onToggleAI }) {
         </div>
 
         {/* Set your status button */}
-        <button style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: 'none', border: 'none', cursor: 'pointer',
-          padding: 8,
-        }}>
+        <button
+          type="button"
+          onClick={onSetStatusClick}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: 8, borderRadius: 8,
+            maxWidth: 320, minWidth: 0,
+          }}
+        >
           {/* Pencil SVG icon */}
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path
@@ -95,8 +106,11 @@ export function TopBar({ aiPanelOpen, onToggleAI }) {
               strokeLinecap="round" strokeLinejoin="round"
             />
           </svg>
-          <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>
-            Set your status
+          <span style={{
+            fontSize: 14, fontWeight: 500, color: 'var(--text-primary)',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {statusLabel ?? 'Set your status'}
           </span>
         </button>
       </div>
@@ -166,12 +180,9 @@ export function TopBar({ aiPanelOpen, onToggleAI }) {
             display: 'flex', alignItems: 'center', gap: 8,
             cursor: 'pointer',
           }}>
-            {/* Connect/share-nodes icon */}
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="4"  cy="8"  r="2" stroke="var(--text-muted)" strokeWidth="1.3"/>
-              <circle cx="12" cy="4"  r="2" stroke="var(--text-muted)" strokeWidth="1.3"/>
-              <circle cx="12" cy="12" r="2" stroke="var(--text-muted)" strokeWidth="1.3"/>
-              <path d="M6 7L10 5M6 9L10 11" stroke="var(--text-muted)" strokeWidth="1.3" strokeLinecap="round"/>
+            {/* MDI cast — https://api.iconify.design/mdi:cast.svg */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" aria-hidden>
+              <path fill="var(--text-muted)" d="M1 10v2a9 9 0 0 1 9 9h2c0-6.08-4.93-11-11-11m0 4v2a5 5 0 0 1 5 5h2a7 7 0 0 0-7-7m0 4v3h3a3 3 0 0 0-3-3M21 3H3c-1.11 0-2 .89-2 2v3h2V5h18v14h-7v2h7a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2"/>
             </svg>
             <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-muted)' }}>Connect</span>
           </button>

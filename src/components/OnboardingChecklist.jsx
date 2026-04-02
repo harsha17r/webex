@@ -167,10 +167,16 @@ function TaskRow({ task, done, onClick }) {
 
 /* ─── OnboardingChecklist ───────────────────────────────── */
 
-export function OnboardingChecklist({ onCalendarConnect }) {
-  const [open,             setOpen]             = useState(false)
-  const [dismissed,        setDismissed]        = useState(false)
-  const [completed,        setCompleted]        = useState(new Set())
+const DISMISSED_KEY = 'webex_smb_checklist_dismissed'
+
+export function OnboardingChecklist({ onCalendarConnect, onTestCall, fromMeeting = false }) {
+  const [open,             setOpen]             = useState(true)
+  const [dismissed,        setDismissed]        = useState(() => localStorage.getItem(DISMISSED_KEY) === 'true')
+  const [completed,        setCompleted]        = useState(() => {
+    const init = new Set()
+    if (fromMeeting) init.add('test-call')
+    return init
+  })
   const [profileModalOpen,    setProfileModalOpen]    = useState(false)
   const [notifModalOpen,      setNotifModalOpen]      = useState(false)
   const [appearancesOpen,     setAppearancesOpen]     = useState(false)
@@ -278,7 +284,8 @@ export function OnboardingChecklist({ onCalendarConnect }) {
               task={task}
               done={completed.has(task.key)}
               onClick={() => {
-                if (task.key === 'profile') setProfileModalOpen(true)
+                if (task.key === 'test-call') { if (!completed.has('test-call')) onTestCall?.() }
+                else if (task.key === 'profile') setProfileModalOpen(true)
                 else if (task.key === 'notifications') setNotifModalOpen(true)
                 else if (task.key === 'appearance') setAppearancesOpen(true)
                 else if (task.key === 'calendar') setCalendarModalOpen(true)
@@ -300,7 +307,7 @@ export function OnboardingChecklist({ onCalendarConnect }) {
           }
         >
           <div
-            onClick={() => setDismissed(true)}
+            onClick={() => { localStorage.setItem(DISMISSED_KEY, 'true'); setDismissed(true) }}
             style={{ padding: '8px 0', cursor: 'pointer' }}
           >
             <span style={{ fontSize: 12, fontWeight: 400, color: '#2E96E8', lineHeight: '20px' }}>
@@ -318,7 +325,6 @@ export function OnboardingChecklist({ onCalendarConnect }) {
         <SetupProfileModal
           onClose={() => setProfileModalOpen(false)}
           onSave={() => toggleTask('profile')}
-          onOpenAppearances={() => setAppearancesOpen(true)}
         />
       )}
     </AnimatePresence>

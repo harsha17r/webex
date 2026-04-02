@@ -8,20 +8,36 @@ import { CiscoAIRail } from '../../enterprise-components/layout/CiscoAIRail'
 import { MeetingsTab } from './MeetingsTab'
 import { MessagesTab } from './MessagesTab'
 import { OnboardingChecklist } from '../../enterprise-components/OnboardingChecklist'
+import { PreJoinModal } from '../enterprise-meeting/PreJoinModal'
+import { NotificationSettingsModal } from '../../enterprise-components/modals/NotificationSettingsModal'
+import { SetStatusModal } from '../../components/modals/SetStatusModal'
 
 export function HomeScreen() {
   const [activeTab, setActiveTab]         = useState('meet')
   const [aiPanelOpen, setAiPanelOpen]     = useState(true)
+  const [preJoinOpen, setPreJoinOpen]     = useState(false)
+  const [settingsOpen, setSettingsOpen]   = useState(false)
+  const [statusModalOpen, setStatusModalOpen] = useState(false)
   const location = useLocation()
   const { updateProfile } = useProfile()
-  const { fromMeeting = false, elapsed: meetingElapsed = 0, calendarConnected: calFromOnboarding = false } = location.state ?? {}
-  const [calendarConnected, setCalendar]  = useState(calFromOnboarding)
+  const { fromMeeting = false, elapsed: meetingElapsed = 0, calendarConnected: calFromOnboarding = false, fromOnboarding = false } = location.state ?? {}
+  const [calendarConnected, setCalendar]  = useState(() => {
+    if (calFromOnboarding) {
+      localStorage.setItem('webex_cal_connected', 'true')
+      return true
+    }
+    return localStorage.getItem('webex_cal_connected') === 'true'
+  })
 
   // Always apply name + email coming from the onboarding flow
+  // Reset checklist dismissed state on fresh onboarding entry
   useEffect(() => {
     const { name, email } = location.state ?? {}
     if (name || email) {
       updateProfile({ ...(name && { name }), ...(email && { email }) })
+    }
+    if (fromOnboarding) {
+      localStorage.removeItem('webex_checklist_dismissed')
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -38,6 +54,7 @@ export function HomeScreen() {
       <TopBar
         aiPanelOpen={aiPanelOpen}
         onToggleAI={() => setAiPanelOpen(v => !v)}
+        onSetStatusClick={() => setStatusModalOpen(true)}
       />
 
       {/* Body row: Sidebar + Content area */}
@@ -45,7 +62,7 @@ export function HomeScreen() {
 
         {/* Sidebar — paddingTop 13 so nav starts at y:76 (63 topbar + 13) */}
         <div style={{ paddingTop: 13, background: 'var(--bg-primary)', flexShrink: 0 }}>
-          <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+          <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onSettingsClick={() => setSettingsOpen(true)} />
         </div>
 
         {/* Content area: scrollable main + AI rail */}
@@ -59,8 +76,13 @@ export function HomeScreen() {
               {activeTab === 'meet'    && <MeetingsTab calendarConnected={calendarConnected} fromMeeting={fromMeeting} meetingElapsed={meetingElapsed} />}
             </div>
 
-            {/* Checklist — persists across tab switches, anchored to content area only */}
-            <OnboardingChecklist />
+            {/* Checklist — visually hidden on message tab to avoid overlapping compose */}
+            <div style={activeTab === 'message' ? { position: 'absolute', visibility: 'hidden', pointerEvents: 'none' } : {}}>
+              <OnboardingChecklist
+                onTestCall={() => setPreJoinOpen(true)}
+                fromMeeting={fromMeeting}
+              />
+            </div>
           </div>
 
           {/* AI Rail — slides in/out with spring */}
@@ -81,6 +103,20 @@ export function HomeScreen() {
 
         </div>
       </div>
+
+      <AnimatePresence>
+        {preJoinOpen && <PreJoinModal onClose={() => setPreJoinOpen(false)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {settingsOpen && <NotificationSettingsModal onClose={() => setSettingsOpen(false)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {statusModalOpen && (
+          <SetStatusModal onClose={() => setStatusModalOpen(false)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
