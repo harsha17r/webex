@@ -618,7 +618,7 @@ function GeneralPanel() {
           All the files you stored during your use of Webex will be saved at the following location. This setting is for this computer only.
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 13, color: '#CCCCCC' }}>/Users/harsha/Downloads/</span>
+          <span style={{ fontSize: 13, color: '#CCCCCC' }}>~/Downloads/</span>
           <button style={{
             padding: '5px 12px', background: '#2A2A2A',
             border: '1px solid #3A3A3A', borderRadius: 4,
