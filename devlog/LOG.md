@@ -5,6 +5,78 @@
 
 ---
 
+### [2026-04-02] — Meeting nudge system: CC + React sequential tooltips
+
+**Status:** 🟢 Done
+
+**What changed:**
+Created two new nudge tooltip components — `src/components/CcNudge.jsx` and `src/components/ReactNudge.jsx` — that appear above the Closed Captions and React toolbar buttons respectively. Both feature a spring-animated card with a downward-pointing arrow notch, a title, description, and a "Got it" dismiss link. Added a subtle `2px solid #333333` border stroke to both for definition against the dark meeting background. Wired both into `src/screens/meeting/MeetingScreen.jsx` and `src/screens/enterprise-meeting/MeetingScreen.jsx` with a sequential timer chain: AI nudge dismisses → 10s gap → CcNudge shows for 6s (or "Got it") → 10s gap → ReactNudge shows for 6s (or "Got it"). All hover-based triggering was removed in favour of this timed sequence. Also updated both `ConnectCalendarModal` files with the full calendar provider selection animation (spinner → checkmark → "Calendar connected") matching the CalendarSyncScreen pattern.
+
+**Files touched:**
+- `src/components/CcNudge.jsx` *(new)*
+- `src/components/ReactNudge.jsx` *(new)*
+- `src/screens/meeting/MeetingScreen.jsx`
+- `src/screens/enterprise-meeting/MeetingScreen.jsx`
+- `src/components/modals/ConnectCalendarModal.jsx`
+- `src/enterprise-components/modals/ConnectCalendarModal.jsx`
+
+**Next up:**
+Test the full nudge chain timing end-to-end. Consider whether the 10s gaps feel right in user testing — they can be tuned via the `chainTimersRef` timeouts in MeetingScreen.
+
+---
+
+### [2026-04-02] — Calendar connect flow: MeetingsTab → modal → checklist
+
+**Status:** 🟢 Done
+
+**What changed:**
+Both SMB and enterprise `MeetingsTab` now accept an `onConnectCalendar` prop; the "Connect your calendar" button (previously inert) calls it on click. Both `HomeScreen` components manage `calendarModalOpen` state, render the corresponding `ConnectCalendarModal`, and on save flip `calendarConnected` to `true`. Enterprise `OnboardingChecklist` gained the missing calendar task row (with calendar icon, click → `ConnectCalendarModal`), matching the SMB version. On completion, `onCalendarConnect` fires back to `HomeScreen` so the `MeetingsTab` header swaps to the settings cog and the checklist marks the row done. Task counter updated from hardcoded `/3` to dynamic `/{TASKS.length}`.
+
+**Files touched:**
+- `src/screens/home/HomeScreen.jsx`
+- `src/screens/enterprise-home/HomeScreen.jsx`
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `src/enterprise-components/OnboardingChecklist.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Verify the flow end-to-end in browser; polish WelcomeScreen or other onboarding items.
+
+---
+
+### [2026-04-02] — Welcome screen: benefits card gradient border restored
+
+**Status:** 🟢 Done
+
+**What changed:**
+Reverted the Webex Free card frame on `WelcomeScreen.jsx` from solid gray back to **`linear-gradient(180deg, #4ac397 0%, #5cb3f0 100%)`** (masked 1.5px rim).
+
+**Files touched:**
+- `src/screens/onboarding/WelcomeScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Same as prior welcome/onboarding polish.
+
+---
+
+### [2026-04-02] — Welcome screen: placeholder, shield icon, Join CTA
+
+**Status:** 🟢 Done
+
+**What changed:**
+On `WelcomeScreen.jsx`, email field placeholder is now `name@email.com` (was `name@work-mail.com`). The “Enterprise security” benefit icon uses **Lucide** stroke `shield-check` paths (`#2AAB7D`, `strokeWidth` 1.5) to match the other benefits—no fill—with `overflow: visible` so the shield tip is not clipped. **Join a meeting** outlined button label stays **white** (`C.textPrimary`) in default and hover-off states instead of reverting to gray (`C.textSecond`).
+
+**Files touched:**
+- `src/screens/onboarding/WelcomeScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Smoke-test onboarding route; continue any other welcome/onboarding polish.
+
+---
+
 ### [2026-04-02] — Git: enterprise TopBar Connect push
 
 **Status:** 🟢 Done

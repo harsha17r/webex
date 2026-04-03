@@ -7,6 +7,8 @@ import { MeetingAIRail, SummaryIcon } from '../../components/meeting/MeetingAIRa
 import { AppsRail }          from '../../components/meeting/AppsRail'
 import { ParticipantsRail } from '../../components/meeting/ParticipantsRail'
 import { ChatRail }          from '../../components/meeting/ChatRail'
+import { CcNudge }           from '../../components/CcNudge'
+import { ReactNudge }        from '../../components/ReactNudge'
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD — MeetingScreen
@@ -90,7 +92,14 @@ export function MeetingScreen() {
   const [tileMenuOpen,  setTileMenuOpen]  = useState(false)
   const tileMenuBtnRef  = useRef(null)
   const tileMenuRef     = useRef(null)
-  const [reactOpen,    setReactOpen]    = useState(false)
+  const [reactOpen,         setReactOpen]         = useState(false)
+  const [ccNudgeVisible,    setCcNudgeVisible]    = useState(false)
+  const [reactNudgeVisible, setReactNudgeVisible] = useState(false)
+  const ccAutoHideTimerRef    = useRef(null)
+  const reactAutoHideTimerRef = useRef(null)
+  const chainTimersRef        = useRef([])
+  const nudgeShownRef         = useRef(false)
+  const nudgeChainStartedRef  = useRef(false)
   const reactBtnRef    = useRef(null)
   const reactMenuRef   = useRef(null)
   const meetingInfoBtnRef    = useRef(null)
@@ -197,11 +206,43 @@ export function MeetingScreen() {
     return () => document.removeEventListener('click', resumeCtx)
   }, [])
 
-  /* ── AI nudge: appears at 1.8s, auto-dismisses 10s later ── */
+  /* ── AI nudge: appears at 2s, auto-dismisses after nudgeDuration ── */
   useEffect(() => {
     const showId = setTimeout(() => setNudge(true),  TIMING.nudge)
     const hideId = setTimeout(() => setNudge(false), TIMING.nudge + TIMING.nudgeDuration)
     return () => { clearTimeout(showId); clearTimeout(hideId) }
+  }, [])
+
+  /* ── Nudge chain: CC nudge → React nudge ── */
+  function dismissCcNudge() {
+    clearTimeout(ccAutoHideTimerRef.current)
+    setCcNudgeVisible(false)
+    const t = setTimeout(() => {
+      setReactNudgeVisible(true)
+      reactAutoHideTimerRef.current = setTimeout(() => setReactNudgeVisible(false), 6000)
+      chainTimersRef.current.push(reactAutoHideTimerRef.current)
+    }, 10000)
+    chainTimersRef.current.push(t)
+  }
+
+  useEffect(() => {
+    if (nudge) {
+      nudgeShownRef.current = true
+    } else if (nudgeShownRef.current && !nudgeChainStartedRef.current) {
+      nudgeChainStartedRef.current = true
+      const t = setTimeout(() => {
+        setCcNudgeVisible(true)
+        ccAutoHideTimerRef.current = setTimeout(dismissCcNudge, 6000)
+        chainTimersRef.current.push(ccAutoHideTimerRef.current)
+      }, 10000)
+      chainTimersRef.current.push(t)
+    }
+  }, [nudge]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => () => {
+    chainTimersRef.current.forEach(clearTimeout)
+    clearTimeout(ccAutoHideTimerRef.current)
+    clearTimeout(reactAutoHideTimerRef.current)
   }, [])
 
   function fmt(s) {
@@ -642,6 +683,10 @@ export function MeetingScreen() {
       >
         {/* Closed Captions split button */}
         <div style={{ position: 'relative' }}>
+          <CcNudge
+            visible={ccNudgeVisible}
+            onDismiss={dismissCcNudge}
+          />
           <CcSplitBtn
             ccBtnRef={ccBtnRef}
             ccOn={ccOn}
@@ -747,11 +792,17 @@ export function MeetingScreen() {
             </svg>
           </ToolbarBtn>
           <div ref={reactBtnRef}>
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <ReactNudge
+              visible={reactNudgeVisible}
+              onDismiss={() => { clearTimeout(reactAutoHideTimerRef.current); setReactNudgeVisible(false) }}
+            />
           <ToolbarBtn label="React" onClick={() => setReactOpen(o => !o)} active={reactOpen}>
             <svg width="24" height="24" viewBox="0 0 16 16" fill="none">
               <path fill="#FFFFFF" d="m13.798 2.217l-.015-.004l-.765-.248a1.58 1.58 0 0 1-1-.999L11.77.202a.302.302 0 0 0-.57 0l-.25.764a1.58 1.58 0 0 1-.983.999l-.594.193H9.37l-.172.055a.3.3 0 0 0-.146.111a.3.3 0 0 0 .146.459l.767.249l.083.03l.008.002a1.58 1.58 0 0 1 .88.889l.03.08l.248.765A.3.3 0 0 0 11.5 5h.004a.3.3 0 0 0 .281-.202l.249-.764a1.58 1.58 0 0 1 .999-.999l.765-.248a.303.303 0 0 0 0-.57m1.416 3.355l.612.199l.013.003a.242.242 0 0 1 0 .455l-.613.2a1.26 1.26 0 0 0-.799.798l-.199.612a.24.24 0 0 1-.235.16a.24.24 0 0 1-.224-.16l-.2-.612a1.26 1.26 0 0 0-.8-.8l-.024-.008l-.001-.003l-.583-.19a.242.242 0 0 1 0-.455l.613-.2a1.26 1.26 0 0 0 .787-.798l.199-.612a.242.242 0 0 1 .456 0l.199.612a1.26 1.26 0 0 0 .799.799M8.059 2.893a1 1 0 0 0 .04.108L8 3a5 5 0 1 0 4.98 5.455q.125.185.31.317a1.24 1.24 0 0 0 .628.225A6.002 6.002 0 0 1 2 8a6 6 0 0 1 6.097-6a1.3 1.3 0 0 0-.038.893M6.25 7.75a.75.75 0 1 0 0-1.5a.75.75 0 0 0 0 1.5m-.114 1.917a.5.5 0 1 0-.745.667A3.5 3.5 0 0 0 8 11.5a3.5 3.5 0 0 0 2.609-1.166a.5.5 0 0 0-.745-.667A2.5 2.5 0 0 1 8 10.5c-.74 0-1.405-.321-1.864-.833M10.5 7A.75.75 0 1 1 9 7a.75.75 0 0 1 1.5 0"/>
             </svg>
           </ToolbarBtn>
+          </div>
           </div>
           <div ref={moreBtnRef}>
             <ToolbarBtn label="More" onClick={() => setMoreOpen(o => !o)} active={moreOpen}>

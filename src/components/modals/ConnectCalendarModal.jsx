@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { motion } from 'motion/react'
+import { useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { useProfile } from '../../context/ProfileContext'
 
 /* ─────────────────────────────────────────────────────────
@@ -79,13 +79,140 @@ const PROVIDERS = [
   },
 ]
 
+const ACCENT = '#4ac397'
+
+const TIMING = {
+  showCheck:     3000,
+  showConnected: 3400,
+  close:         4400,
+}
+
+const ICON_SWAP = {
+  spring: { type: 'spring', stiffness: 500, damping: 30 },
+}
+
+const SPINNER = {
+  size:        20,
+  strokeWidth: 2.2,
+  color:       ACCENT,
+  rotate:      { duration: 0.7, ease: 'linear', repeat: Infinity },
+}
+
+const CHECK = {
+  size:        22,
+  strokeWidth: 2.4,
+  color:       ACCENT,
+  pathDraw:    { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+  spring:      { type: 'spring', stiffness: 460, damping: 24 },
+}
+
+const CONNECTED_TEXT = {
+  spring: { type: 'spring', stiffness: 300, damping: 28 },
+}
+
+function RowIcon({ stage }) {
+  return (
+    <div style={{
+      width: 24, height: 24,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      position: 'relative',
+    }}>
+      <AnimatePresence mode="wait">
+        {stage < 1 && (
+          <motion.svg
+            key="chevron"
+            width="24" height="24" viewBox="0 0 24 24" fill="none"
+            initial={false}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={ICON_SWAP.spring}
+            style={{ position: 'absolute' }}
+          >
+            <path d="M9 6l6 6-6 6" stroke="#D4D4D4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </motion.svg>
+        )}
+
+        {stage >= 1 && stage < 2 && (
+          <motion.svg
+            key="spinner"
+            width={SPINNER.size} height={SPINNER.size}
+            viewBox="0 0 20 20" fill="none"
+            initial={{ opacity: 0, scale: 0.4 }}
+            animate={{ opacity: 1, scale: 1, rotate: 360 }}
+            exit={{ opacity: 0, scale: 0.4 }}
+            transition={{
+              opacity: { duration: 0.15 },
+              scale: ICON_SWAP.spring,
+              rotate: SPINNER.rotate,
+            }}
+            style={{ position: 'absolute' }}
+          >
+            <circle
+              cx="10" cy="10" r="8"
+              stroke="rgba(74, 195, 151, 0.25)"
+              strokeWidth={SPINNER.strokeWidth}
+              fill="none"
+            />
+            <path
+              d="M10 2a8 8 0 0 1 8 8"
+              stroke={SPINNER.color}
+              strokeWidth={SPINNER.strokeWidth}
+              strokeLinecap="round"
+              fill="none"
+            />
+          </motion.svg>
+        )}
+
+        {stage >= 2 && (
+          <motion.svg
+            key="check"
+            width={CHECK.size} height={CHECK.size}
+            viewBox="0 0 24 24" fill="none"
+            initial={{ opacity: 0, scale: 0.3 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={CHECK.spring}
+            style={{ position: 'absolute' }}
+          >
+            <motion.path
+              d="M6.5 12.5L10.5 16.5L18 7.5"
+              stroke={CHECK.color}
+              strokeWidth={CHECK.strokeWidth}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={CHECK.pathDraw}
+            />
+          </motion.svg>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 export function ConnectCalendarModal({ onClose, onSave }) {
   const { profile } = useProfile()
   const [hoveredProvider, setHoveredProvider] = useState(null)
+  const [activeProvider, setActiveProvider] = useState(null)
+  const [stage, setStage] = useState(0)
+  const timersRef = useRef([])
 
-  function handleChoose() {
-    onSave?.()
-    onClose()
+  useEffect(() => () => timersRef.current.forEach(clearTimeout), [])
+
+  function handleChooseProvider(id) {
+    if (activeProvider) return
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
+
+    setActiveProvider(id)
+    setStage(1)
+
+    timersRef.current.push(setTimeout(() => setStage(2), TIMING.showCheck))
+    timersRef.current.push(setTimeout(() => setStage(3), TIMING.showConnected))
+    timersRef.current.push(setTimeout(() => {
+      onSave?.()
+      onClose()
+    }, TIMING.close))
   }
 
   return (
@@ -153,41 +280,90 @@ export function ConnectCalendarModal({ onClose, onSave }) {
 
         {/* Provider options */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {PROVIDERS.map(p => (
-            <div
-              key={p.id}
-              onClick={handleChoose}
-              onMouseEnter={() => setHoveredProvider(p.id)}
-              onMouseLeave={() => setHoveredProvider(null)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 16,
-                padding: '12px 20px',
-                border: `1px solid ${hoveredProvider === p.id ? '#737373' : '#494949'}`,
-                borderRadius: 8,
-                cursor: 'pointer',
-                background: hoveredProvider === p.id ? 'rgba(255,255,255,0.04)' : 'transparent',
-                transition: 'background 0.15s, border-color 0.15s',
-              }}
-            >
-              {/* Icon */}
-              <div style={{ flexShrink: 0 }}>{p.icon}</div>
+          {PROVIDERS.map(p => {
+            const isActive   = activeProvider === p.id
+            const isHovered  = hoveredProvider === p.id && !activeProvider
+            const isConnected = isActive && stage >= 3
+            const borderColor = isActive ? ACCENT : (isHovered ? '#737373' : '#494949')
+            const background  = isActive
+              ? 'rgba(74, 195, 151, 0.08)'
+              : (isHovered ? 'rgba(255,255,255,0.04)' : 'transparent')
 
-              {/* Text */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <span style={{ fontSize: 16, fontWeight: 500, color: '#FFFFFF', lineHeight: '24px' }}>
-                  {p.name}
-                </span>
-                <span style={{ fontSize: 14, fontWeight: 400, color: '#AAAAAA', lineHeight: '20px' }}>
-                  {p.sub}
-                </span>
+            return (
+              <div
+                key={p.id}
+                role="button"
+                tabIndex={activeProvider ? -1 : 0}
+                onClick={() => !activeProvider && handleChooseProvider(p.id)}
+                onKeyDown={e => {
+                  if (!activeProvider && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault()
+                    handleChooseProvider(p.id)
+                  }
+                }}
+                onMouseEnter={() => setHoveredProvider(p.id)}
+                onMouseLeave={() => setHoveredProvider(null)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 16,
+                  padding: '12px 20px',
+                  border: `1px solid ${borderColor}`,
+                  borderRadius: 8,
+                  cursor: activeProvider && !isActive ? 'default' : 'pointer',
+                  background,
+                  opacity: activeProvider && !isActive ? 0.45 : 1,
+                  transition: 'background 0.15s, border-color 0.15s, opacity 0.2s',
+                  outline: 'none',
+                }}
+              >
+                {/* Icon */}
+                <div style={{ flexShrink: 0 }}>{p.icon}</div>
+
+                {/* Text */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: '#FFFFFF', lineHeight: '24px' }}>
+                    {p.name}
+                  </span>
+                  <div style={{ position: 'relative', height: 20 }}>
+                    <AnimatePresence mode="wait">
+                      {isConnected ? (
+                        <motion.span
+                          key="connected"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={CONNECTED_TEXT.spring}
+                          style={{
+                            position: 'absolute', left: 0, top: 0,
+                            fontSize: 14, fontWeight: 500, color: ACCENT,
+                            lineHeight: '20px', whiteSpace: 'nowrap',
+                          }}
+                        >
+                          Calendar connected
+                        </motion.span>
+                      ) : (
+                        <motion.span
+                          key="sub"
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.15 }}
+                          style={{
+                            position: 'absolute', left: 0, top: 0,
+                            fontSize: 14, fontWeight: 400, color: '#AAAAAA',
+                            lineHeight: '20px', whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {p.sub}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+
+                {/* Chevron / Spinner / Check */}
+                <div style={{ flexShrink: 0 }}>
+                  <RowIcon stage={isActive ? stage : 0} />
+                </div>
               </div>
-
-              {/* Chevron */}
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M9 6l6 6-6 6" stroke="#D4D4D4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Cancel */}
