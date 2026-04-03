@@ -122,8 +122,8 @@ const groupA = [
 ]
 
 const groupB = [
-  { key: 'team',       label: 'Team'       },
   { key: 'apphub',    label: 'App Hub'    },
+  { key: 'team',       label: 'Team'       },
   { key: 'whiteboard', label: 'Whiteboard' },
 ]
 

@@ -227,61 +227,71 @@ export function AppHubTab() {
       background: '#1A1A1A',
       border: '1px solid #494949',
       borderRadius: 12,
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: isRecsView ? 'flex-start' : 'center',
       boxSizing: 'border-box',
-      position: 'relative',
-      overflowY: isRecsView ? 'auto' : 'hidden',
+      overflow: 'hidden',
       fontFamily: "'Inter', system-ui, sans-serif",
-      padding: isRecsView ? '32px 32px 220px' : '48px 44px 56px',
+      display: 'flex', flexDirection: 'column',
     }}>
-      <div style={{
-        width: isRecsView ? 'clamp(560px, 85%, 960px)' : '100%',
-        maxWidth: isRecsView ? undefined : LAYOUT.columnMax,
-        display: 'flex', flexDirection: 'column', alignItems: 'stretch',
-        textAlign: 'left',
-      }}>
-        <AnimatePresence mode="wait">
-          {step === 'intro' && (
-            <IntroView
-              key="intro"
-              onGetPicks={() => setStep('q1')}
-              onSkip={() => setStep('browse')}
-            />
-          )}
-          {step === 'q1' && (
-            <QuestionScreen
-              key="q1"
-              onNext={(selected) => {
-                setQ1Answers(selected)
-                setStep('q2')
-              }}
-              onBack={() => setStep('intro')}
-            />
-          )}
-          {step === 'q2' && (
-            <Question2Screen
-              key="q2"
-              onSubmit={(selected) => {
-                setQ2Answers(selected)
-                setStep('recs')
-              }}
-              onBack={() => setStep('q1')}
-            />
-          )}
-          {step === 'recs' && (
-            <RecommendationsScreen
-              key="recs"
-              q1Answers={q1Answers}
-              q2Answers={q2Answers}
-              enterpriseTeamSection
-            />
-          )}
-          {step === 'browse' && (
-            <RecommendationsScreen key="browse" browseAllMode enterpriseTeamSection />
-          )}
-        </AnimatePresence>
+      <div
+        className="scrollbar-dark"
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: isRecsView ? 'flex-start' : 'center',
+          minHeight: 0,
+          padding: isRecsView ? '32px 32px 220px' : '48px 44px 56px',
+        }}
+      >
+        <div style={{
+          width: isRecsView ? 'clamp(560px, 85%, 960px)' : '100%',
+          maxWidth: isRecsView ? undefined : LAYOUT.columnMax,
+          display: 'flex', flexDirection: 'column', alignItems: 'stretch',
+          textAlign: 'left',
+        }}>
+          <AnimatePresence mode="wait">
+            {step === 'intro' && (
+              <IntroView
+                key="intro"
+                onGetPicks={() => setStep('q1')}
+                onSkip={() => setStep('browse')}
+              />
+            )}
+            {step === 'q1' && (
+              <QuestionScreen
+                key="q1"
+                onNext={(selected) => {
+                  setQ1Answers(selected)
+                  setStep('q2')
+                }}
+                onBack={() => setStep('intro')}
+              />
+            )}
+            {step === 'q2' && (
+              <Question2Screen
+                key="q2"
+                onSubmit={(selected) => {
+                  setQ2Answers(selected)
+                  setStep('recs')
+                }}
+                onBack={() => setStep('q1')}
+              />
+            )}
+            {step === 'recs' && (
+              <RecommendationsScreen
+                key="recs"
+                q1Answers={q1Answers}
+                q2Answers={q2Answers}
+                enterpriseTeamSection
+              />
+            )}
+            {step === 'browse' && (
+              <RecommendationsScreen key="browse" browseAllMode enterpriseTeamSection />
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   )
