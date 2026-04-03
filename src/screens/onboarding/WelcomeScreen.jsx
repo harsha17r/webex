@@ -46,10 +46,9 @@ const benefits = [
   },
   {
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-        stroke="#2AAB7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7L12 2z"/>
-        <polyline points="9 12 11 14 15 10"/>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden style={{ display: 'block', flexShrink: 0, overflow: 'visible' }}>
+        <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" stroke="#2AAB7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="m9 12 2 2 4-4" stroke="#2AAB7D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
     headline: 'Enterprise security, free',
@@ -129,7 +128,7 @@ function isValidEmail(v) {
 
 export function WelcomeScreen() {
   const location = useLocation()
-  const [cardVisible, setCardVisible] = useState(!location.state?.hideCard)
+  const [cardVisible, setCardVisible] = useState(false)
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -329,7 +328,7 @@ export function WelcomeScreen() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
             {/* Heading */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'center' }}>
               <h1 style={{ fontSize: 32, lineHeight: '40px', fontWeight: 600, color: C.textPrimary, margin: 0 }}>
                 Welcome to Webex
               </h1>
@@ -345,7 +344,7 @@ export function WelcomeScreen() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <input
                 type="email"
-                placeholder="name@work-mail.com"
+                placeholder="name@email.com"
                 value={email}
                 onChange={e => { setEmail(e.target.value); if (error) setError('') }}
                 onKeyDown={e => e.key === 'Enter' && handleGetStarted()}
@@ -370,7 +369,7 @@ export function WelcomeScreen() {
                 }}
               />
               {error && (
-                <p style={{ fontSize: 12, color: '#e05252', margin: '0 4px' }}>{error}</p>
+                <p style={{ fontSize: 12, color: '#e05252', margin: 0, textAlign: 'center' }}>{error}</p>
               )}
               <button
                 onClick={handleGetStarted}
@@ -431,7 +430,7 @@ export function WelcomeScreen() {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32 }}>
 
             {/* FedRAMP — subtle inline label + link, clearly secondary */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 6, textAlign: 'center' }}>
               <span style={{ fontSize: 14, color: C.textMuted }}>for FedRAMP users</span>
               <span
                 style={{
@@ -456,20 +455,21 @@ export function WelcomeScreen() {
                 background: 'transparent',
                 border: `1px solid ${C.border}`,
                 borderRadius: 9999,
-                fontSize: 14, fontWeight: 500, color: C.textSecond,
+                fontSize: 14, fontWeight: 500, color: C.textPrimary,
                 fontFamily: 'inherit', cursor: 'pointer',
                 transition: 'border-color 0.15s, color 0.15s, background 0.15s, transform 0.1s',
               }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = C.borderSubtle; e.currentTarget.style.color = C.textPrimary; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.textSecond; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateY(0)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.textPrimary; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'translateY(0)' }}
               onMouseDown={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
               <VideoCameraIcon />
               Join a meeting
             </button>
 
-            <p style={{ fontSize: 11, lineHeight: '18px', color: C.textMuted, textAlign: 'center', margin: 0 }}>
-              By using Webex, you agree to the{' '}
+            <p style={{ fontSize: 13, lineHeight: '24px', color: C.textMuted, textAlign: 'center', margin: 0 }}>
+              By using Webex, you agree to the
+              <br />
               <span style={{ color: C.accent, cursor: 'pointer', transition: 'opacity 0.15s' }} {...linkHover}>Terms of Service</span>
               {' '}and{' '}
               <span style={{ color: C.accent, cursor: 'pointer', transition: 'opacity 0.15s' }} {...linkHover}>Privacy Statement</span>.

@@ -37,7 +37,7 @@ function StartDropItem({ label, onClick }) {
   )
 }
 
-export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingElapsed = 0 }) {
+export function MeetingsTab({ calendarConnected, onConnectCalendar, fromMeeting = false, meetingElapsed = 0 }) {
   const [tileHover,    setTileHover]    = useState(null)
   const [startDropOpen,    setStartDropOpen]    = useState(false)
   const [scheduleDropOpen, setScheduleDropOpen] = useState(false)
@@ -228,7 +228,9 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
               </button>
             ) : (
               /* ── Before connecting ── */
-              <button style={{
+              <button
+                onClick={() => onConnectCalendar?.()}
+                style={{
                 background: '#222222',
                 border: '1px solid #494949',
                 borderRadius: 8, padding: 12,

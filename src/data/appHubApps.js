@@ -1,0 +1,251 @@
+/**
+ * Static app catalogue for App Hub (see apphub.webex.com).
+ *
+ * `tagline` is shown on workflow cards (max 5 words).
+ */
+
+export const WORKFLOW_LABELS = {
+  work_productivity: 'Work & Productivity',
+  collaboration: 'Collaboration',
+  automation: 'Automation',
+  engagement: 'Engagement',
+  integrations: 'Integrations',
+  customer_experience: 'Customer Experience',
+}
+
+export const FOCUS_LABELS = {
+  meetings: 'Meetings',
+  messaging: 'Messaging',
+  contact_center: 'Contact Center',
+}
+
+export const SURFACE_LABELS = {
+  meetings: 'In meetings',
+  messaging: 'In spaces',
+  sidebar: 'In sidebar',
+  calls: 'In calls',
+}
+
+export const ALL_CATEGORIES = [
+  'Analytics',
+  'Calendar & Scheduling',
+  'Collaboration',
+  'Customer Support',
+  'Developer Tools',
+  'Education',
+  'Healthcare',
+  'Human Resources',
+  'Marketing & Sales',
+  'Productivity',
+  'Project Management',
+  'Recording & Transcriptions',
+  'Security & Compliance',
+  'Social and Fun',
+  'Workflow & Automation',
+]
+
+function A(spec) {
+  return spec
+}
+
+export const APP_CATALOGUE = [
+  /* —— Work & productivity —— */
+  A({ id: 'basicops', name: 'BasicOps', tagline: 'Tasks and projects in sidebar', iconBg: '#3B82F6', initials: 'BO', categories: ['Productivity'], surfaces: ['sidebar'], workflows: ['work_productivity'], focus: ['messaging'], teamCount: '10K', popular: true }),
+  A({ id: 'smartsheet', name: 'Smartsheet', tagline: 'Sheets and dashboards in spaces', iconBg: '#10B981', initials: 'SS', categories: ['Project Management'], surfaces: ['messaging'], workflows: ['work_productivity', 'automation'], focus: ['messaging'], teamCount: '18K', popular: true }),
+  A({ id: 'asana', name: 'Asana', tagline: 'Track tasks inside Webex spaces', iconBg: '#F97316', initials: 'As', categories: ['Productivity'], surfaces: ['messaging'], workflows: ['work_productivity'], focus: ['messaging'], teamCount: '14K', popular: true }),
+  A({ id: 'jira', name: 'Jira Cloud', tagline: 'Issues and sprints in messaging', iconBg: '#2563EB', initials: 'Ji', categories: ['Developer Tools'], surfaces: ['messaging', 'sidebar'], workflows: ['work_productivity', 'automation'], focus: ['messaging'], teamCount: '20K', popular: false }),
+  A({ id: 'monday', name: 'Monday.com', tagline: 'Boards synced to team spaces', iconBg: '#F43F5E', initials: 'Mo', categories: ['Project Management'], surfaces: ['messaging', 'sidebar'], workflows: ['work_productivity', 'collaboration'], focus: ['messaging'], teamCount: '13K', popular: false }),
+  A({ id: 'confluence', name: 'Confluence', tagline: 'Docs and pages beside chat', iconBg: '#0EA5E9', initials: 'Cf', categories: ['Productivity'], surfaces: ['messaging', 'sidebar'], workflows: ['work_productivity', 'collaboration'], focus: ['messaging'], teamCount: '16K', popular: false }),
+  A({ id: 'clickup', name: 'ClickUp', tagline: 'One workspace in Webex sidebar', iconBg: '#7C3AED', initials: 'CU', categories: ['Productivity'], surfaces: ['sidebar', 'messaging'], workflows: ['work_productivity'], focus: ['messaging'], teamCount: '9K', popular: false }),
+  A({ id: 'wrike', name: 'Wrike', tagline: 'Project views without leaving Webex', iconBg: '#22C55E', initials: 'Wr', categories: ['Project Management'], surfaces: ['messaging'], workflows: ['work_productivity'], focus: ['messaging'], teamCount: '8K', popular: false }),
+  A({ id: 'notion', name: 'Notion', tagline: 'Notes and wikis in spaces', iconBg: '#A1A1AA', initials: 'No', categories: ['Productivity'], surfaces: ['messaging'], workflows: ['work_productivity', 'collaboration'], focus: ['messaging'], teamCount: '21K', popular: true }),
+  A({ id: 'trello', name: 'Trello', tagline: 'Cards and lists in messaging', iconBg: '#0284C7', initials: 'Tr', categories: ['Productivity'], surfaces: ['messaging'], workflows: ['work_productivity'], focus: ['messaging'], teamCount: '19K', popular: false }),
+  A({ id: 'airtable', name: 'Airtable', tagline: 'Bases linked to your spaces', iconBg: '#EAB308', initials: 'AT', categories: ['Productivity'], surfaces: ['sidebar', 'messaging'], workflows: ['work_productivity', 'integrations'], focus: ['messaging'], teamCount: '11K', popular: false }),
+  A({ id: 'planner', name: 'Microsoft Planner', tagline: 'Plans surface inside Webex', iconBg: '#31752F', initials: 'MP', categories: ['Project Management'], surfaces: ['messaging', 'sidebar'], workflows: ['work_productivity'], focus: ['meetings', 'messaging'], teamCount: '35K', popular: true }),
+  A({ id: 'todoist', name: 'Todoist', tagline: 'Quick capture from any space', iconBg: '#EF4444', initials: 'Td', categories: ['Productivity'], surfaces: ['messaging', 'sidebar'], workflows: ['work_productivity'], focus: ['messaging'], teamCount: '12K', popular: false }),
+  A({ id: 'teamwork', name: 'Teamwork', tagline: 'Deliver client work in Webex', iconBg: '#6366F1', initials: 'TW', categories: ['Project Management'], surfaces: ['messaging'], workflows: ['work_productivity'], focus: ['messaging'], teamCount: '6K', popular: false }),
+  A({ id: 'paymo', name: 'Paymo', tagline: 'Time and tasks for teams', iconBg: '#0D9488', initials: 'Py', categories: ['Productivity'], surfaces: ['sidebar'], workflows: ['work_productivity'], focus: ['messaging'], teamCount: '5K', popular: false }),
+  A({ id: 'hive', name: 'Hive', tagline: 'Action cards inside messaging', iconBg: '#F97316', initials: 'Hi', categories: ['Productivity'], surfaces: ['messaging'], workflows: ['work_productivity', 'automation'], focus: ['messaging'], teamCount: '7K', popular: false }),
+  A({ id: 'zoho_proj', name: 'Zoho Projects', tagline: 'Milestones visible in Webex', iconBg: '#DC2626', initials: 'ZP', categories: ['Project Management'], surfaces: ['messaging'], workflows: ['work_productivity'], focus: ['messaging'], teamCount: '8K', popular: false }),
+  A({ id: 'scoro', name: 'Scoro', tagline: 'Work hub beside your channels', iconBg: '#4338CA', initials: 'Sc', categories: ['Productivity'], surfaces: ['sidebar'], workflows: ['work_productivity'], focus: ['messaging'], teamCount: '4K', popular: false }),
+  A({ id: 'github', name: 'GitHub Cloud', tagline: 'Pull requests in chat', iconBg: '#24292F', initials: 'GH', categories: ['Developer Tools'], surfaces: ['messaging', 'sidebar'], workflows: ['work_productivity', 'automation'], focus: ['messaging'], teamCount: '18K', popular: true }),
+  A({ id: 'syncrivo', name: 'Syncrivo', tagline: 'Productivity bots for spaces', iconBg: '#14B8A6', initials: 'Sy', categories: ['Productivity'], surfaces: ['messaging'], workflows: ['work_productivity', 'automation'], focus: ['messaging'], teamCount: '5K', popular: false }),
+
+  /* —— Collaboration —— */
+  A({ id: 'miro', name: 'Miro', tagline: 'Whiteboards inside meetings', iconBg: '#F59E0B', initials: 'Mi', categories: ['Collaboration'], surfaces: ['meetings', 'sidebar'], workflows: ['collaboration'], focus: ['meetings'], teamCount: '22K', popular: true }),
+  A({ id: 'mural', name: 'Mural', tagline: 'Visual collaboration in calls', iconBg: '#8B5CF6', initials: 'Mu', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['collaboration'], focus: ['meetings'], teamCount: '15K', popular: false }),
+  A({ id: 'google_drive', name: 'Google Drive', tagline: 'Share files in conversations', iconBg: '#F59E0B', initials: 'GD', categories: ['Productivity'], surfaces: ['messaging', 'sidebar'], workflows: ['collaboration', 'integrations'], focus: ['messaging'], teamCount: '35K', popular: true }),
+  A({ id: 'vidcast', name: 'Vidcast', tagline: 'Async video for your teams', iconBg: '#7C3AED', initials: 'Vc', categories: ['Collaboration'], surfaces: ['messaging', 'meetings'], workflows: ['collaboration', 'engagement'], focus: ['messaging'], teamCount: '9K', popular: false }),
+  A({ id: 'lucidspark', name: 'Lucidspark', tagline: 'Ideation boards in Webex', iconBg: '#F472B6', initials: 'LS', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['collaboration'], focus: ['meetings'], teamCount: '8K', popular: false }),
+  A({ id: 'conceptboard', name: 'Conceptboard', tagline: 'Infinite canvas in meetings', iconBg: '#CBD5E1', initials: 'CB', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['collaboration'], focus: ['meetings'], teamCount: '4K', popular: false }),
+  A({ id: 'bluescape', name: 'Bluescape', tagline: 'Multi user creative sessions', iconBg: '#0369A1', initials: 'Bs', categories: ['Collaboration'], surfaces: ['meetings', 'sidebar'], workflows: ['collaboration'], focus: ['meetings'], teamCount: '5K', popular: false }),
+  A({ id: 'figjam', name: 'FigJam', tagline: 'FigJam panels for brainstorms', iconBg: '#A855F7', initials: 'FJ', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['collaboration'], focus: ['meetings'], teamCount: '11K', popular: false }),
+  A({ id: 'stormboard', name: 'Stormboard', tagline: 'Sticky notes synced live', iconBg: '#EA580C', initials: 'Sb', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['collaboration'], focus: ['meetings'], teamCount: '3K', popular: false }),
+  A({ id: 'mindmeist', name: 'MindMeister', tagline: 'Mind maps in shared spaces', iconBg: '#FFD93D', initials: 'MM', categories: ['Collaboration'], surfaces: ['messaging'], workflows: ['collaboration'], focus: ['messaging'], teamCount: '4K', popular: false }),
+  A({ id: 'teamslink', name: 'TeamsLink', tagline: 'Bridge collaboration workflows', iconBg: '#5558DA', initials: 'TL', categories: ['Collaboration'], surfaces: ['messaging'], workflows: ['collaboration', 'integrations'], focus: ['messaging'], teamCount: '6K', popular: false }),
+  A({ id: 'appspace', name: 'Appspace', tagline: 'Digital signage and messaging', iconBg: '#059669', initials: 'Ap', categories: ['Collaboration'], surfaces: ['messaging'], workflows: ['collaboration'], focus: ['messaging'], teamCount: '7K', popular: false }),
+  A({ id: 'tuki', name: 'Tuki', tagline: 'Partner workflow in spaces', iconBg: '#BE123C', initials: 'Tu', categories: ['Collaboration'], surfaces: ['messaging'], workflows: ['collaboration', 'automation'], focus: ['messaging'], teamCount: '5K', popular: false }),
+  A({ id: 'courts', name: 'Courts for Webex', tagline: 'Government session collaboration', iconBg: '#475569', initials: 'Cw', categories: ['Collaboration'], surfaces: ['meetings', 'messaging'], workflows: ['collaboration'], focus: ['meetings'], teamCount: '3K', popular: false }),
+  A({ id: 'legislate', name: 'Legislate for Webex', tagline: 'Secure legislative collaboration', iconBg: '#334155', initials: 'Lw', categories: ['Collaboration'], surfaces: ['messaging'], workflows: ['collaboration', 'integrations'], focus: ['messaging'], teamCount: '3K', popular: false }),
+  A({ id: 'vrconnect', name: 'VRConnect for Webex', tagline: 'Immersive meeting collaboration', iconBg: '#0891B2', initials: 'VR', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['collaboration', 'customer_experience'], focus: ['meetings'], teamCount: '4K', popular: false }),
+  A({ id: 'box_collab', name: 'Box', tagline: 'Co author files in spaces', iconBg: '#2563EB', initials: 'Bx', categories: ['Productivity'], surfaces: ['messaging'], workflows: ['collaboration', 'integrations'], focus: ['messaging'], teamCount: '12K', popular: false }),
+  A({ id: 'dropbox', name: 'Dropbox', tagline: 'Cloud files beside messages', iconBg: '#1E40AF', initials: 'Db', categories: ['Productivity'], surfaces: ['messaging', 'sidebar'], workflows: ['collaboration', 'integrations'], focus: ['messaging'], teamCount: '17K', popular: false }),
+  A({ id: 'sharefile', name: 'ShareFile', tagline: 'Secure share inside Webex', iconBg: '#C026D3', initials: 'Sf', categories: ['Collaboration'], surfaces: ['messaging'], workflows: ['collaboration'], focus: ['messaging'], teamCount: '8K', popular: false }),
+  A({ id: 'webex_whiteboard', name: 'Webex Whiteboard', tagline: 'Native boards in meetings', iconBg: '#1D8160', initials: 'WB', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['collaboration'], focus: ['meetings'], teamCount: '42K', popular: true }),
+
+  /* —— Automation —— */
+  A({ id: 'power_automate', name: 'Power Automate', tagline: 'Flows triggered from Webex', iconBg: '#2563EB', initials: 'PA', categories: ['Workflow & Automation'], surfaces: ['messaging'], workflows: ['automation', 'integrations'], focus: ['messaging'], teamCount: '11K', popular: false }),
+  A({ id: 'zapier', name: 'Zapier', tagline: 'Connect seven thousand plus apps', iconBg: '#FF4F00', initials: 'Zp', categories: ['Workflow & Automation'], surfaces: ['messaging'], workflows: ['automation', 'integrations'], focus: ['messaging'], teamCount: '14K', popular: true }),
+  A({ id: 'workato', name: 'Workato', tagline: 'Enterprise automation recipes', iconBg: '#7C3AED', initials: 'Wa', categories: ['Workflow & Automation'], surfaces: ['sidebar'], workflows: ['automation', 'integrations'], focus: ['messaging'], teamCount: '6K', popular: false }),
+  A({ id: 'tray', name: 'Tray.io', tagline: 'Low code automation hub', iconBg: '#F97316', initials: 'Ty', categories: ['Workflow & Automation'], surfaces: ['messaging'], workflows: ['automation'], focus: ['messaging'], teamCount: '5K', popular: false }),
+  A({ id: 'n8n', name: 'n8n', tagline: 'Self hosted workflow triggers', iconBg: '#EA4B71', initials: 'n8', categories: ['Workflow & Automation'], surfaces: ['messaging'], workflows: ['automation'], focus: ['messaging'], teamCount: '4K', popular: false }),
+  A({ id: 'ifttt', name: 'IFTTT', tagline: 'Simple applets with Webex', iconBg: '#000000', initials: 'IF', categories: ['Workflow & Automation'], surfaces: ['messaging'], workflows: ['automation', 'integrations'], focus: ['messaging'], teamCount: '9K', popular: false }),
+  A({ id: 'bardeen', name: 'Bardeen', tagline: 'Browser automations into spaces', iconBg: '#5B21B6', initials: 'Bd', categories: ['Workflow & Automation'], surfaces: ['sidebar'], workflows: ['automation'], focus: ['messaging'], teamCount: '3K', popular: false }),
+  A({ id: 'servicenow_auto', name: 'ServiceNow Flow', tagline: 'IT workflows from chat', iconBg: '#22D3EE', initials: 'SN', categories: ['Workflow & Automation'], surfaces: ['messaging', 'sidebar'], workflows: ['automation', 'customer_experience'], focus: ['messaging', 'contact_center'], teamCount: '8K', popular: false }),
+  A({ id: 'outlook_flow', name: 'Outlook Automation', tagline: 'Calendar and mail rules bridge', iconBg: '#0EA5E9', initials: 'OA', categories: ['Workflow & Automation'], surfaces: ['messaging', 'sidebar'], workflows: ['automation', 'integrations'], focus: ['messaging'], teamCount: '25K', popular: true }),
+  A({ id: 'voice_ai_cc', name: 'Voice AI Agent CC', tagline: 'Agentic routing for queues', iconBg: '#B91C1C', initials: 'VA', categories: ['Workflow & Automation'], surfaces: ['calls'], workflows: ['automation', 'customer_experience'], focus: ['contact_center'], teamCount: '4K', popular: false }),
+  A({ id: 'seev', name: 'Seev', tagline: 'Bot automation for spaces', iconBg: '#15803D', initials: 'Se', categories: ['Workflow & Automation'], surfaces: ['messaging'], workflows: ['automation'], focus: ['messaging'], teamCount: '3K', popular: false }),
+  A({ id: 'spinsci', name: 'SpinSci Patient Access', tagline: 'Healthcare workflow automation', iconBg: '#0F766E', initials: 'Sp', categories: ['Workflow & Automation'], surfaces: ['messaging', 'calls'], workflows: ['automation', 'customer_experience'], focus: ['contact_center'], teamCount: '3K', popular: false }),
+  A({ id: 'journey_pay', name: 'Journey Payments', tagline: 'Payments automation in chat', iconBg: '#A16207', initials: 'JP', categories: ['Workflow & Automation'], surfaces: ['messaging'], workflows: ['automation', 'customer_experience'], focus: ['contact_center'], teamCount: '3K', popular: false }),
+  A({ id: 'journey_pass', name: 'Journey Passkey', tagline: 'Secure sign in automation', iconBg: '#713F12', initials: 'JK', categories: ['Workflow & Automation'], surfaces: ['messaging'], workflows: ['automation', 'customer_experience'], focus: ['contact_center'], teamCount: '3K', popular: false }),
+  A({ id: 'univonix', name: 'Univonix CC Accelerator', tagline: 'UCCX migration automation', iconBg: '#4F46E5', initials: 'Ux', categories: ['Workflow & Automation'], surfaces: ['calls'], workflows: ['automation', 'customer_experience'], focus: ['contact_center'], teamCount: '2K', popular: false }),
+  A({ id: 'cistera', name: 'Cistera Recording', tagline: 'Recording workflow automation', iconBg: '#78716C', initials: 'Ci', categories: ['Workflow & Automation'], surfaces: ['calls'], workflows: ['automation', 'customer_experience'], focus: ['contact_center'], teamCount: '2K', popular: false }),
+  A({ id: 'easy_hold', name: 'Easy On Hold', tagline: 'Queue music and messaging', iconBg: '#F59E0B', initials: 'EH', categories: ['Workflow & Automation'], surfaces: ['calls'], workflows: ['automation', 'customer_experience'], focus: ['contact_center'], teamCount: '4K', popular: false }),
+  A({ id: 'webhook_wex', name: 'Webex Webhooks', tagline: 'Custom event driven updates', iconBg: '#1D8160', initials: 'Wh', categories: ['Workflow & Automation'], surfaces: ['messaging'], workflows: ['automation'], focus: ['messaging'], teamCount: '8K', popular: false }),
+  A({ id: 'make_int', name: 'Make', tagline: 'Visual scenarios with Webex', iconBg: '#6F4CFF', initials: 'Mk', categories: ['Workflow & Automation'], surfaces: ['messaging'], workflows: ['automation', 'integrations'], focus: ['messaging'], teamCount: '7K', popular: false }),
+  A({ id: 'boomi', name: 'Boomi', tagline: 'Integration platform alerts', iconBg: '#FF6B00', initials: 'Bm', categories: ['Workflow & Automation'], surfaces: ['sidebar'], workflows: ['automation', 'integrations'], focus: ['messaging'], teamCount: '5K', popular: false }),
+
+  /* —— Engagement —— */
+  A({ id: 'pollbot', name: 'PollBot', tagline: 'Quick polls in meetings', iconBg: '#8B5CF6', initials: 'PB', categories: ['Social and Fun'], surfaces: ['meetings', 'messaging'], workflows: ['engagement'], focus: ['meetings', 'messaging'], teamCount: '32K', popular: true }),
+  A({ id: 'slido', name: 'Slido', tagline: 'Live polls in meetings', iconBg: '#1D8160', initials: 'Sl', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['engagement', 'collaboration'], focus: ['meetings'], teamCount: '28K', popular: true }),
+  A({ id: 'webex_polling', name: 'Webex Polling', tagline: 'Built in audience feedback', iconBg: '#EC4899', initials: 'WP', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '16K', popular: false }),
+  A({ id: 'mentimeter', name: 'Mentimeter', tagline: 'Interactive slides in calls', iconBg: '#FF6B9D', initials: 'Me', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '18K', popular: true }),
+  A({ id: 'kahoot', name: 'Kahoot', tagline: 'Quizzes for live events', iconBg: '#6B46C1', initials: 'Kh', categories: ['Education'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '14K', popular: false }),
+  A({ id: 'wooclap', name: 'Wooclap', tagline: 'Questions that boost attention', iconBg: '#0EA5E9', initials: 'Wc', categories: ['Education'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '5K', popular: false }),
+  A({ id: 'directpoll', name: 'DirectPoll', tagline: 'One click meeting polls', iconBg: '#94A3B8', initials: 'DP', categories: ['Social and Fun'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '3K', popular: false }),
+  A({ id: 'meetingpulse', name: 'MeetingPulse', tagline: 'Pulse checks each agenda', iconBg: '#F472B6', initials: 'MP', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '4K', popular: false }),
+  A({ id: 'pollev', name: 'Poll Everywhere', tagline: 'Audience response anywhere', iconBg: '#FFC107', initials: 'PE', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '10K', popular: false }),
+  A({ id: 'crowdpurr', name: 'CrowdPurr', tagline: 'Trivia and engagement games', iconBg: '#EF4444', initials: 'CP', categories: ['Social and Fun'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '3K', popular: false }),
+  A({ id: 'sendsteps', name: 'Sendsteps', tagline: 'Meeting participation tools', iconBg: '#10B981', initials: 'Sd', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '3K', popular: false }),
+  A({ id: 'ahaslides', name: 'AhaSlides', tagline: 'Slides with live votes', iconBg: '#6366F1', initials: 'Ah', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '4K', popular: false }),
+  A({ id: 'glisser', name: 'Glisser', tagline: 'Slide share plus engagement', iconBg: '#DB2777', initials: 'Gl', categories: ['Marketing & Sales'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '4K', popular: false }),
+  A({ id: 'birthdaybot', name: 'BirthdayBot', tagline: 'Celebrate birthdays in spaces', iconBg: '#FB7185', initials: 'BB', categories: ['Social and Fun'], surfaces: ['messaging'], workflows: ['engagement'], focus: ['messaging'], teamCount: '22K', popular: true }),
+  A({ id: 'reaction_bar', name: 'Reaction Bar', tagline: 'Emoji reactions in meetings', iconBg: '#FBBF24', initials: 'RB', categories: ['Social and Fun'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '6K', popular: false }),
+  A({ id: 'applause_wex', name: 'Applause Meter', tagline: 'Sound feedback for presenters', iconBg: '#F59E0B', initials: 'AM', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '2K', popular: false }),
+  A({ id: 'quizbreaker', name: 'QuizBreaker', tagline: 'Icebreaker quizzes for teams', iconBg: '#84CC16', initials: 'QB', categories: ['Social and Fun'], surfaces: ['messaging'], workflows: ['engagement'], focus: ['messaging'], teamCount: '3K', popular: false }),
+  A({ id: 'icebreaker_bot', name: 'Icebreaker Bot', tagline: 'Random prompts in channels', iconBg: '#2DD4BF', initials: 'Ib', categories: ['Social and Fun'], surfaces: ['messaging'], workflows: ['engagement'], focus: ['messaging'], teamCount: '5K', popular: false }),
+  A({ id: 'voting_widget', name: 'Voting Widget', tagline: 'Simple choice in sidebar', iconBg: '#64748B', initials: 'Vw', categories: ['Collaboration'], surfaces: ['sidebar', 'meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '4K', popular: false }),
+  A({ id: 'townhall', name: 'Townhall Live', tagline: 'Large event Q and A', iconBg: '#312E81', initials: 'TH', categories: ['Collaboration'], surfaces: ['meetings'], workflows: ['engagement'], focus: ['meetings'], teamCount: '5K', popular: false }),
+
+  /* —— Integrations —— */
+  A({ id: 'outlook_alerts', name: 'Outlook Alerts', tagline: 'Mail and calendar in Webex', iconBg: '#0EA5E9', initials: 'Ol', categories: ['Calendar & Scheduling'], surfaces: ['sidebar', 'messaging'], workflows: ['integrations', 'work_productivity'], focus: ['messaging'], teamCount: '45K', popular: true }),
+  A({ id: 'salesforce', name: 'Salesforce', tagline: 'CRM records in sidebar', iconBg: '#00A1E0', initials: 'SF', categories: ['Marketing & Sales'], surfaces: ['sidebar', 'calls'], workflows: ['integrations', 'customer_experience'], focus: ['messaging', 'contact_center'], teamCount: '15K', popular: true }),
+  A({ id: 'zoom_info', name: 'ZoomInfo', tagline: 'Contact data during calls', iconBg: '#6366F1', initials: 'ZI', categories: ['Marketing & Sales'], surfaces: ['sidebar', 'calls'], workflows: ['integrations', 'customer_experience'], focus: ['contact_center', 'meetings'], teamCount: '5K', popular: false }),
+  A({ id: 'hubspot', name: 'HubSpot', tagline: 'Deals pipeline beside chat', iconBg: '#FF7A59', initials: 'HS', categories: ['Marketing & Sales'], surfaces: ['sidebar', 'messaging'], workflows: ['integrations'], focus: ['messaging'], teamCount: '12K', popular: false }),
+  A({ id: 'zendesk', name: 'Zendesk', tagline: 'Tickets surface inside Webex', iconBg: '#03363D', initials: 'Ze', categories: ['Customer Support'], surfaces: ['sidebar', 'messaging'], workflows: ['integrations', 'customer_experience'], focus: ['contact_center'], teamCount: '10K', popular: false }),
+  A({ id: 'onedrive', name: 'OneDrive', tagline: 'Files next to conversations', iconBg: '#0078D4', initials: 'OD', categories: ['Productivity'], surfaces: ['messaging', 'sidebar'], workflows: ['integrations'], focus: ['messaging'], teamCount: '38K', popular: true }),
+  A({ id: 'docusign', name: 'DocuSign', tagline: 'Send agreements from spaces', iconBg: '#4C00FF', initials: 'DS', categories: ['Productivity'], surfaces: ['messaging', 'sidebar'], workflows: ['integrations'], focus: ['messaging'], teamCount: '14K', popular: false }),
+  A({ id: 'adobe_sign', name: 'Adobe Sign', tagline: 'E signatures in workflows', iconBg: '#E1251B', initials: 'AS', categories: ['Productivity'], surfaces: ['messaging'], workflows: ['integrations'], focus: ['messaging'], teamCount: '11K', popular: false }),
+  A({ id: 'stripe', name: 'Stripe', tagline: 'Billing updates in messaging', iconBg: '#635BFF', initials: 'St', categories: ['Developer Tools'], surfaces: ['messaging'], workflows: ['integrations'], focus: ['messaging'], teamCount: '6K', popular: false }),
+  A({ id: 'okta', name: 'Okta', tagline: 'Identity prompts in Webex', iconBg: '#007DC1', initials: 'Ok', categories: ['Security & Compliance'], surfaces: ['sidebar'], workflows: ['integrations'], focus: ['messaging'], teamCount: '9K', popular: false }),
+  A({ id: 'workday', name: 'Workday', tagline: 'HR data inside sidebar', iconBg: '#0875E1', initials: 'Wd', categories: ['Human Resources'], surfaces: ['sidebar'], workflows: ['integrations'], focus: ['messaging'], teamCount: '7K', popular: false }),
+  A({ id: 'netsuite', name: 'NetSuite', tagline: 'ERP insights in chat', iconBg: '#0047BB', initials: 'NS', categories: ['Productivity'], surfaces: ['sidebar'], workflows: ['integrations'], focus: ['messaging'], teamCount: '5K', popular: false }),
+  A({ id: 'quickbooks', name: 'QuickBooks', tagline: 'Invoice status notifications', iconBg: '#2BA01D', initials: 'QB', categories: ['Productivity'], surfaces: ['messaging'], workflows: ['integrations'], focus: ['messaging'], teamCount: '8K', popular: false }),
+  A({ id: 'staircase_ai', name: 'Staircase AI', tagline: 'Customer intelligence in Webex', iconBg: '#7C2D3E', initials: 'SA', categories: ['Marketing & Sales'], surfaces: ['messaging'], workflows: ['integrations', 'customer_experience'], focus: ['messaging'], teamCount: '4K', popular: false }),
+  A({ id: 'slack_bridge', name: 'Slack Bridge', tagline: 'Cross platform message sync', iconBg: '#4A154B', initials: 'SB', categories: ['Collaboration'], surfaces: ['messaging'], workflows: ['integrations'], focus: ['messaging'], teamCount: '6K', popular: false }),
+  A({ id: 'calendar_bridge', name: 'Calendar Sync Plus', tagline: 'Multi calendar one view', iconBg: '#16A34A', initials: 'CS', categories: ['Calendar & Scheduling'], surfaces: ['sidebar'], workflows: ['integrations'], focus: ['meetings', 'messaging'], teamCount: '7K', popular: false }),
+  A({ id: 'jira_int', name: 'Jira Service', tagline: 'Service desk from messaging', iconBg: '#2684FF', initials: 'JS', categories: ['Developer Tools'], surfaces: ['messaging'], workflows: ['integrations', 'automation'], focus: ['messaging'], teamCount: '9K', popular: false }),
+  A({ id: 'azure_devops', name: 'Azure DevOps', tagline: 'Build status in spaces', iconBg: '#0078D7', initials: 'AD', categories: ['Developer Tools'], surfaces: ['messaging', 'sidebar'], workflows: ['integrations', 'automation'], focus: ['messaging'], teamCount: '13K', popular: false }),
+  A({ id: 'google_cal', name: 'Google Calendar', tagline: 'Events beside your chat', iconBg: '#4285F4', initials: 'GC', categories: ['Calendar & Scheduling'], surfaces: ['sidebar', 'messaging'], workflows: ['integrations'], focus: ['messaging'], teamCount: '28K', popular: true }),
+  A({ id: 'zoom_int', name: 'Zoom Meetings', tagline: 'Cross launch meeting links', iconBg: '#2D8CFF', initials: 'Zm', categories: ['Collaboration'], surfaces: ['messaging'], workflows: ['integrations'], focus: ['meetings'], teamCount: '19K', popular: false }),
+
+  /* —— Customer experience —— */
+  A({ id: 'callcabinet', name: 'CallCabinet', tagline: 'Compliance recording suite', iconBg: '#EF4444', initials: 'CC', categories: ['Recording & Transcriptions'], surfaces: ['calls'], workflows: ['customer_experience', 'automation'], focus: ['contact_center'], teamCount: '6K', popular: false }),
+  A({ id: 'freshdesk', name: 'Freshdesk', tagline: 'Support desk for contact center', iconBg: '#10B981', initials: 'FD', categories: ['Customer Support'], surfaces: ['sidebar', 'calls'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '7K', popular: false }),
+  A({ id: 'recursive', name: 'Recursive Cobrowse', tagline: 'Realtime cobrowse sessions', iconBg: '#0D9488', initials: 'Rc', categories: ['Customer Support'], surfaces: ['calls'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '3K', popular: false }),
+  A({ id: 'securecall', name: 'SecureCall CC', tagline: 'Secure agent workflows', iconBg: '#1E3A5F', initials: 'SC', categories: ['Customer Support'], surfaces: ['calls'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '3K', popular: false }),
+  A({ id: 'verint_edm', name: 'Verint EDM', tagline: 'Quality and analytics CC', iconBg: '#475569', initials: 'Ve', categories: ['Analytics'], surfaces: ['calls', 'sidebar'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '4K', popular: false }),
+  A({ id: 'cc_freshdesk', name: 'Webex CC Freshdesk', tagline: 'Bridge CC to Freshdesk', iconBg: '#059669', initials: 'CF', categories: ['Customer Support'], surfaces: ['calls', 'messaging'], workflows: ['customer_experience', 'integrations'], focus: ['contact_center'], teamCount: '5K', popular: false }),
+  A({ id: 'consilium_bank', name: 'Consilium Banking', tagline: 'Banking agent desktop', iconBg: '#92400E', initials: 'Cb', categories: ['Customer Support'], surfaces: ['calls', 'sidebar'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '3K', popular: false }),
+  A({ id: 'consilium_health', name: 'Consilium Healthcare', tagline: 'Healthcare agent desktop', iconBg: '#0F766E', initials: 'Ch', categories: ['Healthcare'], surfaces: ['calls'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '3K', popular: false }),
+  A({ id: 'simcomm_crs', name: 'SimCommCRS', tagline: 'CRS voice services', iconBg: '#7DD3FC', initials: 'SR', categories: ['Customer Support'], surfaces: ['calls'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '2K', popular: false }),
+  A({ id: 'simcomm_usr', name: 'SimCommUSR', tagline: 'USR voice quality tools', iconBg: '#38BDF8', initials: 'SU', categories: ['Customer Support'], surfaces: ['calls'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '2K', popular: false }),
+  A({ id: 'genesys', name: 'Genesys Cloud', tagline: 'Omnichannel agent experience', iconBg: '#FF4F1F', initials: 'Gc', categories: ['Customer Support'], surfaces: ['calls', 'sidebar'], workflows: ['customer_experience', 'integrations'], focus: ['contact_center'], teamCount: '8K', popular: true }),
+  A({ id: 'nice_cx', name: 'NICE CXone', tagline: 'WFM and analytics suite', iconBg: '#005EB8', initials: 'NX', categories: ['Customer Support'], surfaces: ['calls'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '9K', popular: false }),
+  A({ id: 'five9', name: 'Five9', tagline: 'Cloud contact center embed', iconBg: '#E31937', initials: 'F9', categories: ['Customer Support'], surfaces: ['calls'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '7K', popular: false }),
+  A({ id: 'talkdesk', name: 'Talkdesk', tagline: 'Modern CX inside Webex', iconBg: '#FF5C1A', initials: 'TK', categories: ['Customer Support'], surfaces: ['calls', 'messaging'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '6K', popular: false }),
+  A({ id: 'sprinklr', name: 'Sprinklr Service', tagline: 'Social care from Webex', iconBg: '#FF3B30', initials: 'Sk', categories: ['Customer Support'], surfaces: ['messaging', 'sidebar'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '5K', popular: false }),
+  A({ id: 'twilio_flex', name: 'Twilio Flex', tagline: 'Programmable agent workspace', iconBg: '#F22F46', initials: 'TF', categories: ['Customer Support'], surfaces: ['calls'], workflows: ['customer_experience', 'automation'], focus: ['contact_center'], teamCount: '6K', popular: false }),
+  A({ id: 'amazon_cc', name: 'Amazon Connect', tagline: 'AWS contact flows in Webex', iconBg: '#FF9900', initials: 'AC', categories: ['Customer Support'], surfaces: ['calls'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '8K', popular: false }),
+  A({ id: 'medallia', name: 'Medallia', tagline: 'Experience feedback loops', iconBg: '#6B2D90', initials: 'Md', categories: ['Analytics'], surfaces: ['sidebar'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '4K', popular: false }),
+  A({ id: 'qualtrics', name: 'Qualtrics XM', tagline: 'Survey triggers post call', iconBg: '#1B65F5', initials: 'Qx', categories: ['Analytics'], surfaces: ['messaging', 'calls'], workflows: ['customer_experience', 'engagement'], focus: ['contact_center'], teamCount: '5K', popular: false }),
+  A({ id: 'gladly', name: 'Gladly', tagline: 'People centered helpdesk', iconBg: '#00B67A', initials: 'Gl', categories: ['Customer Support'], surfaces: ['sidebar'], workflows: ['customer_experience'], focus: ['contact_center'], teamCount: '3K', popular: false }),
+]
+
+/**
+ * Discover / spotlight filters (demo data). Used by the Discover dropdown on recommendations.
+ * "Built by Cisco" is first-party Cisco listings; "Partner solutions" is ISV/partner apps
+ * (excludes Cisco-built IDs).
+ */
+export const CISCO_BUILT_APP_IDS = new Set([
+  'webex_whiteboard',
+  'webhook_wex',
+  'webex_polling',
+  'vidcast',
+])
+
+export const BRAND_NEW_APP_IDS = new Set([
+  'voice_ai_cc',
+  'journey_pay',
+  'journey_pass',
+  'univonix',
+  'syncrivo',
+  'bardeen',
+  'n8n',
+  'staircase_ai',
+  'icebreaker_bot',
+  'quizbreaker',
+  'reaction_bar',
+  'tuki',
+  'vrconnect',
+  'legislate',
+  'courts',
+])
+
+export const PARTNER_SOLUTIONS_APP_IDS = new Set([
+  'genesys',
+  'nice_cx',
+  'five9',
+  'talkdesk',
+  'twilio_flex',
+  'amazon_cc',
+  'zendesk',
+  'freshdesk',
+  'salesforce',
+  'hubspot',
+  'miro',
+  'mural',
+  'zapier',
+  'workato',
+  'spinsci',
+  'cistera',
+  'callcabinet',
+  'recursive',
+  'securecall',
+  'verint_edm',
+  'consilium_bank',
+  'simcomm_crs',
+  'zoom_info',
+  'univonix',
+  'easy_hold',
+  'cc_freshdesk',
+  'gladly',
+  'sprinklr',
+  'medallia',
+  'qualtrics',
+  'servicenow_auto',
+  'boomi',
+  'tray',
+  'make_int',
+  'ifttt',
+])

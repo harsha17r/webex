@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { SetupProfileModal } from './modals/SetupProfileModal'
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal'
@@ -169,7 +169,7 @@ function TaskRow({ task, done, onClick }) {
 
 const DISMISSED_KEY = 'webex_smb_checklist_dismissed'
 
-export function OnboardingChecklist({ onCalendarConnect, onTestCall, fromMeeting = false }) {
+export function OnboardingChecklist({ calendarConnected, onCalendarConnect, onTestCall, fromMeeting = false }) {
   const [open,             setOpen]             = useState(true)
   const [dismissed,        setDismissed]        = useState(() => localStorage.getItem(DISMISSED_KEY) === 'true')
   const [completed,        setCompleted]        = useState(() => {
@@ -181,6 +181,12 @@ export function OnboardingChecklist({ onCalendarConnect, onTestCall, fromMeeting
   const [notifModalOpen,      setNotifModalOpen]      = useState(false)
   const [appearancesOpen,     setAppearancesOpen]     = useState(false)
   const [calendarModalOpen,   setCalendarModalOpen]   = useState(false)
+
+  useEffect(() => {
+    if (calendarConnected && !completed.has('calendar')) {
+      setCompleted(prev => new Set(prev).add('calendar'))
+    }
+  }, [calendarConnected]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (dismissed) return null
 

@@ -7,9 +7,11 @@ import { TopBar } from '../../components/layout/TopBar'
 import { CiscoAIRail } from '../../components/layout/CiscoAIRail'
 import { MeetingsTab } from './MeetingsTab'
 import { MessagesTab } from './MessagesTab'
+import { AppHubTab } from './AppHubTab'
 import { OnboardingChecklist } from '../../components/OnboardingChecklist'
 import { PreJoinModal } from '../meeting/PreJoinModal'
 import { NotificationSettingsModal } from '../../components/modals/NotificationSettingsModal'
+import { ConnectCalendarModal } from '../../components/modals/ConnectCalendarModal'
 import { SetStatusModal } from '../../components/modals/SetStatusModal'
 
 export function HomeScreen() {
@@ -18,6 +20,7 @@ export function HomeScreen() {
   const [calendarConnected, setCalendar]  = useState(false)
   const [preJoinOpen, setPreJoinOpen]     = useState(false)
   const [settingsOpen, setSettingsOpen]   = useState(false)
+  const [calendarModalOpen, setCalendarModalOpen] = useState(false)
   const [statusModalOpen, setStatusModalOpen] = useState(false)
   const location = useLocation()
   const { updateProfile } = useProfile()
@@ -67,12 +70,14 @@ export function HomeScreen() {
             {/* Scrollable tab content */}
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {activeTab === 'message' && <MessagesTab />}
-              {activeTab === 'meet'    && <MeetingsTab calendarConnected={calendarConnected} fromMeeting={fromMeeting} meetingElapsed={meetingElapsed} />}
+              {activeTab === 'meet'    && <MeetingsTab calendarConnected={calendarConnected} onConnectCalendar={() => setCalendarModalOpen(true)} fromMeeting={fromMeeting} meetingElapsed={meetingElapsed} />}
+              {activeTab === 'apphub'  && <AppHubTab />}
             </div>
 
             {/* Checklist — visually hidden on message tab to avoid overlapping compose */}
             <div style={activeTab === 'message' ? { position: 'absolute', visibility: 'hidden', pointerEvents: 'none' } : {}}>
               <OnboardingChecklist
+                calendarConnected={calendarConnected}
                 onCalendarConnect={() => setCalendar(true)}
                 onTestCall={() => setPreJoinOpen(true)}
                 fromMeeting={fromMeeting}
@@ -101,6 +106,15 @@ export function HomeScreen() {
 
       <AnimatePresence>
         {preJoinOpen && <PreJoinModal onClose={() => setPreJoinOpen(false)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {calendarModalOpen && (
+          <ConnectCalendarModal
+            onClose={() => setCalendarModalOpen(false)}
+            onSave={() => setCalendar(true)}
+          />
+        )}
       </AnimatePresence>
 
       <AnimatePresence>

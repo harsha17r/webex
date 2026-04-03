@@ -5,6 +5,326 @@
 
 ---
 
+### [2026-04-03 14:35] — App Hub questions: filled icons only
+
+**Status:** 🟢 Done
+
+**What changed:**
+Question 1: **Meetings** uses Heroicons solid **VideoCamera** (filled body + lens); **Messaging** unchanged (already fill); **Contact Center** uses solid **Phone** (filled handset). Question 2: **Work & Productivity** uses a custom **clipboard + list bars** (fill + rects); **Collaboration** UserGroup solid; **Automation** Bolt solid; **Engagement** ChartBar solid; **Integrations** Link solid; **Customer Experience** ChatBubbleBottomCenterText solid — all `fill="currentColor"`, no stroke outlines.
+
+**Files touched:**
+- `src/screens/app-hub/QuestionScreen.jsx`
+- `src/screens/app-hub/Question2Screen.jsx`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-03 14:00] — App Hub Q1/Q2 option icons (meetings, contact center, productivity, CX)
+
+**Status:** 🟢 Done
+
+**What changed:**
+Question 1 **Meetings** no longer used the laptop-style glyph; it now uses a Lucide-style **video camera** (rectangle + lens wedge, stroke). **Contact center** replaced a broken SVG that mixed `fill` on paths inside a stroked group (renders as a garbled arch); it now uses a **headphones** motif (ear cups + headband, stroke). Question 2 **Work & Productivity** dropped the filled/broken clipboard-battery hybrid for a proper **clipboard-list** (clip, board outline, list rows, stroke only). **Customer experience** uses the same **headphones** icon as contact center for support/CX consistency.
+
+**Files touched:**
+- `src/screens/app-hub/QuestionScreen.jsx`
+- `src/screens/app-hub/Question2Screen.jsx`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-03 12:25] — Enterprise browse: show team block + clear row
+
+**Status:** 🟢 Done
+
+**What changed:**
+**Skip and browse all apps** never set Q1, so `getTeamApps([])` returned no rows and `TeamSection` (carousel + org usage cards) never rendered. Added `getDefaultEnterpriseTeamApps()` (four `popular` apps, A–Z) and use it when `enterpriseTeamSection` is on and Q1-derived apps are empty. **Browse / All apps** also hid the chips + **Clear filter** row because `hasActiveFilters` was false and workflow chips were empty; extended the visibility condition with `browseAllMode` so that row always shows in browse (clear stays disabled until a filter is set).
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-03 12:00] — Enterprise “Your team is using”: org copy, taglines, carousel
+
+**Status:** 🟢 Done
+
+**What changed:**
+Enterprise App Hub recommendations (`enterprise-home/AppHubTab.jsx`) passes `enterpriseTeamSection` into `RecommendationsScreen` (recs + browse). In `TeamSection` (`RecommendationsScreen.jsx`), when that flag is set: team cards use stable per-app counts from `getEnterpriseOrgUsageCount` (~42–72) with copy **“{n} people are using at your company”** instead of catalogue `teamCount`; each card shows the app `tagline` (2-line clamp) above the usage line. Section header is a flex row: title/subtitle left, **Trending at your org** horizontal scroller on the right (`overflow-x: auto`) listing all `popular` catalogue apps as compact tiles (icon, name, tagline, short usage). SMB/home behaviour unchanged (`enterpriseTeamSection` default false).
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+- `src/screens/enterprise-home/AppHubTab.jsx`
+
+**Next up:**
+Optional: arrow buttons for the carousel or CSS scroll-snap for clearer affordance.
+
+---
+
+### [2026-04-03 23:58] — Clear filter: label, tooltip, placement by chips
+
+**Status:** 🟢 Done
+
+**What changed:**
+Moved **Clear filter** out of the header dropdown row into a second row with workflow pills: chips flex-wrap on the left, control on the right (`space-between`). When there are no workflow chips but dropdown filters are active, the same row shows only the right-aligned button so clearing stays discoverable. Button shows icon + visible **Clear filter** text (FilterButton-adjacent sizing); native `title` tooltip when enabled explains clearing all filters at once (surface, category, app type, Discover, workflow); disabled state tooltip remains “No filters to clear.”
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+
+**Next up:**
+None — polish if design wants “Clear filters” plural or a custom tooltip component.
+
+---
+
+### [2026-04-03 23:55] — Clear-all filters control + conditional workflow chips
+
+**Status:** 🟢 Done
+
+**What changed:**
+In `WorkflowSection`, workflow pills (All + Q2 categories) render only when `getWorkflowChips(q2Answers)` is non-empty so skip-first users do not see a redundant lone **All** row. Catalog filtering uses `filterWorkflowKey`: when chips are hidden, workflow is treated as **all**; when visible, it follows `activeKey`. Added **Clear all filters** as a 32px icon button (counterclockwise arrow) between Discover and Preferences with `aria-label`/`title`; `hasActiveFilters` covers surface, category, app type, discover, and (if chips show) workflow not **All**. Click closes dropdowns, nulls dropdown filters, resets workflow to **All**, and resets pagination. Fixed declaration order so `filterWorkflowKey` is computed after `activeKey` state.
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+
+**Next up:**
+Smoke-test browse vs personalized flows: confirm chip row appears after Preferences adds workflows, and clear control resets grid without layout glitches.
+
+---
+
+### [2026-04-03 23:40] — Skip path: show filters in default state
+
+**Status:** 🟢 Done
+
+**What changed:**
+Removed the standalone `BrowseAllSection`. Skip / **browse** now renders the same `WorkflowSection` as personalized mode with `browseAllMode`: Surface, Category, App type, Discover, Preferences, workflow chips (only **All** until Preferences adds workflows), and paginated grid. Initial state is `activeKey === 'all'` and all dropdown filters `null`, so the grid lists the full catalogue (A–Z when `browseAllMode`). Copy uses **All apps** plus a short line that filters start unset. Changing any filter still narrows results as before.
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+
+---
+
+### [2026-04-03 23:20] — Skip opens full catalogue (browse all, no filters)
+
+**Status:** 🟢 Done
+
+**What changed:**
+Wiring `step === 'browse'` after **Skip and browse all apps** to render `RecommendationsScreen` with a new `browseAllMode` prop. In that mode, `BrowseAllSection` lists every entry in `APP_CATALOGUE` (A–Z), paginated 15 per page with **Show more**, using the same `WorkflowCard` as workflows. No workflow chips, filter dropdowns, or Preferences. `HeaderRow`, `TipBanner`, and **Browse by category** stay as on the personalized screen. Both SMB and enterprise `AppHubTab` treat `browse` like `recs` for wide layout, scroll, and bottom padding (`isRecsView` includes `browse`).
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+- `src/screens/home/AppHubTab.jsx`
+- `src/screens/enterprise-home/AppHubTab.jsx`
+
+---
+
+### [2026-04-03 22:45] — Rename Featured to Discover + "All" workflow chip
+
+**Status:** 🟢 Done
+
+**What changed:**
+Renamed the spotlight filter from **Featured apps** to **Discover** (panel title, default trigger label, internal `DiscoverPanel` / `DISCOVER_OPTIONS` / `discoverFilter` state). First row in the menu is **All** (clears discover filters). Under the workflows heading, added an **All** pill as the first chip: selecting it runs `getFilteredApps` with no workflow constraint (`APP_CATALOGUE` full list) while Surface, Category, App type, and Discover filters still apply. Default active workflow chip remains the first personalization choice from Q2, not All.
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+- `src/data/appHubApps.js` (comment only)
+
+---
+
+### [2026-04-03 22:10] — Featured apps filter dropdown on recommendations
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added a "Featured apps" filter on the right side of the Apps for your workflows toolbar (after App type, before Preferences). It uses the same `Dropdown` with arrow notch as other filters. The menu matches the reference pattern: bold **Featured apps** title, horizontal rule, then rows with checkmarks: **All apps**, **Most popular** (`popular: true`), **Brand new** (IDs in `BRAND_NEW_APP_IDS`), **Partner solutions** (`PARTNER_SOLUTIONS_APP_IDS` excluding Cisco-built), **Built by Cisco** (`CISCO_BUILT_APP_IDS`). `getFilteredApps` in `RecommendationsScreen.jsx` applies the selected featured dimension after workflow/surface/category filters. ID sets live at the bottom of `appHubApps.js` as demo catalogue data.
+
+**Files touched:**
+- `src/data/appHubApps.js`
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+
+**Next up:**
+Optionally wire App type filter into filtering logic or sync partner/Cisco lists with a real API.
+
+---
+
+### [2026-04-03 21:25] — App Hub scroll clearance + category icons
+
+**Status:** 🟢 Done
+
+**What changed:**
+Increased bottom padding on the recommendations layout in both `AppHubTab.jsx` files from `40px` to `220px` when `step === 'recs'`, so scrolling past "Browse by category" clears the fixed "Personalize your account" checklist (bottom-right overlay). Added `src/data/appHubCategoryIcons.jsx` with Lucide SVGs sourced via the better-icons CLI (`npx better-icons get lucide:…`) mapped one-to-one to `ALL_CATEGORIES`. Updated `CategorySection` in `RecommendationsScreen.jsx` so each chip is an inline-flex row with `AppHubCategoryIcon` (16px) and label; chip text color set to white to match the icons.
+
+**Files touched:**
+- `src/screens/home/AppHubTab.jsx`
+- `src/screens/enterprise-home/AppHubTab.jsx`
+- `src/data/appHubCategoryIcons.jsx` (new)
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+
+**Next up:**
+Optional: higher bottom padding when checklist is expanded, or hide checklist overlap only on App Hub tab via layout.
+
+---
+
+### [2026-04-03 20:15] — Add filter dropdowns and Preferences panel to Recommendations
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added a full filter system to the "Apps for your workflows" section in `RecommendationsScreen.jsx`. Three dropdown filter buttons (Surface, Category, App type) are placed on the right side of the section header, plus a Preferences button separated by a vertical divider. Each dropdown uses the existing `Dropdown` component with `showArrow` and arrow notch, matching the `MessagesTab` pattern. The Surface filter narrows apps by where they live (meetings, spaces, sidebar, calls). Category filters by the app catalogue categories (Analytics, Productivity, etc.). App type is a placeholder for Embedded Apps / Integrations / Bots. The Preferences panel is a multi-toggle dropdown that lets users update their Q1 (focus areas) and Q2 (workflows) selections without going back through onboarding. The `RecommendationsScreen` now manages its own `q1`/`q2` state internally via `useState`, so changes from the Preferences panel immediately update the workflow chips and filtered results. A reusable `DropdownPanel` component was created for consistent single-select dropdown menus, and `FilterButton` for the trigger buttons with chevron icons. All dropdowns auto-close when clicking outside.
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+
+**Next up:**
+User review of the filter UX. Potential refinements: connecting the App type filter to actual data attributes, adding a clear/reset filters option, or wiring the category chips in "Browse by category" to the category filter.
+
+---
+
+### [2026-04-03 19:00] — App Hub workflow cards + catalogue scale
+
+**Status:** 🟢 Done
+
+**What changed:**
+Redesigned "Apps for your workflows" cards in `RecommendationsScreen.jsx`: removed Popular badge, team usage line, and Install button; compact row with icon plus name and short tagline stacked beside it, then all surface tags below. Expanded `appHubApps.js` to a large catalogue (~110 entries) inspired by [apphub.webex.com](https://apphub.webex.com/), each with a `tagline` capped at five words for the workflow grid. Every workflow filter now resolves to at least fifteen apps. Removed unused `PopularBadge` and `InstallButton` components from the recommendations file.
+
+**Files touched:**
+- `src/data/appHubApps.js`
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+
+**Next up:**
+Consider scroll-in-view or pagination if the three column grid feels long on small viewports.
+
+---
+
+### [2026-04-03 18:00] — App Hub recs: hide team strip for SMB
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added optional `showTeamSection` to `RecommendationsScreen` (default `true`). SMB `home/AppHubTab` passes `showTeamSection={false}` so new users do not see "Your team is using" / org popularity copy. Enterprise `enterprise-home/AppHubTab` omits the prop so the team section remains unchanged.
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+- `src/screens/home/AppHubTab.jsx`
+
+**Next up:**
+Wire `BrowseScreen` for skip flow; optional persistence of picks via `AppHubProvider`.
+
+---
+
+### [2026-04-03 17:00] — App Hub Recommendations Screen (full build)
+
+**Status:** 🟢 Done
+
+**What changed:**
+Built the complete App Hub recommendations screen that appears after submitting Q2. Created `src/data/appHubApps.js` with 20 apps sourced from the real Webex App Hub (apphub.webex.com), each tagged with focus areas (Q1), workflow categories (Q2), surfaces, team counts, and popularity. Built `RecommendationsScreen.jsx` with 5 sections matching the reference design: (1) header row with "App Hub" title, Q1 focus badge, and search placeholder; (2) "Your team is using" 2x2 grid of team-popular apps with initials-based icons and "+ Add" buttons; (3) "Apps for your workflows" with Q2-derived filter chips and a 3-column card grid showing icon, popular badge, description, surface tags, team count, and "Install" button; (4) tip banner with lightbulb icon; (5) "Browse by category" chip cloud of 15 categories. Refactored both `AppHubTab` shells to switch from centered 600px layout to full-width scrollable (clamp 560-960px) when entering the recs step. Enterprise `RecommendationsScreen` re-exports from the shared `app-hub/` module.
+
+**Files touched:**
+- `src/data/appHubApps.js` *(new)*
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+- `src/screens/home/AppHubTab.jsx`
+- `src/screens/enterprise-home/AppHubTab.jsx`
+- `src/screens/enterprise-app-hub/RecommendationsScreen.jsx`
+
+**Next up:**
+User review of the recommendations screen UI. Potentially wire up the "Skip and browse all apps" path to a `BrowseScreen` that shows the full catalogue. Add search functionality if needed.
+
+---
+
+### [2026-04-03 16:00] — App Hub Question 2 (2×3 grid) + recs placeholder
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added `Question2Screen.jsx` for step 2 of the App Hub flow: left-aligned header with both progress dots active and "Question 2 of 2", same heading and subcopy as specified, and a 2×3 CSS grid of multi-select cards. Six options (Work & Productivity, Collaboration, Automation, Engagement, Integrations, Customer Experience) use embedded SVGs from Iconify via the better-icons CLI (lucide:clipboard-list, pencil-ruler, zap, chart-column, link-2, headset). Cards match Q1 interaction (green selection state); the trailing control uses a rounded-square check area per the reference template. Primary action is **Submit** (disabled until at least one selection); **Back** returns to Q1. Wired `step === 'q2'` and `step === 'recs'` in both `home/AppHubTab.jsx` and `enterprise-home/AppHubTab.jsx`. Replaced the empty `RecommendationsScreen.jsx` with a minimal placeholder ("Your picks") and back navigation to Q2. Set `AppHubContext` default `answers.q2` to `[]` for multi-select parity with Q1.
+
+**Files touched:**
+- `src/screens/app-hub/Question2Screen.jsx` *(new)*
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+- `src/screens/home/AppHubTab.jsx`
+- `src/screens/enterprise-home/AppHubTab.jsx`
+- `src/context/AppHubContext.jsx`
+
+**Next up:**
+Replace the recommendations placeholder with real app cards driven by Q1 + Q2 keys; persist answers through `AppHubProvider` when it wraps the home shell.
+
+---
+
+### [2026-04-03 00:00] — App Hub Question 1 Screen
+
+**Status:** 🟢 Done
+
+**What changed:**
+Built the Question 1 screen for the App Hub personalization flow. Created `QuestionScreen.jsx` in `src/screens/app-hub/` with a left-aligned layout featuring a step indicator (dot progress + "Question 1 of 2"), heading ("Where would you spend most of your time in Webex?"), subtitle, and three multi-select option rows: Meetings, Messaging, and Contact Center. Each option shows an icon in a rounded square container, bold label, and muted description, all horizontally aligned. Selection toggles a green border + checkmark badge. The Next button is disabled until at least one option is selected. Refactored both `home/AppHubTab.jsx` and `enterprise-home/AppHubTab.jsx` to use step-driven state (`intro` -> `q1` -> `q2` -> etc.) with `AnimatePresence` for smooth slide transitions between views. Updated `AppHubContext` so `q1` stores an array for multi-select answers.
+
+**Files touched:**
+- `src/screens/app-hub/QuestionScreen.jsx`
+- `src/screens/home/AppHubTab.jsx`
+- `src/screens/enterprise-home/AppHubTab.jsx`
+- `src/context/AppHubContext.jsx`
+
+**Next up:**
+Build Question 2 screen, then the personalized app recommendations view. Wire up the full flow so answers from Q1 and Q2 feed into app suggestions.
+
+---
+
+### [2026-04-03 15:30] — App Hub logo mark + section heading scale
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added `AppHubLogoMark` (`src/components/AppHubLogoMark.jsx`): 2×2 rounded tile grid aligned with the sidebar App Hub metaphor, one tile in `#1D8160`. Both `AppHubTab` screens render it in a horizontal row with the “App Hub” label (`gap: 10`, vertically centered). Reduced “Where apps work” from 20px/28px line-height to **17px / 24px** so it sits between eyebrow and list titles without competing with the main H1.
+
+**Files touched:**
+- `src/components/AppHubLogoMark.jsx` *(new)*
+- `src/screens/home/AppHubTab.jsx`
+- `src/screens/enterprise-home/AppHubTab.jsx`
+
+**Next up:**
+Swap `AppHubLogoMark` for official marketing asset if one lands in `src/assets`.
+
+---
+
+### [2026-04-03 14:00] — App Hub: Interface Craft critique pass
+
+**Status:** 🟢 Done
+
+**What changed:**
+Applied the Interface Craft design-critique lens to the App Hub intro and updated both `AppHubTab` files. Fixed the centered-hero vs left-list alignment tension by making the whole column left-aligned within a centered `maxWidth: 560` block so scan path is one continuous margin. Replaced the all-caps muted “WHERE APPS WORK” label with an `h2` that matches `MeetingsTab` section typography (20px / 600 / white). Tuned eyebrow “App Hub” to 12px `#737373` so it defers to the headline. Added spring-based staggered entrance (`motion/react`: hero, then section block, then list rows, then CTAs) per Interface Craft motion principles. Refined list row spacing, icon column 40px at `#5C5C5C`, and CTA row `justifyContent: flex-start`; primary hover gets a light lift and green glow. Named `LAYOUT` and `MOTION` constants at top of file for easy tuning.
+
+**Files touched:**
+- `src/screens/home/AppHubTab.jsx`
+- `src/screens/enterprise-home/AppHubTab.jsx`
+
+**Next up:**
+Wire “Get personalized picks” / “Skip and browse all apps” to real flows or placeholders; optionally hide onboarding checklist on `apphub` tab.
+
+---
+
+### [2026-04-03 12:00] — App Hub blank shell tab
+
+**Status:** 🟢 Done
+
+**What changed:**
+Sidebar `apphub` previously switched `activeTab` but neither HomeScreen rendered a panel, so the main area stayed empty. Added `AppHubTab` for SMB (`src/screens/home/AppHubTab.jsx`) using the same framed card shell as `MeetingsTab` (`#1A1A1A` fill, `#494949` border, 12px radius, centered `clamp(560px, 85%, 960px)` column) with no inner content. Enterprise duplicate (`src/screens/enterprise-home/AppHubTab.jsx`) mirrors enterprise `MeetingsTab` layout: fixed-height card, inner scroll region with bottom padding for the onboarding checklist. Both `HomeScreen` files import `AppHubTab` and render it when `activeTab === 'apphub'`.
+
+**Files touched:**
+- `src/screens/home/AppHubTab.jsx` *(new)*
+- `src/screens/enterprise-home/AppHubTab.jsx` *(new)*
+- `src/screens/home/HomeScreen.jsx`
+- `src/screens/enterprise-home/HomeScreen.jsx`
+
+**Next up:**
+Flesh out App Hub UI (app grid, search, categories) to match Figma when ready; decide if onboarding checklist should hide on `apphub` like it does on `message`.
+
+---
+
 ### [2026-04-02] — Meeting nudge system: CC + React sequential tooltips
 
 **Status:** 🟢 Done

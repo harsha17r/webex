@@ -7,9 +7,11 @@ import { TopBar } from '../../enterprise-components/layout/TopBar'
 import { CiscoAIRail } from '../../enterprise-components/layout/CiscoAIRail'
 import { MeetingsTab } from './MeetingsTab'
 import { MessagesTab } from './MessagesTab'
+import { AppHubTab } from './AppHubTab'
 import { OnboardingChecklist } from '../../enterprise-components/OnboardingChecklist'
 import { PreJoinModal } from '../enterprise-meeting/PreJoinModal'
 import { NotificationSettingsModal } from '../../enterprise-components/modals/NotificationSettingsModal'
+import { ConnectCalendarModal } from '../../enterprise-components/modals/ConnectCalendarModal'
 import { SetStatusModal } from '../../components/modals/SetStatusModal'
 
 export function HomeScreen() {
@@ -17,6 +19,7 @@ export function HomeScreen() {
   const [aiPanelOpen, setAiPanelOpen]     = useState(true)
   const [preJoinOpen, setPreJoinOpen]     = useState(false)
   const [settingsOpen, setSettingsOpen]   = useState(false)
+  const [calendarModalOpen, setCalendarModalOpen] = useState(false)
   const [statusModalOpen, setStatusModalOpen] = useState(false)
   const location = useLocation()
   const { updateProfile } = useProfile()
@@ -73,7 +76,8 @@ export function HomeScreen() {
             {/* Scrollable tab content */}
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {activeTab === 'message' && <MessagesTab />}
-              {activeTab === 'meet'    && <MeetingsTab calendarConnected={calendarConnected} fromMeeting={fromMeeting} meetingElapsed={meetingElapsed} />}
+              {activeTab === 'meet'    && <MeetingsTab calendarConnected={calendarConnected} onConnectCalendar={() => setCalendarModalOpen(true)} fromMeeting={fromMeeting} meetingElapsed={meetingElapsed} />}
+              {activeTab === 'apphub'  && <AppHubTab />}
             </div>
 
             {/* Checklist — visually hidden on message tab to avoid overlapping compose */}
@@ -106,6 +110,15 @@ export function HomeScreen() {
 
       <AnimatePresence>
         {preJoinOpen && <PreJoinModal onClose={() => setPreJoinOpen(false)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {calendarModalOpen && (
+          <ConnectCalendarModal
+            onClose={() => setCalendarModalOpen(false)}
+            onSave={() => { setCalendar(true); localStorage.setItem('webex_cal_connected', 'true') }}
+          />
+        )}
       </AnimatePresence>
 
       <AnimatePresence>

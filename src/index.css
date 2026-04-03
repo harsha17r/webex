@@ -180,6 +180,10 @@ body {
   background-color: #111111;
 }
 
+/* Hide scrollbar for carousel tracks */
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+
 /* Dark-panel scrollbar — used in modals with dark backgrounds */
 .scrollbar-dark::-webkit-scrollbar        { width: 6px; }
 .scrollbar-dark::-webkit-scrollbar-track  { background: transparent; }
