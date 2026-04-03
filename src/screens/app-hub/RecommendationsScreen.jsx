@@ -542,7 +542,7 @@ function WorkflowCard({ app }) {
         <AppIcon initials={app.initials} bg={app.iconBg} size={40} />
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#FFFFFF', lineHeight: '22px' }}>{app.name}</div>
-          <p style={{ fontSize: 13, fontWeight: 400, color: '#888888', lineHeight: '20px', margin: 0 }}>{app.tagline ?? ''}</p>
+          <p style={{ fontSize: 13, fontWeight: 400, color: '#888888', lineHeight: '20px', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{app.tagline ?? ''}</p>
         </div>
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
