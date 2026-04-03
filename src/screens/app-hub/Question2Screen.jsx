@@ -189,7 +189,7 @@ export function Question2Screen({ onSubmit, onBack }) {
           lineHeight: '36px',
         }}
       >
-        Where would you spend most of your time in Webex?
+        What kind of apps are you looking for?
       </h1>
       <p
         style={{
