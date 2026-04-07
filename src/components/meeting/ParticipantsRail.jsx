@@ -82,7 +82,7 @@ function ParticipantRow({ name, role, micOn, isAI }) {
         <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#FFFFFF', lineHeight: '21px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {name}
         </p>
-        <p style={{ margin: 0, fontSize: 12, color: '#666666', lineHeight: '18px' }}>{role}</p>
+        <p style={{ margin: 0, fontSize: 12, color: '#999999', lineHeight: '18px' }}>{role}</p>
       </div>
 
       {/* Mic status — AI has no mic */}

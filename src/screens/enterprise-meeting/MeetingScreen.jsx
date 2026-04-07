@@ -1349,7 +1349,7 @@ const MIC_DEVICES = [
 function AudioSectionHeader({ label }) {
   return (
     <div style={{ padding: '12px 16px 6px' }}>
-      <span style={{ fontSize: 13, fontWeight: 500, color: '#666666' }}>{label}</span>
+      <span style={{ fontSize: 13, fontWeight: 500, color: '#999999' }}>{label}</span>
     </div>
   )
 }
@@ -1376,7 +1376,7 @@ function AudioDeviceRow({ label, sub, selected }) {
       </div>
       <div>
         <div style={{ fontSize: 15, fontWeight: selected ? 500 : 400, color: '#FFFFFF', lineHeight: '22px' }}>{label}</div>
-        {sub && <div style={{ fontSize: 12, color: '#666666', marginTop: 1 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: 12, color: '#999999', marginTop: 1 }}>{sub}</div>}
       </div>
     </div>
   )
@@ -1496,7 +1496,7 @@ function AudioMenu({ menuRef, btnRef }) {
 
         {/* Footer */}
         <div style={{ padding: '10px 16px 2px' }}>
-          <p style={{ fontSize: 12, color: '#666666', margin: 0, fontWeight: 400 }}>
+          <p style={{ fontSize: 12, color: '#999999', margin: 0, fontWeight: 400 }}>
             You're using your computer for audio
           </p>
         </div>
@@ -1769,7 +1769,7 @@ function MoreMenu({ menuRef, btnRef, onClose }) {
 
             {/* Section header */}
             <p style={{
-              fontSize: 12, fontWeight: 400, color: '#666666',
+              fontSize: 12, fontWeight: 400, color: '#999999',
               margin: 0, padding: '12px 16px 6px',
             }}>
               {section.header}
@@ -1853,7 +1853,7 @@ function InfoRow({ label, value, onCopy, copied }) {
   const [hov, setHov] = useState(false)
   return (
     <div>
-      <p style={{ fontSize: 12, color: '#666666', margin: '0 0 3px', fontFamily: "'Inter', system-ui, sans-serif" }}>{label}</p>
+      <p style={{ fontSize: 12, color: '#999999', margin: '0 0 3px', fontFamily: "'Inter', system-ui, sans-serif" }}>{label}</p>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <p style={{
           fontSize: 14, color: '#E9E9E9', margin: 0, flex: 1,

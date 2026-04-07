@@ -5,6 +5,60 @@
 
 ---
 
+### [2026-04-07 16:00] — Full WCAG 2.2 AA Color Contrast Audit + Fixes
+
+**Status:** 🟢 Done
+
+**What changed:**
+Conducted a full codebase accessibility audit for WCAG 2.2 AA color contrast compliance. Created `accessibility-audit.md` at the project root cataloging 22 text contrast failures and 17 border contrast failures. Text fixes: replaced all instances of `#666666`, `#737373`, `#777777`, and `#555555` muted text on dark backgrounds with `#999999`, which yields 6.09–6.62:1 ratios (well above the 4.5:1 AA minimum). Updated `C.textMuted` tokens in `ProfileReviewScreen.jsx` and `CalendarSyncScreen.jsx`. Border fixes: replaced `#383838`, `#495959`, `#333333`, and `#2E2E2E` borders on interactive elements (inputs, checkboxes, radio buttons, suggestion cards, compose box, nudge tooltips, dropdowns, preview cards) with `#737373`, which meets the 3:1 non-text contrast requirement on all dark backgrounds. Changed `AppearancesModal` theme card hover border from `#555555` to `#AAAAAA`. All changes applied to both SMB and enterprise-component mirrors. Existing `#888888` muted text was verified passing and left unchanged.
+
+**Files touched:**
+- `accessibility-audit.md` (created)
+- `src/components/layout/CiscoAIRail.jsx`
+- `src/enterprise-components/layout/CiscoAIRail.jsx`
+- `src/screens/home/MessageStage.jsx`
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+- `src/screens/onboarding/CalendarSyncScreen.jsx`
+- `src/components/OnboardingChecklist.jsx`
+- `src/enterprise-components/OnboardingChecklist.jsx`
+- `src/components/meeting/ChatRail.jsx`
+- `src/enterprise-components/meeting/ChatRail.jsx`
+- `src/components/meeting/AppsRail.jsx`
+- `src/enterprise-components/meeting/AppsRail.jsx`
+- `src/components/meeting/ParticipantsRail.jsx`
+- `src/enterprise-components/meeting/ParticipantsRail.jsx`
+- `src/components/meeting/MeetingAIRail.jsx`
+- `src/enterprise-components/meeting/MeetingAIRail.jsx`
+- `src/components/modals/NotificationSettingsModal.jsx`
+- `src/enterprise-components/modals/NotificationSettingsModal.jsx`
+- `src/components/modals/AppearancesModal.jsx`
+- `src/enterprise-components/modals/AppearancesModal.jsx`
+- `src/components/CcNudge.jsx`
+- `src/components/ReactNudge.jsx`
+- `src/screens/meeting/PreJoinModal.jsx`
+- `src/screens/enterprise-meeting/PreJoinModal.jsx`
+- `src/screens/enterprise-meeting/MeetingScreen.jsx`
+
+**Next up:**
+No immediate follow-up needed from this audit. Resume feature work from previous session — see last "Next up" entry below. If any new screens are added, run a spot-check against the contrast rules established in `accessibility-audit.md`.
+
+---
+
+### [2026-04-05 —] — App Hub: Surface multi-select filter + remove Preferences panel
+
+**Status:** 🟢 Done
+
+**What changed:**
+Removed the `Preferences` filter button and `PreferencesPanel` component from `RecommendationsScreen.jsx` — users no longer edit their Q1/Q2 onboarding answers from the filter bar. Instead, the **Surface filter** was upgraded to multi-select: a new `SurfacePanel` component renders each surface option with a checkbox on the right, stays open while the user picks, and shows "All surfaces" as a deselect-all at the top. The button label updates dynamically — `Surface` (none), single name (one selected), `N surfaces` (multiple). Added a `Q1_TO_SURFACE` mapping so the filter initialises pre-checked from the user's Q1 onboarding answers (`meetings → meetings`, `messaging → messaging`, `contact_center → calls`). Browse-all (skip) mode starts with nothing pre-checked since no Q1 answers exist. `FOCUS_LABELS` import removed (no longer needed). Applies to both SMB and enterprise flows via the shared `RecommendationsScreen`.
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+
+**Next up:**
+No immediate follow-up flagged. Consider whether Category or App type filters should also support multi-select in a future pass.
+
+---
+
 ### [2026-04-03 14:35] — App Hub questions: filled icons only
 
 **Status:** 🟢 Done

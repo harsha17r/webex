@@ -63,7 +63,7 @@ function AppRow({ app, favorited, onToggleFavorite }) {
       {/* Name + subtitle */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#E9E9E9', lineHeight: '20px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{app.name}</p>
-        <p style={{ margin: '2px 0 0', fontSize: 12, color: '#666666', lineHeight: '17px' }}>{app.sub}</p>
+        <p style={{ margin: '2px 0 0', fontSize: 12, color: '#999999', lineHeight: '17px' }}>{app.sub}</p>
       </div>
 
       {/* Info + Favorite — visible on hover */}
@@ -253,7 +253,7 @@ export function AppsRail({ onClose }) {
         {tab === 'my-apps' && favoriteApps.length > 0 && (
           <>
             <div style={{ padding: '0 20px 6px' }}>
-              <span style={{ fontSize: 12, color: '#666666', fontWeight: 400 }}>Favorites</span>
+              <span style={{ fontSize: 12, color: '#999999', fontWeight: 400 }}>Favorites</span>
             </div>
             {favoriteApps.map(app => (
               <AppRow key={app.id} app={app} favorited={favoriteIds.has(app.id)} onToggleFavorite={toggleFavorite} />
@@ -265,7 +265,7 @@ export function AppsRail({ onClose }) {
         {/* My Apps: suggestions label */}
         {tab === 'my-apps' && (
           <div style={{ padding: '0 20px 10px' }}>
-            <span style={{ fontSize: 12, color: '#666666', fontWeight: 400 }}>Suggestions for you</span>
+            <span style={{ fontSize: 12, color: '#999999', fontWeight: 400 }}>Suggestions for you</span>
           </div>
         )}
 
@@ -274,7 +274,7 @@ export function AppsRail({ onClose }) {
         ))}
 
         {filtered.length === 0 && (
-          <p style={{ fontSize: 13, color: '#555555', textAlign: 'center', margin: '32px 0' }}>
+          <p style={{ fontSize: 13, color: '#999999', textAlign: 'center', margin: '32px 0' }}>
             No apps found
           </p>
         )}

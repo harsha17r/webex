@@ -58,7 +58,7 @@ function SuggestionCard({ label, onSelect }) {
       style={{
         padding: '13px 16px',
         background: hovered ? '#2A2A2A' : '#1E1E1E',
-        border: '1px solid #383838',
+        border: '1px solid #737373',
         borderRadius: 8,
         fontSize: 14, fontWeight: 400,
         color: '#FFFFFF',
@@ -232,7 +232,7 @@ export function CiscoAIRail({ onClose }) {
         </div>
 
         <p style={{
-          fontSize: 12, fontWeight: 400, color: '#666666',
+          fontSize: 12, fontWeight: 400, color: '#999999',
           textAlign: 'center',
           margin: '8px 0 0',
           fontFamily: "'Inter', system-ui, sans-serif",

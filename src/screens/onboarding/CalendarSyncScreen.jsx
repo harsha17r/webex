@@ -95,13 +95,13 @@ const PROVIDERS = [
 const C = {
   bg:           '#111111',
   surface:      '#1E1E1E',
-  border:       '#383838',
-  borderModal:  '#494949',
-  borderHover:  '#737373',
+  border:       '#737373',
+  borderModal:  '#737373',
+  borderHover:  '#AAAAAA',
   borderSubtle: '#AAAAAA',
   textPrimary:  '#FFFFFF',
   textSecond:   '#AAAAAA',
-  textMuted:    '#666666',
+  textMuted:    '#999999',
   accent:       '#4ac397',
 }
 

@@ -31,12 +31,12 @@ const C = {
   bg:           '#111111',
   surface:      '#1E1E1E',    // slightly lighter — inputs are visible now
   surfaceLock:  '#1A1A1A',
-  border:       '#383838',    // was #2A2A2A — much more visible
+  border:       '#737373',    // meets 3:1 on #1E1E1E for WCAG 1.4.11
   borderFocus:  '#4ac397',
   borderSubtle: '#AAAAAA',
   textPrimary:  '#FFFFFF',
   textSecond:   '#AAAAAA',
-  textMuted:    '#666666',
+  textMuted:    '#999999',
   textLock:     '#8A8A8A',    // was #6A6A6A — actually readable now
   accentDim:    '#1c8160',
   accentHover:  '#4ac397',

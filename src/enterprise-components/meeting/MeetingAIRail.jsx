@@ -278,7 +278,7 @@ export function MeetingAIRail({ onClose, summaryActive, onSummaryToggle }) {
         </div>
 
         <p style={{
-          fontSize: 12, fontWeight: 400, color: '#666666',
+          fontSize: 12, fontWeight: 400, color: '#999999',
           textAlign: 'center',
           margin: '8px 0 0',
           fontFamily: "'Inter', system-ui, sans-serif",

@@ -52,7 +52,7 @@ function ActionButton({ icon, label }) {
       style={{
         height: 48, padding: '0 28px',
         background: pressed ? '#2A2A2A' : hovered ? '#1E1E1E' : 'transparent',
-        border: `1px solid ${hovered ? '#555555' : '#333333'}`,
+        border: `1px solid ${hovered ? '#AAAAAA' : '#737373'}`,
         borderRadius: 8,
         fontSize: 14, fontWeight: 500,
         color: hovered ? '#DDDDDD' : '#888888',
@@ -88,11 +88,11 @@ function NewMessageView({ onClose }) {
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: 6, borderRadius: 6,
-            color: '#777777',
+            color: '#999999',
           }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M3 3l10 10M13 3L3 13" stroke="#777777" strokeWidth="1.6" strokeLinecap="round"/>
+            <path d="M3 3l10 10M13 3L3 13" stroke="#999999" strokeWidth="1.6" strokeLinecap="round"/>
           </svg>
         </button>
       </div>
@@ -128,7 +128,7 @@ function NewMessageView({ onClose }) {
       {/* Compose box */}
       <div style={{
         margin: '0 16px 16px',
-        border: '1px solid #2E2E2E',
+        border: '1px solid #737373',
         borderRadius: 12,
         background: '#1E1E1E',
         flexShrink: 0,
@@ -173,7 +173,7 @@ function NewMessageView({ onClose }) {
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2.5L3.5 5v5c0 3.8 2.8 7.3 6.5 8 3.7-.7 6.5-4.2 6.5-8V5L10 2.5z" stroke="#666" strokeWidth="1.4" strokeLinejoin="round"/></svg>
             </button>
           </div>
-          <span style={{ fontSize: 12, color: '#737373', fontFamily: "'Inter', system-ui, sans-serif" }}>
+          <span style={{ fontSize: 12, color: '#999999', fontFamily: "'Inter', system-ui, sans-serif" }}>
             Shift + Enter for a new line
           </span>
         </div>
@@ -228,7 +228,7 @@ function RecommendedMessagesView() {
           <h2 style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF', margin: '0 0 2px', lineHeight: '22px' }}>
             Recommended messages
           </h2>
-          <p style={{ fontSize: 13, color: '#777777', margin: 0, lineHeight: '18px' }}>
+          <p style={{ fontSize: 13, color: '#999999', margin: 0, lineHeight: '18px' }}>
             This section shows your most important conversations in the noise.
           </p>
         </div>
@@ -260,7 +260,7 @@ function RecommendedMessagesView() {
         <h3 style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF', margin: '0 0 8px', lineHeight: '22px' }}>
           Recommended messages are {on ? 'on' : 'off'}
         </h3>
-        <p style={{ fontSize: 14, color: '#666666', margin: '0 0 8px', lineHeight: '20px', maxWidth: 360 }}>
+        <p style={{ fontSize: 14, color: '#999999', margin: '0 0 8px', lineHeight: '20px', maxWidth: 360 }}>
           {on
             ? "You're all set. Your most important messages will appear here as you use Webex."
             : "Your inbox gets smarter over time. Messages you care about will surface here first."}

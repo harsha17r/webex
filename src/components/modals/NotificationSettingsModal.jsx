@@ -269,7 +269,7 @@ function Checkbox({ checked, onChange }) {
       style={{
         flexShrink: 0, width: 16, height: 16, borderRadius: 3, boxSizing: 'border-box',
         background: checked ? '#1170CF' : 'transparent',
-        border: checked ? 'none' : '1.5px solid #595959',
+        border: checked ? 'none' : '1.5px solid #737373',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: 'pointer',
       }}
@@ -301,7 +301,7 @@ function RadioOption({ selected, label, sublabel, extra, onClick }) {
     >
       <div style={{ flexShrink: 0, marginTop: 3 }}>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="8" r="6.5" stroke={selected ? '#1170CF' : '#595959'} strokeWidth="1.5"/>
+          <circle cx="8" cy="8" r="6.5" stroke={selected ? '#1170CF' : '#737373'} strokeWidth="1.5"/>
           {selected && <circle cx="8" cy="8" r="3.5" fill="#1170CF"/>}
         </svg>
       </div>

@@ -25,7 +25,7 @@ export function ReactNudge({ visible, onDismiss }) {
             left: '50%',
             width: 272,
             background: '#1C1C1C',
-            border: '1px solid #333333',
+            border: '1px solid #737373',
             borderRadius: 10,
             padding: '16px 16px 14px',
             boxShadow: '0 8px 32px rgba(0,0,0,0.7)',

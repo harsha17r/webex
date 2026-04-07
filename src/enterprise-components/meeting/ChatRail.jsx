@@ -119,7 +119,7 @@ export function ChatRail({ onClose }) {
         <p style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 700, color: '#FFFFFF', textAlign: 'center', lineHeight: '22px' }}>
           Ready, set, chat
         </p>
-        <p style={{ margin: 0, fontSize: 13, color: '#666666', textAlign: 'center', lineHeight: '19px' }}>
+        <p style={{ margin: 0, fontSize: 13, color: '#999999', textAlign: 'center', lineHeight: '19px' }}>
           Share key points, ask questions, and track action items in real time.
         </p>
       </div>
@@ -171,7 +171,7 @@ export function ChatRail({ onClose }) {
 
           <div style={{ flex: 1 }} />
 
-          <span style={{ fontSize: 11, color: '#555555', whiteSpace: 'nowrap' }}>
+          <span style={{ fontSize: 11, color: '#999999', whiteSpace: 'nowrap' }}>
             Shift + Enter for a new line
           </span>
         </div>

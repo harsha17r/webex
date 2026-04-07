@@ -170,7 +170,7 @@ function PreviewCard({ label, selected, onSelect, children }) {
       onMouseLeave={() => setHovered(false)}
       style={{
         position: 'relative', cursor: 'pointer', borderRadius: 10,
-        border: `2px solid ${selected ? '#2AAB7D' : hovered ? '#555555' : '#2A2A2A'}`,
+        border: `2px solid ${selected ? '#2AAB7D' : hovered ? '#AAAAAA' : '#666666'}`,
         overflow: 'hidden', transition: 'border-color 0.15s', userSelect: 'none',
         transform: hovered && !selected ? 'translateY(-1px)' : 'translateY(0)',
       }}

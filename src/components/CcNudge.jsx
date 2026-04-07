@@ -25,7 +25,7 @@ export function CcNudge({ visible, onDismiss }) {
             left: 0,
             width: 232,
             background: '#1C1C1C',
-            border: '2px solid #333333',
+            border: '2px solid #737373',
             borderRadius: 10,
             padding: '16px 16px 14px',
             boxShadow: '0 8px 32px rgba(0,0,0,0.7)',

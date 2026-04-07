@@ -123,7 +123,7 @@ function TaskRow({ task, done, onClick }) {
         </div>
         <span style={{
           fontSize: 14, fontWeight: 400,
-          color: done ? '#737373' : '#FFFFFF',
+          color: done ? '#999999' : '#FFFFFF',
           lineHeight: '20px',
           textDecoration: done ? 'line-through' : 'none',
           transition: 'color 0.2s',
@@ -177,7 +177,7 @@ export function OnboardingChecklist({ onTestCall, fromMeeting = false }) {
       bottom: 20, right: 20,
       width: 330,
       background: '#111111',
-      border: '1px solid #595959',
+      border: '1px solid #737373',
       borderRadius: 16,
       padding: '12px 20px 12px',
       display: 'flex', flexDirection: 'column',
@@ -231,7 +231,7 @@ export function OnboardingChecklist({ onTestCall, fromMeeting = false }) {
             transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           }}/>
         </div>
-        <span style={{ fontSize: 14, fontWeight: 400, color: '#737373', lineHeight: '16px', flexShrink: 0 }}>
+        <span style={{ fontSize: 14, fontWeight: 400, color: '#999999', lineHeight: '16px', flexShrink: 0 }}>
           {completed.size}/3
         </span>
       </div>
