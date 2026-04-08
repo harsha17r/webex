@@ -481,7 +481,7 @@ export function MessagesTab() {
       margin: 4,
       minHeight: 'calc(100% - 8px)',
       background: '#1A1A1A',
-      border: '1px solid #494949',
+      border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 12,
       display: 'flex', flexDirection: 'row',
       boxSizing: 'border-box',
@@ -495,7 +495,7 @@ export function MessagesTab() {
         background: '#222222',
         display: 'flex', flexDirection: 'column',
         boxSizing: 'border-box',
-        borderRight: '1px solid #494949',
+        borderRight: '1px solid rgba(255,255,255,0.1)',
       }}>
 
         {/* Header */}

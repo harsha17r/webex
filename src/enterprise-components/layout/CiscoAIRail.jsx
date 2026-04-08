@@ -57,8 +57,7 @@ function SuggestionCard({ label, onSelect }) {
       onClick={() => onSelect(label)}
       style={{
         padding: '13px 16px',
-        background: hovered ? '#2A2A2A' : '#1E1E1E',
-        border: '1px solid #737373',
+        background: hovered ? '#313131' : '#242424',
         borderRadius: 8,
         fontSize: 14, fontWeight: 400,
         color: '#FFFFFF',

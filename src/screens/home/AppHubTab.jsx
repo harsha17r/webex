@@ -231,7 +231,7 @@ export function AppHubTab() {
       margin: 4,
       height: 'calc(100% - 8px)',
       background: '#1A1A1A',
-      border: '1px solid #494949',
+      border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 12,
       boxSizing: 'border-box',
       overflow: 'hidden',

@@ -175,8 +175,8 @@ export function TopBar({ aiPanelOpen, onToggleAI, onSetStatusClick = () => {} })
           <button style={{
             background: 'var(--bg-elevated)',
             border: '1px solid var(--border-strong)',
-            borderRadius: 8,
-            height: 36, padding: '0 12px',
+            borderRadius: 9999,
+            padding: '8px 18px',
             display: 'flex', alignItems: 'center', gap: 8,
             cursor: 'pointer',
           }}>
@@ -193,15 +193,16 @@ export function TopBar({ aiPanelOpen, onToggleAI, onSetStatusClick = () => {} })
             onMouseEnter={() => setAiHover(true)}
             onMouseLeave={() => setAiHover(false)}
             style={{
-              background: aiHover || aiPanelOpen ? 'var(--border-strong)' : 'var(--bg-elevated)',
-              border: aiHover || aiPanelOpen ? 'none' : '1px solid var(--border-strong)',
-              borderRadius: 8,
-              height: 36, padding: '0 12px 0 4px',
+              background: aiPanelOpen ? '#3A3A3A' : aiHover ? '#2E2E2E' : 'var(--bg-elevated)',
+              border: `1px solid ${aiPanelOpen ? '#737373' : aiHover ? '#5A5A5A' : 'var(--border-strong)'}`,
+              borderRadius: 9999,
+              padding: '8px 18px 8px 10px',
               display: 'flex', alignItems: 'center', gap: 8,
-              cursor: 'pointer', transition: 'background 0.15s',
+              cursor: 'pointer',
+              transition: 'background 0.15s, border-color 0.15s',
             }}
           >
-            <CiscoAISymbol size={28} />
+            <CiscoAISymbol size={22} />
             <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>Cisco AI</span>
           </button>
         </div>

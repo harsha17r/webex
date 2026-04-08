@@ -92,7 +92,7 @@ export function MeetingsTab({ calendarConnected, onConnectCalendar, fromMeeting 
       margin: 4,
       minHeight: 'calc(100% - 8px)',
       background: '#1A1A1A',
-      border: '1px solid #494949',
+      border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 12,
       padding: '32px 32px 40px',
       display: 'flex', flexDirection: 'column', alignItems: 'center',

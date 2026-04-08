@@ -37,7 +37,7 @@ export function ReactNudge({ visible, onDismiss }) {
           {/* Downward-pointing arrow notch — centered */}
           <div style={{
             position: 'absolute',
-            bottom: -6,
+            bottom: -7,
             left: '50%',
             marginLeft: -6,
             width: 12,
@@ -45,6 +45,8 @@ export function ReactNudge({ visible, onDismiss }) {
             background: '#1C1C1C',
             transform: 'rotate(45deg)',
             borderRadius: '0 0 3px 0',
+            borderBottom: '1px solid #737373',
+            borderRight: '1px solid #737373',
           }} />
 
           <p style={{

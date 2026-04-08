@@ -57,8 +57,7 @@ function SuggestionCard({ label, onSelect }) {
       onClick={() => onSelect(label)}
       style={{
         padding: '13px 16px',
-        background: hovered ? '#2A2A2A' : '#1E1E1E',
-        border: '1px solid #737373',
+        background: hovered ? '#313131' : '#242424',
         borderRadius: 8,
         fontSize: 14, fontWeight: 400,
         color: '#FFFFFF',
@@ -81,9 +80,9 @@ export function CiscoAIRail({ onClose }) {
       width: 371, minWidth: 371, height: 'calc(100% - 8px)',
       margin: '4px 4px 4px 0',
       background: '#1A1A1A',
-      borderLeft: '1px solid #494949',
-      borderTop: '1px solid #494949',
-      borderBottom: '1px solid #494949',
+      borderLeft: '1px solid rgba(255,255,255,0.1)',
+      borderTop: '1px solid rgba(255,255,255,0.1)',
+      borderBottom: '1px solid rgba(255,255,255,0.1)',
       borderRadius: '12px 0 0 12px',
       display: 'flex', flexDirection: 'column',
       boxSizing: 'border-box',

@@ -37,13 +37,15 @@ export function CcNudge({ visible, onDismiss }) {
           {/* Downward-pointing arrow notch */}
           <div style={{
             position: 'absolute',
-            bottom: -6,
+            bottom: -7,
             left: 24,
             width: 12,
             height: 12,
             background: '#1C1C1C',
             transform: 'rotate(45deg)',
             borderRadius: '0 0 3px 0',
+            borderBottom: '2px solid #737373',
+            borderRight: '2px solid #737373',
           }} />
 
           <p style={{
