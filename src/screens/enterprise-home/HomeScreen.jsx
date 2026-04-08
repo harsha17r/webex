@@ -8,6 +8,7 @@ import { CiscoAIRail } from '../../enterprise-components/layout/CiscoAIRail'
 import { MeetingsTab } from './MeetingsTab'
 import { MessagesTab } from './MessagesTab'
 import { AppHubTab } from './AppHubTab'
+import { TeamsTab } from './TeamsTab'
 import { OnboardingChecklist } from '../../enterprise-components/OnboardingChecklist'
 import { PreJoinModal } from '../enterprise-meeting/PreJoinModal'
 import { NotificationSettingsModal } from '../../enterprise-components/modals/NotificationSettingsModal'
@@ -78,6 +79,7 @@ export function HomeScreen() {
               {activeTab === 'message' && <MessagesTab />}
               {activeTab === 'meet'    && <MeetingsTab calendarConnected={calendarConnected} onConnectCalendar={() => setCalendarModalOpen(true)} fromMeeting={fromMeeting} meetingElapsed={meetingElapsed} />}
               {activeTab === 'apphub'  && <AppHubTab />}
+              {activeTab === 'team'    && <TeamsTab />}
             </div>
 
             {/* Checklist — visually hidden on message tab to avoid overlapping compose */}

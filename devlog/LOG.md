@@ -5,6 +5,92 @@
 
 ---
 
+### [2026-04-08] — Teams tab empty state
+
+**Status:** 🟢 Done
+
+**What changed:**
+Built the Teams tab empty state component at `src/screens/home/TeamsTab.jsx` and duplicated it to `src/screens/enterprise-home/TeamsTab.jsx`. The empty state is vertically centered in the content area and includes: a 200×160 dashed illustration placeholder box, an "Teams" heading (22px bold), a 2-sentence description explaining what a team is, a green `#1D9E75` "Create a team" primary CTA button with plus icon and hover darkening, and a muted secondary text link "Just need a quick conversation? Start a space instead." with a subtle underline hover. Both `src/screens/home/HomeScreen.jsx` and `src/screens/enterprise-home/HomeScreen.jsx` were updated to import `TeamsTab` and render it when `activeTab === 'team'`. The sidebar already had the `team` key wired up.
+
+**Files touched:**
+- `src/screens/home/TeamsTab.jsx` (new)
+- `src/screens/enterprise-home/TeamsTab.jsx` (new)
+- `src/screens/home/HomeScreen.jsx`
+- `src/screens/enterprise-home/HomeScreen.jsx`
+
+**Next up:**
+Drop in the final illustration asset once it's ready — swap out the dashed placeholder box. Optionally wire the "Create a team" and "Start a space instead" buttons to actual flows.
+
+---
+
+### [2026-04-07 22:24] — Meeting AI CTA: solid fill + gradient border
+
+**Status:** 🟢 Done
+
+**What changed:**
+Adjusted the meeting AI rail CTA (`What can I do with Cisco AI?`) so it matches the other suggestion chips on the same solid fills (`#242424` default, `#313131` hover) while the emphasis comes only from a visible gradient stroke. Implemented the classic padded outer wrapper with a horizontal green-to-charcoal gradient as the ring and an inner panel with identical typography and padding as the non-CTA cards. Applied in both SMB and enterprise `MeetingAIRail.jsx`. Lints clean on both files.
+
+**Files touched:**
+- `src/components/meeting/MeetingAIRail.jsx`
+- `src/enterprise-components/meeting/MeetingAIRail.jsx`
+
+**Next up:**
+In the app, confirm the 1px gradient ring reads clearly on `#1A1A1A` rail background; tweak `GRADIENT_BORDER` stops if the stroke needs to be brighter or more cyan-forward.
+
+---
+
+### [2026-04-07 20:25] — Meeting AI CTA gradient refined
+
+**Status:** 🟢 Done
+
+**What changed:**
+Refined the special Cisco AI call-to-action card in the meeting AI rail so only that button keeps a distinct gradient treatment while the other suggestion chips remain on the standard dark filled surfaces added earlier. Updated both SMB and enterprise `MeetingAIRail.jsx` implementations so the `What can I do with Cisco AI?` card now uses a fuller green-to-teal vertical gradient fill with a slightly brighter hover state, closer to the intended visual reference, without reintroducing any outline or border wrapper. This keeps the CTA visually elevated from the other suggestion buttons while maintaining the new fill-based affordance system used across the rail. No changes were made to the home Cisco AI rail or the meeting screen containers because the CTA lives entirely inside the shared meeting rail components. Ran lints on both edited files and confirmed no diagnostics were introduced.
+
+**Files touched:**
+- `src/components/meeting/MeetingAIRail.jsx`
+- `src/enterprise-components/meeting/MeetingAIRail.jsx`
+
+**Next up:**
+Open the SMB and enterprise meeting AI rails side by side and compare the CTA fill against the visual reference to decide whether the gradient needs to be slightly brighter, flatter, or more blue-leaning.
+
+---
+
+### [2026-04-07 20:16] — Cisco AI suggestion cards switched to filled affordances
+
+**Status:** 🟢 Done
+
+**What changed:**
+Updated the Cisco AI rail suggestion surfaces across both SMB and enterprise variants so they no longer rely on explicit border strokes to communicate clickability. In `src/components/layout/CiscoAIRail.jsx` and `src/enterprise-components/layout/CiscoAIRail.jsx`, the onboarding/home assistant suggestion cards now use a filled dark surface by default with a brighter hover fill, keeping the same spacing and typography while making the cards feel more obviously pressable without outlined chrome. Applied the same interaction treatment to the meeting AI rail in `src/components/meeting/MeetingAIRail.jsx` and `src/enterprise-components/meeting/MeetingAIRail.jsx`. Standard meeting suggestion cards now use the same filled dark surfaces, and the previously gradient-outlined Cisco AI card now uses a subtle gradient-filled background instead of a border wrapper, preserving its emphasis while matching the new fill-first affordance. No meeting screen container changes were needed because both SMB and enterprise meeting screens already consume these shared rail components. Ran lints on all four edited files and confirmed there were no diagnostics introduced.
+
+**Files touched:**
+- `src/components/layout/CiscoAIRail.jsx`
+- `src/enterprise-components/layout/CiscoAIRail.jsx`
+- `src/components/meeting/MeetingAIRail.jsx`
+- `src/enterprise-components/meeting/MeetingAIRail.jsx`
+
+**Next up:**
+Visually compare the home AI rail and meeting AI rail in both SMB and enterprise flows to confirm the new fill levels feel clickable enough without reading as selected or overly heavy.
+
+---
+
+### [2026-04-07 15:14] — Checklist notification link opens correct settings section
+
+**Status:** 🟢 Done
+
+**What changed:**
+Fixed the onboarding checklist notification task so clicking `Customize notification settings` now lands on the Notifications section inside the settings modal instead of opening on General. The root cause was that both SMB and enterprise `NotificationSettingsModal` components always initialized `activeNav` to `general`, and the onboarding checklist opened the modal without any route or section hint. Added a new `initialNav` prop to both modal implementations with safe fallback validation against the available sidebar nav keys, then synced `activeNav` from that value on open. Updated both `OnboardingChecklist.jsx` mirrors to pass `initialNav="notifications"` only for the checklist-driven entry point. This preserves the existing behavior for other settings launches, such as the Home screen settings button, which should still open on General. Ran lints on all four edited files and confirmed there were no introduced diagnostics.
+
+**Files touched:**
+- `src/components/OnboardingChecklist.jsx`
+- `src/enterprise-components/OnboardingChecklist.jsx`
+- `src/components/modals/NotificationSettingsModal.jsx`
+- `src/enterprise-components/modals/NotificationSettingsModal.jsx`
+
+**Next up:**
+Manually verify both SMB and enterprise flows in the UI to confirm the checklist action opens directly to Notifications while the regular Home settings entry still defaults to General.
+
+---
+
 ### [2026-04-07 16:00] — Full WCAG 2.2 AA Color Contrast Audit + Fixes
 
 **Status:** 🟢 Done
