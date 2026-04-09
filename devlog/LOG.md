@@ -1979,7 +1979,7 @@ Start building the Onboarding flow. First screen: `WelcomeScreen.jsx` — dark b
 **Status:** 🟢 Done
 
 **What changed:**
-Scaffolded the full project from scratch. Initialized a Vite + React app in `/Users/harsha/Documents/Cursor Projects/Webex`. Installed and configured Tailwind CSS via `@tailwindcss/vite` plugin — replaced the default `index.css` with a clean Tailwind import and base reset. Installed `react-router-dom` for routing. Replaced the default Vite boilerplate `App.jsx` with a minimal shell wrapped in `BrowserRouter`. Removed `App.css` (boilerplate). Created the folder structure: `src/components/`, `src/screens/onboarding/`, `src/screens/home/`, `src/screens/meeting/`. Added `CLAUDE.md` at project root with rules, dev log format, and session checklist. Also connected the Figma MCP (figma-developer-mcp) and read the Webex Design Figma file to understand the full design scope.
+Scaffolded the full project from scratch. Initialized a Vite + React app in `[project root]`. Installed and configured Tailwind CSS via `@tailwindcss/vite` plugin — replaced the default `index.css` with a clean Tailwind import and base reset. Installed `react-router-dom` for routing. Replaced the default Vite boilerplate `App.jsx` with a minimal shell wrapped in `BrowserRouter`. Removed `App.css` (boilerplate). Created the folder structure: `src/components/`, `src/screens/onboarding/`, `src/screens/home/`, `src/screens/meeting/`. Added `CLAUDE.md` at project root with rules, dev log format, and session checklist. Also connected the Figma MCP (figma-developer-mcp) and read the Webex Design Figma file to understand the full design scope.
 
 **Files touched:**
 - `vite.config.js`
