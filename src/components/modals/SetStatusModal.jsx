@@ -404,10 +404,14 @@ export function SetStatusModal({ onClose }) {
               onClick={onSave}
               style={{
                 padding: '8px 20px', borderRadius: 9999,
-                border: 'none', background: '#1D8160',
-                color: '#FFFFFF', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                border: 'none', background: '#FFFFFF',
+                color: '#111111', fontSize: 14, fontWeight: 600, cursor: 'pointer',
                 fontFamily: 'inherit',
+                transition: 'background 0.15s, transform 0.1s',
               }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(0)' }}
+              onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0)' }}
             >
               Save
             </button>

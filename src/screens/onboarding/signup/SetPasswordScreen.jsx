@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import logoVerticalRGB from '../../../assets/logos/RGB_Webex_Logo_lockup_vertical_whitetext.svg'
+import { ONBOARDING_GRADIENT_90 } from '../onboardingGradients'
 
 const C = {
   bg:           '#111111',
@@ -13,11 +14,9 @@ const C = {
   textMuted:    '#737373',
   textRule:     '#E9E9E9',
   textLabel:    '#F7F7F7',
-  accentDim:    '#1D8160',
-  accentHover:  '#4ac397',
   green500:     '#2aab7d',
   red:          '#e05252',
-  gradient1:    'linear-gradient(90deg, #4ac397 0%, #5cb3f0 100%)',
+  gradient1:    ONBOARDING_GRADIENT_90,
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -81,7 +80,6 @@ export function SetPasswordScreen() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [inputFocused, setInputFocused] = useState(false)
-  const [btnHovered, setBtnHovered] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [wiggleTrigger, setWiggleTrigger] = useState(0)
 
@@ -284,23 +282,23 @@ export function SetPasswordScreen() {
                 setSubmitted(true)
                 setWiggleTrigger(t => t + 1)
               }}
-              onMouseEnter={() => setBtnHovered(true)}
-              onMouseLeave={() => setBtnHovered(false)}
               style={{
                 width: '100%',
                 padding: '14px 16px',
                 borderRadius: 9999,
                 border: 'none',
-                background: allValid && btnHovered ? C.accentHover : C.accentDim,
+                background: '#FFFFFF',
                 opacity: allValid ? 1 : 0.45,
                 cursor: allValid ? 'pointer' : 'default',
-                transform: allValid && btnHovered ? 'translateY(-1px)' : 'none',
-                transition: 'background 0.2s, transform 0.2s, opacity 0.2s',
+                transition: 'background 0.15s, transform 0.1s, opacity 0.2s',
                 fontSize: 14,
                 fontWeight: 600,
-                color: C.textPrimary,
+                color: C.bg,
                 fontFamily: 'inherit',
               }}
+              onMouseEnter={e => { if (allValid) { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.transform = 'translateY(-1px)' }}}
+              onMouseLeave={e => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(0)' }}
+              onMouseDown={e => { if (allValid) e.currentTarget.style.transform = 'translateY(0)' }}
             >
               Set Password
             </button>

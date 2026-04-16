@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import logoVerticalRGB from '../../../assets/logos/RGB_Webex_Logo_lockup_vertical_whitetext.svg'
+import { ONBOARDING_GRADIENT_90 } from '../onboardingGradients'
 
 /* ─────────────────────────────────────────────────────────
  * ANIMATION STORYBOARD — SSO Handoff Loading Screen
@@ -82,7 +83,7 @@ const C = {
   textSecond:  '#AAAAAA',
   accent:      '#4ac397',
   accentDim:   '#1D8160',
-  gradient1:   'linear-gradient(90deg, #4ac397 0%, #5cb3f0 100%)',
+  gradient1:   ONBOARDING_GRADIENT_90,
 }
 
 /* ── Sub-components ───────────────────────────────────── */

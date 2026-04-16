@@ -5,6 +5,37 @@
 
 ---
 
+### [2026-04-16 10:28] — Onboarding gradient cleanup and enterprise UI sync
+
+**Status:** 🟢 Done
+
+**What changed:**
+This session batches the latest UI refinements across onboarding, meeting, app hub, and enterprise surfaces into a single checkpoint. The onboarding flow was cleaned up by extracting shared gradient tokens into `src/screens/onboarding/onboardingGradients.js` and updating the related screens to consume the same visual system, including `WelcomeScreen.jsx`, `VerifyScreen.jsx`, `SetPasswordScreen.jsx`, `SSOEmailScreen.jsx`, `SSOLoadingScreen.jsx`, `ProfileReviewScreen.jsx`, and `CalendarSyncScreen.jsx`. In parallel, meeting and profile-related polish landed in both SMB and enterprise variants through updates to `MeetingAIRail.jsx`, `SetupProfileModal.jsx`, and `SetStatusModal.jsx`. The home and app-hub surfaces were also adjusted in `MeetingsTab.jsx` and `RecommendationsScreen.jsx` to keep layout and visual treatment aligned with the rest of the product. This entry is being added before commit/push so the repo history and handoff notes reflect the current working tree state.
+
+**Files touched:**
+- `devlog/LOG.md`
+- `src/screens/onboarding/onboardingGradients.js`
+- `src/screens/onboarding/WelcomeScreen.jsx`
+- `src/screens/onboarding/signup/VerifyScreen.jsx`
+- `src/screens/onboarding/signup/SetPasswordScreen.jsx`
+- `src/screens/onboarding/sso/SSOEmailScreen.jsx`
+- `src/screens/onboarding/sso/SSOLoadingScreen.jsx`
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+- `src/screens/onboarding/CalendarSyncScreen.jsx`
+- `src/components/meeting/MeetingAIRail.jsx`
+- `src/enterprise-components/meeting/MeetingAIRail.jsx`
+- `src/components/modals/SetupProfileModal.jsx`
+- `src/enterprise-components/modals/SetupProfileModal.jsx`
+- `src/components/modals/SetStatusModal.jsx`
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+
+**Next up:**
+Verify the latest onboarding visual changes on both the shared flow and the enterprise landing path, then confirm the committed branch reflects the intended state on GitHub.
+
+---
+
 ### [2026-04-15] — Meeting toolbar, toast, carousel, and modal fixes
 
 **Status:** 🟢 Done

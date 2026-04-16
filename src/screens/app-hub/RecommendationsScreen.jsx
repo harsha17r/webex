@@ -4,7 +4,6 @@ import { Dropdown } from '../../components/Dropdown'
 import {
   APP_CATALOGUE,
   WORKFLOW_LABELS,
-  FOCUS_LABELS,
   SURFACE_LABELS,
   ALL_CATEGORIES,
   CISCO_BUILT_APP_IDS,
@@ -18,6 +17,12 @@ const FONT = "'Inter', system-ui, sans-serif"
 
 const SURFACE_KEYS = Object.keys(SURFACE_LABELS)
 const APP_TYPES = ['Embedded Apps', 'Integrations', 'Bots']
+
+const Q1_TO_SURFACE = {
+  meetings: 'meetings',
+  messaging: 'messaging',
+  contact_center: 'calls',
+}
 
 function getTeamApps(q1) {
   return APP_CATALOGUE
@@ -48,12 +53,12 @@ function getOrgPopularCarouselApps() {
 }
 
 /** `activeWorkflow === 'all'` skips workflow filtering so the full catalogue can be shown (other filters still apply). */
-function getFilteredApps(activeWorkflow, surfaceFilter, categoryFilter, discoverFilter) {
+function getFilteredApps(activeWorkflow, surfaceFilters, categoryFilter, discoverFilter) {
   let apps =
     activeWorkflow === 'all' || activeWorkflow == null
       ? APP_CATALOGUE.slice()
       : APP_CATALOGUE.filter(a => a.workflows.includes(activeWorkflow))
-  if (surfaceFilter) apps = apps.filter(a => a.surfaces.includes(surfaceFilter))
+  if (surfaceFilters.length > 0) apps = apps.filter(a => surfaceFilters.some(s => a.surfaces.includes(s)))
   if (categoryFilter) apps = apps.filter(a => a.categories.includes(categoryFilter))
   if (discoverFilter === 'most_popular') apps = apps.filter(a => a.popular)
   else if (discoverFilter === 'brand_new') apps = apps.filter(a => BRAND_NEW_APP_IDS.has(a.id))
@@ -241,41 +246,66 @@ function DiscoverPanel({ active, onSelect }) {
   )
 }
 
-/* ── Preferences panel (Q1/Q2 multi-toggle) ── */
+/* ── Surface multi-select panel ── */
 
-function PreferencesPanel({ q1, q2, onQ1Toggle, onQ2Toggle }) {
+function SurfacePanel({ selected, onToggle, onClearAll }) {
   const [hovered, setHovered] = useState(null)
-
-  const Section = ({ title, items, selected, onToggle }) => (
-    <>
-      <div style={{ padding: '8px 16px 4px', fontSize: 11, fontWeight: 600, color: '#666666', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        {title}
+  const noneSelected = selected.length === 0
+  return (
+    <div style={{
+      width: 220, background: '#111111', border: '1px solid #595959',
+      borderRadius: 20, padding: 12,
+      display: 'flex', flexDirection: 'column', gap: 2,
+      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+      fontFamily: FONT, boxSizing: 'border-box',
+    }}>
+      <div
+        onMouseEnter={() => setHovered('all')}
+        onMouseLeave={() => setHovered(null)}
+        onClick={onClearAll}
+        style={{
+          padding: '7px 16px', borderRadius: 12, cursor: 'pointer',
+          background: noneSelected ? '#222222' : hovered === 'all' ? '#1E1E1E' : 'transparent',
+          transition: 'background 0.12s',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}
+      >
+        <span style={{ fontSize: 14, fontWeight: 500, color: noneSelected ? '#FFFFFF' : '#CCCCCC', lineHeight: '20px' }}>
+          All surfaces
+        </span>
+        {noneSelected && (
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
+            <path d="M2 7l3.5 3.5L12 3.5" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
       </div>
-      {items.map(({ key, label }) => {
+      {SURFACE_KEYS.map(key => {
         const isOn = selected.includes(key)
         return (
-          <div key={key}
-            onMouseEnter={() => setHovered(key)} onMouseLeave={() => setHovered(null)}
+          <div
+            key={key}
+            onMouseEnter={() => setHovered(key)}
+            onMouseLeave={() => setHovered(null)}
             onClick={() => onToggle(key)}
             style={{
               padding: '7px 16px', borderRadius: 12, cursor: 'pointer',
               background: hovered === key ? '#1E1E1E' : 'transparent',
               transition: 'background 0.12s',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            }}>
-            <span style={{ fontSize: 14, fontWeight: 500, color: isOn ? '#FFFFFF' : '#888888', lineHeight: '20px' }}>
-              {label}
+            }}
+          >
+            <span style={{ fontSize: 14, fontWeight: 500, color: isOn ? '#FFFFFF' : '#CCCCCC', lineHeight: '20px' }}>
+              {SURFACE_LABELS[key]}
             </span>
             <div style={{
-              width: 18, height: 18, borderRadius: 4, flexShrink: 0,
+              width: 16, height: 16, borderRadius: 4, flexShrink: 0,
               border: isOn ? 'none' : '1.5px solid #494949',
               background: isOn ? '#1D8160' : 'transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'background 0.12s',
-              boxSizing: 'border-box',
+              transition: 'background 0.12s', boxSizing: 'border-box',
             }}>
               {isOn && (
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
                   <path d="M2 7l3.5 3.5L12 3.5" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}
@@ -283,24 +313,6 @@ function PreferencesPanel({ q1, q2, onQ1Toggle, onQ2Toggle }) {
           </div>
         )
       })}
-    </>
-  )
-
-  const q1Items = Object.entries(FOCUS_LABELS).map(([k, v]) => ({ key: k, label: v }))
-  const q2Items = Object.entries(WORKFLOW_LABELS).map(([k, v]) => ({ key: k, label: v }))
-
-  return (
-    <div style={{
-      width: 240, background: '#111111', border: '1px solid #595959',
-      borderRadius: 20, padding: '12px 0',
-      display: 'flex', flexDirection: 'column', gap: 2,
-      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-      fontFamily: FONT, boxSizing: 'border-box',
-      maxHeight: 380, overflowY: 'auto',
-    }}>
-      <Section title="Focus areas" items={q1Items} selected={q1} onToggle={onQ1Toggle} />
-      <div style={{ height: 1, background: '#2A2A2A', margin: '6px 16px' }} />
-      <Section title="Workflows" items={q2Items} selected={q2} onToggle={onQ2Toggle} />
     </div>
   )
 }
@@ -630,7 +642,7 @@ function LoadMoreButton({ remaining, onClick }) {
   )
 }
 
-function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseAllMode = false }) {
+function WorkflowSection({ q1Answers, q2Answers, browseAllMode = false }) {
   const userWorkflowChips = getWorkflowChips(q2Answers)
   /** Workflow pills (All + categories) only after the user has workflow preferences (onboarding or Preferences). */
   const showWorkflowChipsRow = userWorkflowChips.length > 0
@@ -642,7 +654,9 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
 
   const filterWorkflowKey = showWorkflowChipsRow ? activeKey : 'all'
 
-  const [surfaceFilter, setSurfaceFilter] = useState(null)
+  const [surfaceFilter, setSurfaceFilter] = useState(() =>
+    (q1Answers ?? []).map(k => Q1_TO_SURFACE[k]).filter(Boolean)
+  )
   const [categoryFilter, setCategoryFilter] = useState(null)
   const [appTypeFilter, setAppTypeFilter] = useState(null)
   const [discoverFilter, setDiscoverFilter] = useState(null)
@@ -651,20 +665,17 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
   const categoryRef = useRef(null)
   const appTypeRef = useRef(null)
   const discoverRef = useRef(null)
-  const prefsRef = useRef(null)
 
   const [surfaceOpen, setSurfaceOpen] = useState(false)
   const [categoryOpen, setCategoryOpen] = useState(false)
   const [appTypeOpen, setAppTypeOpen] = useState(false)
   const [discoverOpen, setDiscoverOpen] = useState(false)
-  const [prefsOpen, setPrefsOpen] = useState(false)
 
   const closeAll = useCallback(() => {
     setSurfaceOpen(false)
     setCategoryOpen(false)
     setAppTypeOpen(false)
     setDiscoverOpen(false)
-    setPrefsOpen(false)
   }, [])
 
   const PAGE_SIZE = 15
@@ -677,10 +688,6 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
   const apps = allApps.slice(0, visibleCount)
   const hasMore = visibleCount < allApps.length
 
-  const surfaceOptions = [
-    { key: null, label: 'All surfaces' },
-    ...SURFACE_KEYS.map(k => ({ key: k, label: SURFACE_LABELS[k] })),
-  ]
   const categoryOptions = [
     { key: null, label: 'All categories' },
     ...ALL_CATEGORIES.map(c => ({ key: c, label: c })),
@@ -691,8 +698,9 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
   ]
 
   function surfaceLabel() {
-    if (!surfaceFilter) return 'Surface'
-    return SURFACE_LABELS[surfaceFilter]
+    if (surfaceFilter.length === 0) return 'Surface'
+    if (surfaceFilter.length === 1) return SURFACE_LABELS[surfaceFilter[0]]
+    return `${surfaceFilter.length} surfaces`
   }
   function categoryLabel() {
     return categoryFilter || 'Category'
@@ -707,7 +715,7 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
   }
 
   const hasActiveFilters = !!(
-    surfaceFilter ||
+    surfaceFilter.length > 0 ||
     categoryFilter ||
     appTypeFilter ||
     discoverFilter ||
@@ -716,7 +724,7 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
 
   function clearAllFilters() {
     closeAll()
-    setSurfaceFilter(null)
+    setSurfaceFilter([])
     setCategoryFilter(null)
     setAppTypeFilter(null)
     setDiscoverFilter(null)
@@ -724,16 +732,9 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
     setVisibleCount(PAGE_SIZE)
   }
 
-  function handleQ1Toggle(key) {
-    const next = q1Answers.includes(key) ? q1Answers.filter(k => k !== key) : [...q1Answers, key]
-    if (next.length > 0) onQ1Change(next)
-  }
-  function handleQ2Toggle(key) {
-    const next = q2Answers.includes(key) ? q2Answers.filter(k => k !== key) : [...q2Answers, key]
-    if (next.length > 0) {
-      onQ2Change(next)
-      if (activeKey !== 'all' && activeKey && !next.includes(activeKey)) setActiveKey(next[0])
-    }
+  function toggleSurface(key) {
+    setSurfaceFilter(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key])
+    setVisibleCount(PAGE_SIZE)
   }
 
   return (
@@ -754,7 +755,7 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <FilterButton label={surfaceLabel()} active={!!surfaceFilter} open={surfaceOpen}
+          <FilterButton label={surfaceLabel()} active={surfaceFilter.length > 0} open={surfaceOpen}
             innerRef={surfaceRef} onClick={() => { closeAll(); setSurfaceOpen(o => !o) }} />
           <FilterButton label={categoryLabel()} active={!!categoryFilter} open={categoryOpen}
             innerRef={categoryRef} onClick={() => { closeAll(); setCategoryOpen(o => !o) }} />
@@ -762,11 +763,6 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
             innerRef={appTypeRef} onClick={() => { closeAll(); setAppTypeOpen(o => !o) }} />
           <FilterButton label={discoverLabel()} active={!!discoverFilter} open={discoverOpen}
             innerRef={discoverRef} onClick={() => { closeAll(); setDiscoverOpen(o => !o) }} />
-
-          <div style={{ width: 1, height: 20, background: '#333333', flexShrink: 0 }} />
-
-          <FilterButton label="Preferences" active={false} open={prefsOpen}
-            innerRef={prefsRef} onClick={() => { closeAll(); setPrefsOpen(o => !o) }} />
         </div>
       </div>
 
@@ -830,9 +826,12 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
       <AnimatePresence>
         {surfaceOpen && (
           <Dropdown anchorRef={surfaceRef} onClose={() => setSurfaceOpen(false)}
-            anchor="bottom-center" dropdownWidth={200} offsetY={6} showArrow arrowColor="#111111" arrowBorder="#595959">
-            <DropdownPanel options={surfaceOptions} active={surfaceFilter}
-              onSelect={v => { setSurfaceFilter(v); setSurfaceOpen(false); setVisibleCount(PAGE_SIZE) }} width={200} />
+            anchor="bottom-center" dropdownWidth={220} offsetY={6} showArrow arrowColor="#111111" arrowBorder="#595959">
+            <SurfacePanel
+              selected={surfaceFilter}
+              onToggle={toggleSurface}
+              onClearAll={() => { setSurfaceFilter([]); setVisibleCount(PAGE_SIZE) }}
+            />
           </Dropdown>
         )}
       </AnimatePresence>
@@ -866,15 +865,6 @@ function WorkflowSection({ q1Answers, q2Answers, onQ1Change, onQ2Change, browseA
                 setVisibleCount(PAGE_SIZE)
               }}
             />
-          </Dropdown>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {prefsOpen && (
-          <Dropdown anchorRef={prefsRef} onClose={() => setPrefsOpen(false)}
-            anchor="bottom-right" offsetY={6} showArrow arrowColor="#111111" arrowBorder="#595959">
-            <PreferencesPanel q1={q1Answers} q2={q2Answers}
-              onQ1Toggle={handleQ1Toggle} onQ2Toggle={handleQ2Toggle} />
           </Dropdown>
         )}
       </AnimatePresence>
@@ -941,21 +931,16 @@ export function RecommendationsScreen({
   /** Skip path: same filters and layout as personalized; defaults show the full catalogue (All + unset filters). */
   browseAllMode = false,
 }) {
-  const [q1, setQ1] = useState(initialQ1)
-  const [q2, setQ2] = useState(initialQ2)
-
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={SPRING}
       style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 36, textAlign: 'left' }}>
       <HeaderRow />
       {showTeamSection && (
-        <TeamSection q1Answers={q1} enterpriseTeamSection={enterpriseTeamSection} />
+        <TeamSection q1Answers={initialQ1} enterpriseTeamSection={enterpriseTeamSection} />
       )}
       <WorkflowSection
-        q1Answers={q1}
-        q2Answers={q2}
-        onQ1Change={setQ1}
-        onQ2Change={setQ2}
+        q1Answers={initialQ1}
+        q2Answers={initialQ2}
         browseAllMode={browseAllMode}
       />
       <TipBanner />

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import webexLogo from '../../assets/logos/RGB_Webex_Logo_lockup_horizontal_whitetext.svg'
+import { ONBOARDING_GRADIENT_90, ONBOARDING_GRADIENT_180 } from './onboardingGradients'
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const C = {
@@ -15,7 +16,7 @@ const C = {
   accent:       '#2AAB7D',   // green-500 from design system (was split blue/green)
   accentDim:    '#1c8160',   // darker shade for CTA button bg
   accentHover:  '#4ac397',   // green.400
-  gradient1:    'linear-gradient(90deg, #4ac397 0%, #5cb3f0 100%)',  // green.400 → blue.400
+  gradient1:    ONBOARDING_GRADIENT_90,
 }
 
 // ── Benefit statements ────────────────────────────────────────────────────────
@@ -235,7 +236,7 @@ export function WelcomeScreen() {
             {/* Gradient border — 1.5px, not 3px, to not overpower the card content */}
             <div style={{
               position: 'absolute', inset: 0, borderRadius: 16, padding: 1.5,
-              background: 'linear-gradient(180deg, #4ac397 0%, #5cb3f0 100%)',
+              background: ONBOARDING_GRADIENT_180,
               WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
               WebkitMaskComposite: 'xor', maskComposite: 'exclude',
               pointerEvents: 'none',

@@ -92,11 +92,12 @@ const PROVIDERS = [
   },
 ]
 
+/* Border stroke matches SetPassword / ProfileReview: 1px #494949 idle, #AAAAAA hover. */
 const C = {
   bg:           '#111111',
-  surface:      '#1E1E1E',
-  border:       '#737373',
-  borderModal:  '#737373',
+  surface:      '#222222',
+  border:       '#494949',
+  borderModal:  '#494949',
   borderHover:  '#AAAAAA',
   borderSubtle: '#AAAAAA',
   textPrimary:  '#FFFFFF',
@@ -483,8 +484,8 @@ export function CalendarSyncScreen() {
               onClick={() => navigate('/enterprise-home', { state: { fromOnboarding: true } })}
               style={{
                 alignSelf: 'center',
-                marginTop: 4,
-                padding: '12px 32px',
+                marginTop: 24,
+                padding: '16px 120px',
                 minHeight: 46,
                 fontSize: 14,
                 fontWeight: 600,

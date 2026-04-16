@@ -13,7 +13,7 @@ import { Dropdown } from '../../enterprise-components/Dropdown'
  *   Banner row: LEFT illustration + RIGHT copy (single #1A1A1A fill + 1px hairline border)
  *
  * Section 2 — Meetings:
- *   Header row: "Meetings" h2 + "Connect your calendar" btn
+ *   Header row: "Meetings" h2 + "Connect your calendar" btn (only if not connected)
  *   3 tiles row, gap 20: each bg #3A3A3A, radius 12, padding 20px 24px; icon + label in one row
  * ───────────────────────────────────────────────────────── */
 
@@ -207,36 +207,17 @@ export function MeetingsTab({ calendarConnected, onConnectCalendar, fromMeeting 
             }}>
               Meetings
             </h2>
-            {calendarConnected ? (
-              /* ── After connecting — calendar settings button ── */
-              <button
-                title="Calendar settings"
-                style={{
-                  background: '#222222',
-                  border: '1px solid #494949',
-                  borderRadius: 8, padding: 10,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', transition: 'background 0.15s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = '#2A2A2A'}
-                onMouseLeave={e => e.currentTarget.style.background = '#222222'}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
-                  <path d="M16 2v4M8 2v4m13 6.5V12c0-3.771 0-5.657-1.172-6.828S16.771 4 13 4h-2C7.229 4 5.343 4 4.172 5.172S3 8.229 3 12v2c0 3.771 0 5.657 1.172 6.828S7.229 22 11 22M3 10h18"/>
-                  <path d="M17.5 20.5c.93 0 1.74-.507 2.171-1.26M17.5 20.5c-.93 0-1.74-.507-2.171-1.26M17.5 20.5V22m0-6.5c.93 0 1.74.507 2.17 1.26M17.5 15.5c-.93 0-1.74.507-2.17 1.26m2.17-1.26V14m3.5 2l-1.33.76M14 20l1.329-.76M21 20l-1.329-.76M14 16l1.33.76m4.34 0c.21.365.33.788.33 1.24s-.12.875-.329 1.24m-4.342 0A2.5 2.5 0 0 1 15 18c0-.451.12-.875.33-1.24"/>
-                </svg>
-              </button>
-            ) : (
-              /* ── Before connecting ── */
+            {!calendarConnected && (
               <button
                 onClick={() => onConnectCalendar?.()}
                 style={{
-                background: '#222222',
-                border: '1px solid #494949',
-                borderRadius: 8, padding: 12,
-                display: 'flex', alignItems: 'center', gap: 8,
-                cursor: 'pointer',
-              }}>
+                  background: '#222222',
+                  border: '1px solid #494949',
+                  borderRadius: 8, padding: 12,
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  cursor: 'pointer',
+                }}
+              >
                 <svg width="20" height="20" viewBox="0 0 20 20">
                   <path fill="#FFFFFF" d="M7 11a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 2a1 1 0 1 1-2 0a1 1 0 0 1 2 0m2-2a1 1 0 1 0 0-2a1 1 0 0 0 0 2m1 2a1 1 0 1 1-2 0a1 1 0 0 1 2 0m2-2a1 1 0 1 0 0-2a1 1 0 0 0 0 2m4-5.5A2.5 2.5 0 0 0 14.5 3h-9A2.5 2.5 0 0 0 3 5.5v9A2.5 2.5 0 0 0 5.5 17h9a2.5 2.5 0 0 0 2.5-2.5zM4 7h12v7.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 4 14.5zm1.5-3h9A1.5 1.5 0 0 1 16 5.5V6H4v-.5A1.5 1.5 0 0 1 5.5 4"/>
                 </svg>

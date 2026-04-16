@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'motion/react'
 import logoVerticalRGB from '../../../assets/logos/RGB_Webex_Logo_lockup_vertical_whitetext.svg'
+import { ONBOARDING_GRADIENT_90 } from '../onboardingGradients'
 
 /* ─────────────────────────────────────────────────────────
  * SSOEmailScreen
@@ -23,10 +24,8 @@ const C = {
   textSecond:  '#AAAAAA',
   textMuted:   '#737373',
   textLabel:   '#F7F7F7',
-  accentDim:   '#1D8160',
-  accentHover: '#4ac397',
   red:         '#e05252',
-  gradient1:   'linear-gradient(90deg, #4ac397 0%, #5cb3f0 100%)',
+  gradient1:   ONBOARDING_GRADIENT_90,
 }
 
 const CONTENT = {
@@ -190,13 +189,13 @@ export function SSOEmailScreen() {
               style={{
                 width: '100%', padding: '14px 16px',
                 borderRadius: 9999, border: 'none',
-                background: C.accentDim,
-                fontSize: 14, fontWeight: 600, color: C.textPrimary,
+                background: '#FFFFFF',
+                fontSize: 14, fontWeight: 600, color: C.bg,
                 fontFamily: 'inherit', cursor: 'pointer',
                 transition: 'background 0.15s, transform 0.1s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = C.accentHover; e.currentTarget.style.transform = 'translateY(-1px)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = C.accentDim; e.currentTarget.style.transform = 'translateY(0)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(0)' }}
               onMouseDown={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
               Continue

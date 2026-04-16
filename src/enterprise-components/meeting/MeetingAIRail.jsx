@@ -24,44 +24,53 @@ export function SummaryIcon({ size = 20, color = '#FFFFFF' }) {
   )
 }
 
+const GRADIENT_BORDER =
+  'linear-gradient(90deg, #5A8E52 0%, #2D5D45 28%, #1A4A5A 58%, #2A2A2A 100%)'
+
 function SuggestionCard({ label, gradient, onSelect }) {
   const [hovered, setHovered] = useState(false)
 
-  const inner = (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={() => onSelect(label)}
-      style={{
-        padding: '13px 16px',
-        background: hovered ? '#2A2A2A' : '#1E1E1E',
-        border: gradient ? 'none' : '1px solid #383838',
-        borderRadius: gradient ? 7 : 8,
-        fontSize: 14, fontWeight: 400,
-        color: '#FFFFFF',
-        cursor: 'pointer',
-        transition: 'background 0.12s',
-        fontFamily: "'Inter', system-ui, sans-serif",
-        lineHeight: '20px',
-      }}
-    >
-      {label}
-    </div>
-  )
+  const innerStyle = {
+    padding: '13px 16px',
+    background: hovered ? '#313131' : '#242424',
+    borderRadius: gradient ? 7 : 8,
+    fontSize: 14,
+    fontWeight: 400,
+    color: '#FFFFFF',
+    cursor: 'pointer',
+    transition: 'background 0.12s',
+    fontFamily: "'Inter', system-ui, sans-serif",
+    lineHeight: '20px',
+  }
 
   if (gradient) {
     return (
-      <div style={{
-        padding: 1.2,
-        background: 'linear-gradient(180deg, #81CF62 0%, #00BCF4 100%)',
-        borderRadius: 8,
-      }}>
-        {inner}
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={() => onSelect(label)}
+        style={{
+          padding: 1,
+          borderRadius: 8,
+          background: GRADIENT_BORDER,
+          cursor: 'pointer',
+        }}
+      >
+        <div style={innerStyle}>{label}</div>
       </div>
     )
   }
 
-  return inner
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => onSelect(label)}
+      style={innerStyle}
+    >
+      {label}
+    </div>
+  )
 }
 
 const SUGGESTIONS = [

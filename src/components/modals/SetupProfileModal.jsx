@@ -536,13 +536,14 @@ export function SetupProfileModal({ onClose, onSave }) {
                   onClick={applyCrop}
                   style={{
                     padding: '10px 20px',
-                    background: '#1D8160', border: 'none', borderRadius: 9999,
-                    fontSize: 14, fontWeight: 500, color: '#FFFFFF',
+                    background: '#FFFFFF', border: 'none', borderRadius: 9999,
+                    fontSize: 14, fontWeight: 600, color: '#111111',
                     cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
-                    transition: 'background 0.15s',
+                    transition: 'background 0.15s, transform 0.1s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#166649'}
-                  onMouseLeave={e => e.currentTarget.style.background = '#1D8160'}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(0)' }}
+                  onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0)' }}
                 >
                   Apply crop
                 </button>
@@ -567,13 +568,14 @@ export function SetupProfileModal({ onClose, onSave }) {
                     onClick={handleSave}
                     style={{
                       padding: '10px 20px',
-                      background: '#1D8160', border: 'none', borderRadius: 9999,
-                      fontSize: 14, fontWeight: 500, color: '#FFFFFF',
+                      background: '#FFFFFF', border: 'none', borderRadius: 9999,
+                      fontSize: 14, fontWeight: 600, color: '#111111',
                       cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
-                      transition: 'background 0.15s',
+                      transition: 'background 0.15s, transform 0.1s',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#166649'}
-                    onMouseLeave={e => e.currentTarget.style.background = '#1D8160'}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(0)' }}
+                    onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0)' }}
                   >
                     Update changes
                   </button>

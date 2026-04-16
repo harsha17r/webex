@@ -4,6 +4,7 @@ import { motion } from 'motion/react'
 import { COMPANY, EMPLOYEE } from '../../../config/employee'
 import { useProfile } from '../../../context/ProfileContext'
 import { ProfilePhotoCropOverlay } from '../../../components/profile/ProfilePhotoCropOverlay'
+import { ONBOARDING_GRADIENT_135 } from '../onboardingGradients'
 
 /* ─────────────────────────────────────────────────────────
  * ProfileReviewScreen — Two-column, single-fold layout
@@ -27,19 +28,18 @@ import { ProfilePhotoCropOverlay } from '../../../components/profile/ProfilePhot
  * Right panel slides up on mount.
  * ───────────────────────────────────────────────────────── */
 
+/* Field chrome matches SetPasswordScreen (1px #494949 → #AAAAAA on focus, surface #222222). */
 const C = {
   bg:           '#111111',
-  surface:      '#1E1E1E',    // slightly lighter — inputs are visible now
-  surfaceLock:  '#1A1A1A',
-  border:       '#737373',    // meets 3:1 on #1E1E1E for WCAG 1.4.11
-  borderFocus:  '#4ac397',
+  surface:      '#222222',
+  surfaceLock:  '#222222',
+  border:       '#494949',
   borderSubtle: '#AAAAAA',
   textPrimary:  '#FFFFFF',
   textSecond:   '#AAAAAA',
+  textLabel:    '#F7F7F7',
   textMuted:    '#999999',
-  textLock:     '#8A8A8A',    // was #6A6A6A — actually readable now
-  accentDim:    '#1c8160',
-  accentHover:  '#4ac397',
+  textLock:     '#8A8A8A',
   infoBg:       'rgba(92, 179, 240, 0.07)',
   infoBorder:   'rgba(92, 179, 240, 0.22)',
   infoText:     '#5cb3f0',
@@ -105,53 +105,94 @@ function InfoIcon() {
   )
 }
 
+/* ─────────────────────────────────────────────────────────
+ * ANIMATION STORYBOARD — Locked-field wiggle
+ *
+ * Triggered: user clicks any admin-managed field
+ *
+ *    0ms   field x snaps to 0 (reset)
+ *   16ms   x → −5  (sharp left)
+ *   80ms   x →  5  (bounce right)
+ *  140ms   x → −3  (decay left)
+ *  200ms   x →  3  (decay right)
+ *  260ms   x →  0  (settle)
+ *
+ * Simultaneously the "Admin-managed" badge pulses opacity
+ * 1.0 → 0.5 → 1.0 over 400ms to draw the eye upward.
+ * ───────────────────────────────────────────────────────── */
+
+const LOCKED_WIGGLE = {
+  keyframes: [0, -5, 5, -3, 3, 0],   // x offsets in px — decay pattern
+  duration:  300,                      // ms total
+}
+
+const BADGE_PULSE = {
+  keyframes: [1, 0.45, 1],            // opacity — flash dim then recover
+  duration:  400,                      // ms total
+}
+
 /* ── Sub-components ───────────────────────────────────── */
 
-function SectionHeading({ label }) {
+function SectionHeading({ label, badgeRef }) {
   return (
-    <div style={{ width: '100%', textAlign: 'left' }}>
+    <div style={{
+      width: '100%',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    }}>
       <span style={{
         fontSize: 12, fontWeight: 600, color: C.textMuted,
         textTransform: 'uppercase', letterSpacing: '0.1em',
       }}>
         {label}
       </span>
+      <div
+        ref={badgeRef}
+        style={{ display: 'flex', alignItems: 'center', gap: 4, color: C.textMuted }}
+      >
+        <LockIcon />
+        <span style={{ fontSize: 11, color: C.textMuted, letterSpacing: '0.02em' }}>
+          Admin-managed
+        </span>
+      </div>
     </div>
   )
 }
 
-function LockedField({ label, value }) {
+function LockedField({ label, value, onWiggle }) {
+  const fieldRef = useRef(null)
+
+  function handleClick() {
+    const el = fieldRef.current
+    if (!el) return
+    el.animate(
+      LOCKED_WIGGLE.keyframes.map(x => ({ transform: `translateX(${x}px)` })),
+      { duration: LOCKED_WIGGLE.duration, easing: 'ease-in-out' },
+    )
+    onWiggle?.()
+  }
+
   return (
-    <div style={{ cursor: 'not-allowed' }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginBottom: 6,
-      }}>
-        <label style={{ fontSize: 13, fontWeight: 500, color: C.textSecond }}>
-          {label}
-        </label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 3, color: C.textMuted }}>
-          <LockIcon />
-          <span style={{ fontSize: 11, color: C.textMuted, letterSpacing: '0.02em' }}>
-            Admin-managed
-          </span>
-        </div>
-      </div>
-      <div style={{
-        width: '100%',
-        padding: '10px 14px',
-        minHeight: 44,
-        display: 'flex', alignItems: 'center',
-        background: C.surfaceLock,
-        border: `1px solid ${C.border}`,
-        borderRadius: 8,
-        fontSize: 14, fontWeight: 500, color: C.textLock,
-        lineHeight: '20px',
-        fontFamily: "'Inter', system-ui, sans-serif",
-        boxSizing: 'border-box',
-        userSelect: 'none',
-        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-      }}>
+    <div style={{ cursor: 'not-allowed' }} onClick={handleClick}>
+      <label style={{ display: 'block', fontSize: 14, fontWeight: 500, color: C.textSecond, marginBottom: 8 }}>
+        {label}
+      </label>
+      <div
+        ref={fieldRef}
+        style={{
+          width: '100%',
+          padding: 12,
+          display: 'flex', alignItems: 'center',
+          background: C.surfaceLock,
+          border: `1px solid ${C.border}`,
+          borderRadius: 8,
+          fontSize: 15, fontWeight: 500, color: C.textLock,
+          lineHeight: '22px',
+          fontFamily: "'Inter', system-ui, sans-serif",
+          boxSizing: 'border-box',
+          userSelect: 'none',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}
+      >
         {value}
       </div>
     </div>
@@ -170,6 +211,7 @@ export function ProfileReviewScreen() {
   const navigate = useNavigate()
   const fileRef = useRef(null)
   const cropBlobRef = useRef(null)
+  const badgeRef = useRef(null)
   const { profile, updateProfile } = useProfile()
 
   const [displayName, setDisplayName] = useState(() => profile.name || EMPLOYEE.name)
@@ -178,6 +220,15 @@ export function ProfileReviewScreen() {
   const [cropRawUrl,  setCropRawUrl]   = useState(null)
   const [nameFocus,   setNameFocus]   = useState(false)
   const [phoneFocus,  setPhoneFocus]  = useState(false)
+
+  function pulseBadge() {
+    const el = badgeRef.current
+    if (!el) return
+    el.animate(
+      BADGE_PULSE.keyframes.map(o => ({ opacity: o })),
+      { duration: BADGE_PULSE.duration, easing: 'ease-in-out' },
+    )
+  }
 
   function closeCropper() {
     if (cropBlobRef.current) {
@@ -343,8 +394,8 @@ export function ProfileReviewScreen() {
               <div style={{ flexShrink: 0 }}>
                 <div style={{
                   width: PROFILE_HEADER.avatarPx, height: PROFILE_HEADER.avatarPx, borderRadius: '50%',
-                  background: photo ? 'transparent' : 'linear-gradient(135deg, #2AAB7D, #5cb3f0)',
-                  border: `2px solid ${C.border}`,
+                  background: photo ? 'transparent' : ONBOARDING_GRADIENT_135,
+                  border: `1px solid ${C.border}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   overflow: 'hidden',
                 }}>
@@ -367,11 +418,11 @@ export function ProfileReviewScreen() {
                     gap: PROFILE_HEADER.uploadIconTextGap,
                     padding: PROFILE_HEADER.uploadPadding,
                     background: 'transparent',
-                    border: `1px solid ${C.borderSubtle}`,
+                    border: `1px solid ${C.border}`,
                     borderRadius: PROFILE_HEADER.uploadBorderRadius,
                     fontSize: PROFILE_HEADER.uploadFontPx,
                     fontWeight: 500,
-                    color: C.borderSubtle,
+                    color: C.textSecond,
                     fontFamily: 'inherit',
                     cursor: 'pointer',
                     transition: 'border-color 0.15s, color 0.15s, background 0.15s',
@@ -382,8 +433,8 @@ export function ProfileReviewScreen() {
                     e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = C.borderSubtle
-                    e.currentTarget.style.color = C.borderSubtle
+                    e.currentTarget.style.borderColor = C.border
+                    e.currentTarget.style.color = C.textSecond
                     e.currentTarget.style.background = 'transparent'
                   }}
                 >
@@ -423,8 +474,8 @@ export function ProfileReviewScreen() {
             {/* Display name */}
             <div>
               <label style={{
-                display: 'block', fontSize: 13, fontWeight: 500,
-                color: C.textSecond, marginBottom: 6,
+                display: 'block', fontSize: 14, fontWeight: 500,
+                color: C.textLabel, marginBottom: 8,
               }}>
                 Display name
               </label>
@@ -436,15 +487,14 @@ export function ProfileReviewScreen() {
                 onBlur={() => setNameFocus(false)}
                 placeholder="How others see you in Webex"
                 style={{
-                  width: '100%', padding: '10px 14px',
+                  width: '100%', padding: 12,
                   background: C.surface,
-                  border: `1px solid ${nameFocus ? C.borderFocus : C.border}`,
+                  border: `1px solid ${nameFocus ? C.borderSubtle : C.border}`,
                   borderRadius: 8,
-                  fontSize: 14, fontWeight: 500, color: C.textPrimary,
+                  fontSize: 15, fontWeight: 500, color: C.textPrimary,
                   fontFamily: 'inherit', outline: 'none',
                   caretColor: C.textPrimary, boxSizing: 'border-box',
                   transition: 'border-color 0.15s',
-                  boxShadow: nameFocus ? '0 0 0 3px rgba(74,195,151,0.10)' : 'none',
                 }}
               />
             </div>
@@ -452,8 +502,8 @@ export function ProfileReviewScreen() {
             {/* Phone */}
             <div>
               <label style={{
-                display: 'block', fontSize: 13, fontWeight: 500,
-                color: C.textSecond, marginBottom: 6,
+                display: 'block', fontSize: 14, fontWeight: 500,
+                color: C.textLabel, marginBottom: 8,
               }}>
                 Phone number{' '}
                 <span style={{ color: C.textMuted, fontWeight: 400 }}>(optional)</span>
@@ -466,34 +516,33 @@ export function ProfileReviewScreen() {
                 onBlur={() => setPhoneFocus(false)}
                 placeholder="+1 (555) 000-0000"
                 style={{
-                  width: '100%', padding: '10px 14px',
+                  width: '100%', padding: 12,
                   background: C.surface,
-                  border: `1px solid ${phoneFocus ? C.borderFocus : C.border}`,
+                  border: `1px solid ${phoneFocus ? C.borderSubtle : C.border}`,
                   borderRadius: 8,
-                  fontSize: 14, fontWeight: 500, color: C.textPrimary,
+                  fontSize: 15, fontWeight: 500, color: C.textPrimary,
                   fontFamily: 'inherit', outline: 'none',
-                  caretColor: C.textPrimary, boxSizing: 'border-box',
+                  caretColor: C.textLock, boxSizing: 'border-box',
                   transition: 'border-color 0.15s',
-                  boxShadow: phoneFocus ? '0 0 0 3px rgba(74,195,151,0.10)' : 'none',
                 }}
               />
             </div>
 
-            {/* Section divider */}
-            <SectionHeading label="Account details" />
+            {/* Section divider — single "Admin-managed" badge lives here */}
+            <SectionHeading label="Account details" badgeRef={badgeRef} />
 
-            {/* Locked fields — 2-col grid */}
+            {/* Locked fields — 2-col grid; click wiggles field + pulses badge */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
               gap: '28px 24px',
             }}>
-              <LockedField label="Full name"    value={EMPLOYEE.name} />
-              <LockedField label="Work email"   value={EMPLOYEE.email} />
-              <LockedField label="Job title"    value={EMPLOYEE.jobTitle} />
-              <LockedField label="Department"   value={EMPLOYEE.department} />
+              <LockedField label="Full name"    value={EMPLOYEE.name}       onWiggle={pulseBadge} />
+              <LockedField label="Work email"   value={EMPLOYEE.email}      onWiggle={pulseBadge} />
+              <LockedField label="Job title"    value={EMPLOYEE.jobTitle}   onWiggle={pulseBadge} />
+              <LockedField label="Department"   value={EMPLOYEE.department} onWiggle={pulseBadge} />
               <div style={{ gridColumn: '1 / -1' }}>
-                <LockedField label="Organization" value={COMPANY.name} />
+                <LockedField label="Organization" value={COMPANY.name}      onWiggle={pulseBadge} />
               </div>
             </div>
 
@@ -502,16 +551,16 @@ export function ProfileReviewScreen() {
               type="button"
               onClick={handleSaveAndContinue}
               style={{
-                width: '100%', padding: '13px 16px',
-                marginTop: 6,
-                background: 'linear-gradient(90deg, #1c8160 0%, #2aab7d 100%)',
+                width: '100%', padding: '16px 14px',
+                marginTop: 16,
+                background: '#FFFFFF',
                 border: 'none', borderRadius: 9999,
-                fontSize: 14, fontWeight: 600, color: C.textPrimary,
+                fontSize: 14, fontWeight: 600, color: C.bg,
                 fontFamily: 'inherit', cursor: 'pointer',
-                transition: 'opacity 0.15s, transform 0.1s',
+                transition: 'background 0.15s, transform 0.1s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(0)' }}
               onMouseDown={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
               Save & continue

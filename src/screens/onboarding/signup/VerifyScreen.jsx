@@ -15,6 +15,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import logoVerticalRGB from '../../../assets/logos/RGB_Webex_Logo_lockup_vertical_whitetext.svg'
+import { ONBOARDING_GRADIENT_90 } from '../onboardingGradients'
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const C = {
@@ -25,10 +26,8 @@ const C = {
   textPrimary:  '#FFFFFF',
   textSecond:   '#AAAAAA',
   textLink:     '#E9E9E9',
-  accentDim:    '#1D8160',
-  accentHover:  '#4ac397',
   linkBlue:     '#5cb3f0',
-  gradient1:    'linear-gradient(90deg, #4ac397 0%, #5cb3f0 100%)',
+  gradient1:    ONBOARDING_GRADIENT_90,
 }
 
 // ── TIMING — all stage delays in ms ───────────────────────────────────────────
@@ -301,16 +300,16 @@ export function VerifyScreen() {
                     onClick={handleVerify}
                     style={{
                       width: '100%', padding: '14px 16px',
-                      background: C.accentDim,
+                      background: '#FFFFFF',
                       opacity: allFilled ? 1 : 0.45,
                       border: 'none', borderRadius: 9999,
-                      fontSize: 14, fontWeight: 600, color: C.textPrimary,
+                      fontSize: 14, fontWeight: 600, color: C.bg,
                       fontFamily: 'inherit',
                       cursor: allFilled ? 'pointer' : 'default',
                       transition: 'background 0.15s, transform 0.1s, opacity 0.15s',
                     }}
-                    onMouseEnter={e => { if (allFilled) { e.currentTarget.style.background = C.accentHover; e.currentTarget.style.transform = 'translateY(-1px)' }}}
-                    onMouseLeave={e => { e.currentTarget.style.background = C.accentDim; e.currentTarget.style.transform = 'translateY(0)' }}
+                    onMouseEnter={e => { if (allFilled) { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.transform = 'translateY(-1px)' }}}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(0)' }}
                     onMouseDown={e => { if (allFilled) e.currentTarget.style.transform = 'translateY(0)' }}
                   >
                     Verify
