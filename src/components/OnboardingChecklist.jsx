@@ -10,7 +10,7 @@ import { ConnectCalendarModal } from './modals/ConnectCalendarModal'
  *
  * OPEN  (click header):
  *    0ms   card      → height 0 → auto  (spring, expands)
- *    0ms   chevron   → rotate 0° → 180°  (spring)
+ *    0ms   chevron   → rotate 180° → 0°  (spring, points down when open)
  *    0ms   row 1     → y:8 → 0, opacity 0 → 1  (spring)
  *   50ms   row 2     → y:8 → 0, opacity 0 → 1  (stagger)
  *  100ms   row 3     → y:8 → 0, opacity 0 → 1
@@ -20,7 +20,7 @@ import { ConnectCalendarModal } from './modals/ConnectCalendarModal'
  *
  * CLOSE (click header):
  *    0ms   rows+footer → opacity 1 → 0  (simultaneous, fast 80ms)
- *    0ms   chevron     → rotate 180° → 0°  (spring)
+ *    0ms   chevron     → rotate 0° → 180°  (spring, points up when closed)
  *    0ms   card        → height auto → 0  (spring, collapses)
  *
  * TASK COMPLETE (click row):
@@ -235,7 +235,7 @@ export function OnboardingChecklist({ calendarConnected, onCalendarConnect, onTe
         {/* Chevron — spring rotation, not CSS transition */}
         <motion.svg
           width="20" height="20" viewBox="0 0 20 20"
-          animate={{ rotate: open ? 180 : 0 }}
+          animate={{ rotate: open ? 0 : 180 }}
           transition={CHEVRON.spring}
           style={{ flexShrink: 0, originX: '50%', originY: '50%' }}
         >
@@ -358,6 +358,7 @@ export function OnboardingChecklist({ calendarConnected, onCalendarConnect, onTe
         <NotificationSettingsModal
           onClose={() => setNotifModalOpen(false)}
           onSave={() => toggleTask('notifications')}
+          initialNav="notifications"
         />
       )}
     </AnimatePresence>

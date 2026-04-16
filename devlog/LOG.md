@@ -5,6 +5,55 @@
 
 ---
 
+### [2026-04-15] — Meeting toolbar, toast, carousel, and modal fixes
+
+**Status:** 🟢 Done
+
+**What changed:**
+Six areas updated across both SMB and enterprise variants.
+
+1. **Share screen icon** — replaced the old upload-arrow SVG with the Fluent `share-screen-24-regular` icon (monitor + upward arrow) in both `MeetingScreen.jsx` files.
+
+2. **Record button** — added a new "Record" toolbar button with the `uil:record-audio` icon (concentric circles) between Share and Raise in both meeting screens.
+
+3. **Toast notification — repositioned + arrow notch** — moved the toast container from top-right to `top: 68, left: 264`, anchoring it directly below the blinking AI status icon. Added a CSS border-triangle arrow notch pointing up toward the icon. Toast duration extended to 10 seconds.
+
+4. **AI tooltip suppressed during toast** — passed `toastVisible={toasts.length > 0}` into `AIStatusIcon` and gated the hover tooltip behind `!toastVisible`, so the tooltip doesn't appear while the toast is already showing the same message.
+
+5. **Notification settings modal fix** — removed a redundant `useEffect` in both `NotificationSettingsModal.jsx` files that was resetting `activeNav` back to `general` after mount, overriding the `initialNav="notifications"` prop passed from the checklist.
+
+6. **Messages carousel** — added auto-advance (10s per slide, no loop) to both `MessageStage.jsx` files. Replaced dot indicators with pill-shaped progress bars: active slide is wide (32px) with a 10s fill animation; inactive slides are narrow 6px grey dots.
+
+**Files touched:**
+- `src/screens/meeting/MeetingScreen.jsx`
+- `src/screens/enterprise-meeting/MeetingScreen.jsx`
+- `src/screens/home/MessageStage.jsx`
+- `src/screens/enterprise-home/MessageStage.jsx`
+- `src/components/modals/NotificationSettingsModal.jsx`
+- `src/enterprise-components/modals/NotificationSettingsModal.jsx`
+- `src/components/OnboardingChecklist.jsx`
+- `src/enterprise-components/OnboardingChecklist.jsx`
+
+**Next up:**
+Fine-tune toast left offset if it drifts from the AI icon at different viewport widths. Consider making the toast anchor dynamic using a ref on the AI icon element.
+
+---
+
+### [2026-04-15] — Welcome screen: CTA, legal links, spacing
+
+**Status:** 🟢 Done
+
+**What changed:**
+Updated onboarding `WelcomeScreen.jsx` for clearer hierarchy and safer tap targets. Primary CTA label is **Get started** on a **white** pill with **dark** (`#111`) text and a light grey hover. **Terms of Service** and **Privacy Statement** are **grey** with **underlines** (underline color slightly softer than link text) instead of accent green/blue. Vertical rhythm separates **sign-up** (heading → email → CTA), **SSO** (`marginTop` before “or continue with”), and **secondary actions** (outer column `gap` before the lower block). Secondary block order: **Join a meeting** first, then **FedRAMP** row, then legal copy; FedRAMP and terms use `marginTop` so links are not stacked tight against buttons. Legal line kept **inline** (no forced line break) to reduce awkward link stacking.
+
+**Files touched:**
+- `src/screens/onboarding/WelcomeScreen.jsx`
+
+**Next up:**
+Tune the documented spacing knobs (`gap` on the right column, `marginBottom` on the heading cluster, `marginTop` on SSO / FedRAMP / terms) if product wants tighter or looser rhythm. No git push requested for this log entry.
+
+---
+
 ### [2026-04-08] — Teams tab empty state
 
 **Status:** 🟢 Done

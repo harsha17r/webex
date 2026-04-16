@@ -706,8 +706,9 @@ function GeneralPanel() {
 
 /* ── Main component ────────────────────────────────────── */
 
-export function NotificationSettingsModal({ onClose, onSave }) {
-  const [activeNav,    setActiveNav]    = useState('general')
+export function NotificationSettingsModal({ onClose, onSave, initialNav = 'general' }) {
+  const defaultNav = NAV.some(item => item.key === initialNav) ? initialNav : 'general'
+  const [activeNav,    setActiveNav]    = useState(defaultNav)
   const [hoveredNav,   setHoveredNav]   = useState(null)
   const [atBottom,     setAtBottom]     = useState(false)
   const scrollRef        = useRef(null)
@@ -773,6 +774,7 @@ export function NotificationSettingsModal({ onClose, onSave }) {
   }
 
   useEffect(() => { checkScroll() }, [activeNav])
+
 
   useEffect(() => {
     if (quietExpanded) {

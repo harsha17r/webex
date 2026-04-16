@@ -928,7 +928,8 @@ function CreateSpaceView({ onClose }) {
 export function MessageStage({ view, onClose }) {
   const [current, setCurrent]               = useState(0)
   const [containerWidth, setContainerWidth] = useState(0)
-  const containerRef = useRef(null)
+  const containerRef  = useRef(null)
+  const autoTimerRef  = useRef(null)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -939,6 +940,16 @@ export function MessageStage({ view, onClose }) {
     return () => ro.disconnect()
   }, [])
 
+  // Auto-advance: 15 s per slide, no loop, stops at last slide
+  useEffect(() => {
+    if (view) return // only run on the default carousel view
+    if (current >= SLIDES.length - 1) return
+    autoTimerRef.current = setTimeout(() => {
+      setCurrent(c => Math.min(SLIDES.length - 1, c + 1))
+    }, 10000)
+    return () => clearTimeout(autoTimerRef.current)
+  }, [current, view])
+
   if (view === 'recommended')    return <RecommendedMessagesView />
   if (view === 'welcome-space') return <WelcomeSpaceChatView />
   if (view === 'new-message')    return <NewMessageView onClose={onClose} />
@@ -948,8 +959,8 @@ export function MessageStage({ view, onClose }) {
   const cardWidth  = containerWidth > 0 ? containerWidth - PEEK - GAP : 0
   const translateX = current * (cardWidth + GAP)
 
-  function prev() { setCurrent(c => Math.max(0, c - 1)) }
-  function next() { setCurrent(c => Math.min(SLIDES.length - 1, c + 1)) }
+  function prev() { clearTimeout(autoTimerRef.current); setCurrent(c => Math.max(0, c - 1)) }
+  function next() { clearTimeout(autoTimerRef.current); setCurrent(c => Math.min(SLIDES.length - 1, c + 1)) }
 
   return (
     <div style={{
@@ -1081,18 +1092,46 @@ export function MessageStage({ view, onClose }) {
         )}
       </div>
 
-      {/* Dots */}
-      <div style={{ display: 'flex', gap: 6, marginTop: 14 }}>
+      {/* Progress indicators */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 14 }}>
         {SLIDES.map((_, i) => (
-          <button key={i} onClick={() => setCurrent(i)} style={{
-            width: i === current ? 18 : 6, height: 6,
-            borderRadius: 9999,
-            background: i === current ? '#FFFFFF' : '#2E2E2E',
-            border: 'none', cursor: 'pointer', padding: 0,
-            transition: 'width 0.2s, background 0.2s',
-          }}/>
+          <button
+            key={i}
+            onClick={() => { clearTimeout(autoTimerRef.current); setCurrent(i) }}
+            style={{
+              width: i === current ? 32 : 6,
+              height: i === current ? 4 : 4,
+              borderRadius: 9999,
+              background: '#2E2E2E',
+              border: 'none', cursor: 'pointer', padding: 0,
+              position: 'relative', overflow: 'hidden',
+              transition: 'width 0.25s',
+              flexShrink: 0,
+            }}
+          >
+            {i === current && i < SLIDES.length - 1 && (
+              <div
+                key={current}
+                style={{
+                  position: 'absolute', inset: 0,
+                  background: '#FFFFFF', borderRadius: 9999,
+                  transformOrigin: 'left center',
+                  animation: 'progressFill 10s linear forwards',
+                }}
+              />
+            )}
+            {i === current && i === SLIDES.length - 1 && (
+              <div style={{ position: 'absolute', inset: 0, background: '#FFFFFF', borderRadius: 9999 }} />
+            )}
+          </button>
         ))}
       </div>
+      <style>{`
+        @keyframes progressFill {
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
+        }
+      `}</style>
 
       {/* Secondary actions */}
       <div style={{ display: 'flex', gap: 10, marginTop: 56 }}>

@@ -271,7 +271,7 @@ export function MeetingScreen() {
   function addToast(message) {
     const id = ++toastIdRef.current
     setToasts(prev => [...prev, { id, message }])
-    toastTimersRef.current[id] = setTimeout(() => removeToast(id), 5000)
+    toastTimersRef.current[id] = setTimeout(() => removeToast(id), 10000)
   }
   function removeToast(id) {
     clearTimeout(toastTimersRef.current[id])
@@ -472,7 +472,7 @@ export function MeetingScreen() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span style={{ fontSize: 14, fontWeight: 400, color: '#FFFFFF', fontVariantNumeric: 'tabular-nums', display: 'inline-block', minWidth: 44 }}>{fmt(elapsed)}</span>
             <NetworkStatusIcon />
-            {summaryActive && <AIStatusIcon />}
+            {summaryActive && <AIStatusIcon toastVisible={toasts.length > 0} />}
           </div>
         </div>
 
@@ -782,8 +782,13 @@ export function MeetingScreen() {
             onOpenVideo={() => setVideoMenuOpen(o => !o)}
           />
           <ToolbarBtn label="Share">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path fill="#FFFFFF" d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45l-2.6-2.6V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path d="M19.75 4A2.25 2.25 0 0 1 22 6.25v11.5A2.25 2.25 0 0 1 19.75 20H4.25A2.25 2.25 0 0 1 2 17.75V6.25A2.25 2.25 0 0 1 4.25 4h15.5zm0 1.5H4.25a.75.75 0 0 0-.75.75v11.5c0 .414.336.75.75.75h15.5a.75.75 0 0 0 .75-.75V6.25a.75.75 0 0 0-.75-.75zM12 7.245a.75.75 0 0 1 .53.22l3.255 3.255a.75.75 0 1 1-1.06 1.06L12.75 9.806v6.447a.75.75 0 0 1-1.5 0V9.808L9.28 11.78a.75.75 0 1 1-1.06-1.06l3.25-3.254a.75.75 0 0 1 .53-.22z" fill="currentColor" fill-rule="nonzero"/>
+            </svg>
+          </ToolbarBtn>
+          <ToolbarBtn label="Record">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m0-14a6 6 0 1 0 6 6a6 6 0 0 0-6-6m0 10a4 4 0 1 1 4-4a4 4 0 0 1-4 4"/>
             </svg>
           </ToolbarBtn>
           <ToolbarBtn label="Raise">
@@ -843,13 +848,12 @@ export function MeetingScreen() {
         </div>
       </motion.div>
 
-      {/* ── Toast notifications — drop from top, stack below top bar ── */}
+      {/* ── Toast notifications — anchored below AI status icon (top-left) ── */}
       <div style={{
-        position: 'absolute', top: 76,
-        right: railOpen ? 391 : 20,
+        position: 'absolute', top: 68,
+        left: 40,
         display: 'flex', flexDirection: 'column', gap: 8,
         zIndex: 28,
-        transition: 'right 0.45s cubic-bezier(0.34, 1.2, 0.64, 1)',
         pointerEvents: 'none',
       }}>
         <AnimatePresence>
@@ -2481,53 +2485,76 @@ function ToastNotification({ message, onClose }) {
   const [hovered, setHovered] = useState(false)
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12, scale: 0.97 }}
+      exit={{ opacity: 0, y: -8, scale: 0.97 }}
       transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        width: 300,
-        background: hovered ? '#1A1A1A' : '#111111',
-        border: '1px solid #595959',
-        borderRadius: 8,
-        padding: '12px 14px',
-        display: 'flex', alignItems: 'flex-start', gap: 10,
-        backdropFilter: 'blur(24px)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.45)',
-        pointerEvents: 'auto',
-        transition: 'background 0.15s',
-        boxSizing: 'border-box',
-        fontFamily: "'Inter', system-ui, sans-serif",
-      }}
+      style={{ position: 'relative', pointerEvents: 'auto' }}
     >
-      {/* Summary icon */}
-      <div style={{ flexShrink: 0, marginTop: 1 }}>
-        <SummaryIcon size={16} />
-      </div>
-      {/* Message */}
-      <span style={{
-        flex: 1, fontSize: 13, fontWeight: 400, color: '#FFFFFF',
-        lineHeight: '18px',
-      }}>
-        {message}
-      </span>
-      {/* Close */}
-      <button
-        onClick={onClose}
+      {/* Upward arrow notch pointing at the AI icon above */}
+      <div style={{
+        position: 'absolute',
+        top: -7,
+        left: 20,
+        width: 0, height: 0,
+        borderLeft: '7px solid transparent',
+        borderRight: '7px solid transparent',
+        borderBottom: '7px solid #595959',
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: -6,
+        left: 21,
+        width: 0, height: 0,
+        borderLeft: '6px solid transparent',
+        borderRight: '6px solid transparent',
+        borderBottom: '6px solid #111111',
+        zIndex: 1,
+      }} />
+      <motion.div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          padding: 2, display: 'flex', alignItems: 'center', flexShrink: 0,
-          opacity: 0.55, transition: 'opacity 0.15s', marginTop: 1,
+          width: 300,
+          background: hovered ? '#1A1A1A' : '#111111',
+          border: '1px solid #595959',
+          borderRadius: 8,
+          padding: '12px 14px',
+          display: 'flex', alignItems: 'flex-start', gap: 10,
+          backdropFilter: 'blur(24px)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.45)',
+          transition: 'background 0.15s',
+          boxSizing: 'border-box',
+          fontFamily: "'Inter', system-ui, sans-serif",
         }}
-        onMouseEnter={e => e.currentTarget.style.opacity = '1'}
-        onMouseLeave={e => e.currentTarget.style.opacity = '0.55'}
       >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2 2L10 10M10 2L2 10" stroke="#FFFFFF" strokeWidth="1.4" strokeLinecap="round"/>
-        </svg>
-      </button>
+        {/* Summary icon */}
+        <div style={{ flexShrink: 0, marginTop: 1 }}>
+          <SummaryIcon size={16} />
+        </div>
+        {/* Message */}
+        <span style={{
+          flex: 1, fontSize: 13, fontWeight: 400, color: '#FFFFFF',
+          lineHeight: '18px',
+        }}>
+          {message}
+        </span>
+        {/* Close */}
+        <button
+          onClick={onClose}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: 2, display: 'flex', alignItems: 'center', flexShrink: 0,
+            opacity: 0.55, transition: 'opacity 0.15s', marginTop: 1,
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '0.55'}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 2L10 10M10 2L2 10" stroke="#FFFFFF" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+        </button>
+      </motion.div>
     </motion.div>
   )
 }
@@ -2647,7 +2674,7 @@ function NetworkStatusIcon() {
  * 2000ms   opacity eases up to 1.0   (easeInOut)
  * 4000ms   opacity eases back to 0.55 (easeInOut, repeat)
  * ───────────────────────────────────────────────────────── */
-function AIStatusIcon() {
+function AIStatusIcon({ toastVisible = false }) {
   const [hovered, setHovered] = useState(false)
 
   return (
@@ -2666,9 +2693,9 @@ function AIStatusIcon() {
         <path d="M16 3h2.6A2.4 2.4 0 0 1 21 5.4v15.2a2.4 2.4 0 0 1-2.4 2.4H5.4A2.4 2.4 0 0 1 3 20.6V5.4A2.4 2.4 0 0 1 5.4 3H8M7 13h4m-4-3h10M7 16h2M8.8 1h6.4a.8.8 0 0 1 .8.8v2.4a.8.8 0 0 1-.8.8H8.8a.8.8 0 0 1-.8-.8V1.8a.8.8 0 0 1 .8-.8m5.506 12.776l-.377 1.508a.2.2 0 0 1-.145.145l-1.508.377c-.202.05-.202.338 0 .388l1.508.377a.2.2 0 0 1 .145.145l.377 1.508c.05.202.338.202.388 0l.377-1.508a.2.2 0 0 1 .145-.145l1.508-.377c.202-.05.202-.337 0-.388l-1.508-.377a.2.2 0 0 1-.145-.145l-.377-1.508c-.05-.202-.338-.202-.388 0"/>
       </motion.svg>
 
-      {/* Tooltip */}
+      {/* Tooltip — suppressed while toast is visible */}
       <AnimatePresence>
-        {hovered && (
+        {hovered && !toastVisible && (
           <motion.div
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
