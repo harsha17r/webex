@@ -322,13 +322,13 @@ export function WelcomeScreen() {
         <div style={{
           width: 360, flexShrink: 0,
           display: 'flex', flexDirection: 'column',
-          gap: 28,
+          gap: 36,
         }}>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
             {/* Heading */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'center', marginBottom: 24 }}>
               <h1 style={{ fontSize: 32, lineHeight: '40px', fontWeight: 600, color: C.textPrimary, margin: 0 }}>
                 Welcome to Webex
               </h1>
@@ -340,8 +340,8 @@ export function WelcomeScreen() {
               </p>
             </div>
 
-            {/* Email + CTA — shared r=8, gap=10 within group */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* Email + CTA */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <input
                 type="email"
                 placeholder="name@email.com"
@@ -375,22 +375,22 @@ export function WelcomeScreen() {
                 onClick={handleGetStarted}
                 style={{
                   width: '100%', padding: '14px 16px',
-                  background: C.accentDim,
+                  background: '#FFFFFF',
                   border: 'none', borderRadius: 9999,
-                  fontSize: 14, fontWeight: 600, color: C.textPrimary,
+                  fontSize: 14, fontWeight: 600, color: C.bg,
                   fontFamily: 'inherit', cursor: 'pointer',
                   transition: 'background 0.15s, transform 0.1s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = C.accentHover; e.currentTarget.style.transform = 'translateY(-1px)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = C.accentDim; e.currentTarget.style.transform = 'translateY(0)' }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#FFFFFF'; e.currentTarget.style.transform = 'translateY(0)' }}
                 onMouseDown={e => e.currentTarget.style.transform = 'translateY(0)'}
               >
-                Get started for free
+                Get started
               </button>
             </div>
 
-            {/* SSO — 28px gap from CTA to signal new section */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 4 }}>
+            {/* SSO providers */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 28 }}>
               <p style={{ fontSize: 13, color: C.textSecond, textAlign: 'center', margin: 0 }}>
                 or continue with
               </p>
@@ -427,7 +427,7 @@ export function WelcomeScreen() {
           </div>
 
           {/* ── Secondary actions ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 40 }}>
 
             {/* FedRAMP — subtle inline label + link, clearly secondary */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 6, textAlign: 'center' }}>
@@ -470,9 +470,35 @@ export function WelcomeScreen() {
             <p style={{ fontSize: 13, lineHeight: '24px', color: C.textMuted, textAlign: 'center', margin: 0 }}>
               By using Webex, you agree to the
               <br />
-              <span style={{ color: C.accent, cursor: 'pointer', transition: 'opacity 0.15s' }} {...linkHover}>Terms of Service</span>
+              <span
+                style={{
+                  color: C.textSecond,
+                  cursor: 'pointer',
+                  transition: 'color 0.15s, text-decoration-color 0.15s',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: 3,
+                  textDecorationColor: '#8a8a8a',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = C.textPrimary; e.currentTarget.style.textDecorationColor = C.textSecond }}
+                onMouseLeave={e => { e.currentTarget.style.color = C.textSecond; e.currentTarget.style.textDecorationColor = '#8a8a8a' }}
+              >
+                Terms of Service
+              </span>
               {' '}and{' '}
-              <span style={{ color: C.accent, cursor: 'pointer', transition: 'opacity 0.15s' }} {...linkHover}>Privacy Statement</span>.
+              <span
+                style={{
+                  color: C.textSecond,
+                  cursor: 'pointer',
+                  transition: 'color 0.15s, text-decoration-color 0.15s',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: 3,
+                  textDecorationColor: '#8a8a8a',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = C.textPrimary; e.currentTarget.style.textDecorationColor = C.textSecond }}
+                onMouseLeave={e => { e.currentTarget.style.color = C.textSecond; e.currentTarget.style.textDecorationColor = '#8a8a8a' }}
+              >
+                Privacy Statement
+              </span>.
             </p>
           </div>
 
