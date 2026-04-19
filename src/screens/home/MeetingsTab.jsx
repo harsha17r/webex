@@ -137,16 +137,7 @@ export function MeetingsTab({ calendarConnected, fromMeeting = false, meetingEla
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   padding: 24, boxSizing: 'border-box',
                 }}>
-                  <svg width="160" height="110" viewBox="0 0 160 110" fill="none">
-                    <rect x="0"  y="0"  width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
-                    <rect x="0"  y="60" width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
-                    <rect x="85" y="0"  width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
-                    <rect x="85" y="60" width="75" height="50" rx="5" fill="#383838" stroke="#606060" strokeWidth="1"/>
-                    <circle cx="37"  cy="20" r="10" fill="#555555"/>
-                    <circle cx="122" cy="20" r="10" fill="#555555"/>
-                    <circle cx="37"  cy="80" r="10" fill="#555555"/>
-                    <circle cx="122" cy="80" r="10" fill="#555555"/>
-                  </svg>
+                  <img src="/illustrations/webex-test-meeting.png" alt="" width="260" style={{ display: 'block' }} />
                 </div>
 
                 <div style={{

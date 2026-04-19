@@ -1,4 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
+import {
+  CreateSpaceIllustration,
+  ThreadAndReactIllustration,
+  ShareFilesIllustration,
+  AICatchesUpIllustration,
+  AppsIntegrationsIllustration,
+} from '../../components/illustrations/SlideIllustrations'
 
 /* ─────────────────────────────────────────────────────────
  * Carousel layout:
@@ -16,26 +23,31 @@ const SLIDES = [
     key: 'spaces',
     title: 'Create a Space',
     description: 'Bring your team together in a shared space. Invite anyone with an email.',
+    illustration: <CreateSpaceIllustration />,
   },
   {
     key: 'messaging',
     title: 'Thread and React',
     description: 'Reply in threads, pin messages, and react. Conversations stay clean.',
+    illustration: <ThreadAndReactIllustration />,
   },
   {
     key: 'files',
     title: 'Share Files Instantly',
     description: 'Drop files into any conversation. Co-edit with your team in real time.',
+    illustration: <ShareFilesIllustration />,
   },
   {
     key: 'ai',
     title: 'AI Catches You Up',
     description: 'Missed a thread? Cisco AI summarizes it so you are always in the loop.',
+    illustration: <AICatchesUpIllustration />,
   },
   {
     key: 'integrations',
     title: 'Apps You Already Use',
     description: 'Connect Salesforce, Google, Microsoft and 100 more without leaving Webex.',
+    illustration: <AppsIntegrationsIllustration />,
   },
 ]
 
@@ -934,6 +946,7 @@ function CreateSpaceView({ onClose }) {
 function DefaultMessagesCarousel() {
   const [current, setCurrent]               = useState(0)
   const [containerWidth, setContainerWidth] = useState(0)
+  const [arrowHover, setArrowHover]         = useState(null)
   const containerRef  = useRef(null)
   const autoTimerRef  = useRef(null)
 
@@ -979,8 +992,8 @@ function DefaultMessagesCarousel() {
         <h2 style={{ fontSize: 20, fontWeight: 600, color: '#FFFFFF', margin: '0 0 4px', lineHeight: '28px' }}>
           Your messages live here
         </h2>
-        <p style={{ fontSize: 13, fontWeight: 400, color: '#666666', margin: 0 }}>
-          Here is what you can do with Messages
+        <p style={{ fontSize: 13, fontWeight: 400, color: '#555555', margin: 0 }}>
+          Five features worth knowing before you start.
         </p>
       </div>
 
@@ -1014,27 +1027,22 @@ function DefaultMessagesCarousel() {
                   position: 'relative',
                   background: '#2A2A2A',
                 }}>
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {/* Placeholder grid to suggest image composition */}
-                    <svg width="48" height="36" viewBox="0 0 48 36" fill="none" opacity="0.2">
-                      <rect width="48" height="36" rx="3" fill="#888"/>
-                      <circle cx="15" cy="13" r="5" fill="#888"/>
-                      <path d="M0 26l12-10 8 7 10-12 18 15H0z" fill="#888"/>
-                    </svg>
+                  <div style={{ position: 'absolute', inset: 0 }}>
+                    {slide.illustration}
                   </div>
                 </div>
 
-                {/* Text */}
-                <div style={{ padding: '14px 18px 18px' }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', margin: '0 0 4px', lineHeight: '20px' }}>
+                {/* Text — keyed to current so it fades in fresh on each slide advance */}
+                <div
+                  key={`text-${slide.key}-${current}`}
+                  style={{ padding: '12px 16px 16px', animation: 'slideTextIn 0.22s ease-out both' }}
+                >
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', margin: '0 0 3px', lineHeight: '20px' }}>
                     {slide.title}
                   </p>
                   <p style={{
-                    fontSize: 13, fontWeight: 400, color: '#777777',
-                    margin: 0, lineHeight: '20px',
+                    fontSize: 12, fontWeight: 400, color: '#888888',
+                    margin: 0, lineHeight: '18px',
                     overflow: 'hidden',
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
@@ -1052,7 +1060,7 @@ function DefaultMessagesCarousel() {
         {current < SLIDES.length - 1 && (
           <div style={{
             position: 'absolute', top: 0, right: 0,
-            width: PEEK + 20, height: '100%',
+            width: 28, height: '100%',
             background: 'linear-gradient(to right, transparent, #1A1A1A)',
             pointerEvents: 'none',
           }}/>
@@ -1060,14 +1068,21 @@ function DefaultMessagesCarousel() {
 
         {/* Left arrow */}
         {current > 0 && (
-          <button onClick={prev} style={{
-            position: 'absolute', left: -20, top: '50%', transform: 'translateY(-50%)',
-            width: 40, height: 40, borderRadius: 9999,
-            background: '#2A2A2A', border: '1px solid #404040',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', zIndex: 2,
-            boxShadow: '0 2px 12px rgba(0,0,0,0.6)',
-          }}>
+          <button
+            onClick={prev}
+            onMouseEnter={() => setArrowHover('prev')}
+            onMouseLeave={() => setArrowHover(null)}
+            style={{
+              position: 'absolute', left: -20, top: '50%', transform: 'translateY(-50%)',
+              width: 40, height: 40, borderRadius: 9999,
+              background: arrowHover === 'prev' ? '#383838' : '#2A2A2A',
+              border: `1px solid ${arrowHover === 'prev' ? '#555555' : '#404040'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', zIndex: 2,
+              boxShadow: '0 2px 12px rgba(0,0,0,0.6)',
+              transition: 'background 0.15s, border-color 0.15s',
+            }}
+          >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M11 4L7 9L11 14" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -1076,14 +1091,21 @@ function DefaultMessagesCarousel() {
 
         {/* Right arrow */}
         {current < SLIDES.length - 1 && (
-          <button onClick={next} style={{
-            position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)',
-            width: 40, height: 40, borderRadius: 9999,
-            background: '#2A2A2A', border: '1px solid #404040',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', zIndex: 2,
-            boxShadow: '0 2px 12px rgba(0,0,0,0.6)',
-          }}>
+          <button
+            onClick={next}
+            onMouseEnter={() => setArrowHover('next')}
+            onMouseLeave={() => setArrowHover(null)}
+            style={{
+              position: 'absolute', right: -20, top: '50%', transform: 'translateY(-50%)',
+              width: 40, height: 40, borderRadius: 9999,
+              background: arrowHover === 'next' ? '#383838' : '#2A2A2A',
+              border: `1px solid ${arrowHover === 'next' ? '#555555' : '#404040'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', zIndex: 2,
+              boxShadow: '0 2px 12px rgba(0,0,0,0.6)',
+              transition: 'background 0.15s, border-color 0.15s',
+            }}
+          >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M7 4L11 9L7 14" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -1101,7 +1123,7 @@ function DefaultMessagesCarousel() {
               width: i === current ? 32 : 6,
               height: 4,
               borderRadius: 9999,
-              background: '#2E2E2E',
+              background: '#484848',
               border: 'none', cursor: 'pointer', padding: 0,
               position: 'relative', overflow: 'hidden',
               transition: 'width 0.25s',
@@ -1130,10 +1152,14 @@ function DefaultMessagesCarousel() {
           from { transform: scaleX(0); }
           to   { transform: scaleX(1); }
         }
+        @keyframes slideTextIn {
+          from { opacity: 0; transform: translateY(4px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
       `}</style>
 
       {/* Secondary actions */}
-      <div style={{ display: 'flex', gap: 10, marginTop: 56 }}>
+      <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
         <ActionButton
           label="Send a message"
           icon={

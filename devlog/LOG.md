@@ -5,6 +5,68 @@
 
 ---
 
+### [2026-04-19] — Carousel polish: Interface Craft critique + layout bug fixes
+
+**Status:** 🟢 Done
+
+**What changed:**
+Ran an Interface Craft design critique on the Messages carousel and implemented the top 5 findings across both `src/screens/home/MessageStage.jsx` and `src/screens/enterprise-home/MessageStage.jsx`. (1) **Subtitle rewrite** — replaced the tautological "Here is what you can do with Messages" with "Five features worth knowing before you start." (2) **Inactive dot visibility** — bumped progress dot base color from `#2E2E2E` to `#484848` so all 5 dots are readable on the `#1A1A1A` background. (3) **Dead zone reduction** — cut the gap between progress dots and action buttons from `marginTop: 56` to `marginTop: 28`, pulling the CTAs into visual connection with the carousel. (4) **Arrow hover states** — both nav arrows now respond to `onMouseEnter`/`onMouseLeave` with a `#383838` background and `#555` border transition. (5) **Slide text entrance animation** — added a `slideTextIn` keyframe (4px translateY + opacity, 0.22s) keyed to `current`, so the title/description fade in fresh on each advance. Also reduced the right-fade gradient width from 72px (`PEEK + 20`) to 28px so the peeking next card is actually visible. Fixed two illustration layout bugs in `src/components/illustrations/SlideIllustrations.jsx`: the Share Files hint was `position: absolute` overlapping Jamie's message — switched to flex column layout with the hint as a natural bottom child; the Thread and React messages container lacked `paddingBottom: 48px`, letting content flow under the absolute compose bar.
+
+**Files touched:**
+- `src/screens/home/MessageStage.jsx`
+- `src/screens/enterprise-home/MessageStage.jsx`
+- `src/components/illustrations/SlideIllustrations.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Review all 5 slides at the actual viewport (1710×985). Check that the AI summary slide and the App Hub slide don't clip content at smaller breakpoints. Consider whether the Storybook stories for MessageStage need updating to reflect the new illustration slot.
+
+---
+
+### [2026-04-19] — Messages carousel: scaled-down UI mockups
+
+**Status:** 🟢 Done
+
+**What changed:**
+Created `src/components/illustrations/SlideIllustrations.jsx` with five scaled-down Webex UI mockup components, one per carousel slide. Each fills the existing 4:3 image slot (`position: absolute, inset: 0`) and uses the app's dark color palette to mimic real product screens at a miniaturized scale. (1) **CreateSpaceIllustration** — "New space" dialog with a space name field (with active cursor), three member avatars (JD, SR, MK), an "Add by name or email" input, and Cancel/Create buttons. (2) **ThreadAndReactIllustration** — threaded conversation view with emoji reactions (👍 ❤️ 🎉), a "Pinned" badge, stacked avatar thread indicator showing "3 replies", and a compose bar. (3) **ShareFilesIllustration** — chat view with a PDF file card (filename + size + download icon), an image thumbnail card with a gradient preview, and a dashed drag-and-drop zone hint. (4) **AICatchesUpIllustration** — blue-tinted AI summary card with sparkle icon, three bullet-point summaries, two action item rows with avatars, and the original thread faded below. (5) **AppsIntegrationsIllustration** — App Hub header with Webex logo, and a 3×2 grid of real-brand app tiles: Salesforce (SVG cloud), Google Drive (triangle), Microsoft (4-color squares), Jira (gradient blocks), Slack (4-color circles), GitHub (octocat). Wired into both `src/screens/home/MessageStage.jsx` and `src/screens/enterprise-home/MessageStage.jsx` by adding an `illustration` field to each SLIDES entry and replacing the placeholder SVG with `{slide.illustration}`.
+
+**Files touched:**
+- `src/components/illustrations/SlideIllustrations.jsx` (new)
+- `src/screens/home/MessageStage.jsx`
+- `src/screens/enterprise-home/MessageStage.jsx`
+
+**Next up:**
+Review each slide in the browser — check spacing/clipping at the actual carousel card width. Fine-tune font sizes or padding if any slide feels too tight or too sparse. The background color on each card's image area (`#2A2A2A`) matches the illustration backgrounds well, but the background style property on the image container div could be removed now that illustrations fill the slot.
+
+---
+
+### [2026-04-19 —] — Storybook setup and story organization
+
+**Status:** 🟢 Done
+
+**What changed:**
+Installed Storybook v10.3.5 (`npx storybook@latest init`) into the existing Vite+React project. Auto-detected the `react-vite` framework. Updated `.storybook/preview.ts` to import `src/index.css` (so Tailwind v4 tokens and CSS variables apply) and added a global decorator providing `MemoryRouter` + `ProfileProvider` to every story. Created 25 story files organized to mirror the project's own folder structure inside `src/stories/screens/` and `src/stories/components/`. Stories cover the full onboarding flow (8 screens), SMB and Enterprise home + meeting screens, all 5 modals, layout components (Sidebar with 5 active-tab variants, TopBar), and meeting rails (AI, Chat, Participants). Updated `.storybook/main.ts` glob to only look inside `src/stories/screens/` and `src/stories/components/` so scattered/old files are ignored. Storybook runs on `http://localhost:6007`.
+
+**Files touched:**
+- `.storybook/main.ts`
+- `.storybook/preview.ts`
+- `src/stories/screens/onboarding/` (6 story files)
+- `src/stories/screens/onboarding/signup/` (2 story files)
+- `src/stories/screens/onboarding/sso/` (4 story files)
+- `src/stories/screens/home/HomeScreen.stories.jsx`
+- `src/stories/screens/enterprise-home/HomeScreen.stories.jsx`
+- `src/stories/screens/meeting/MeetingScreen.stories.jsx`
+- `src/stories/screens/enterprise-meeting/MeetingScreen.stories.jsx`
+- `src/stories/screens/app-hub/Recommendations.stories.jsx`
+- `src/stories/components/layout/` (Sidebar, TopBar)
+- `src/stories/components/meeting/` (AIRail, ChatRail, ParticipantsRail)
+- `src/stories/components/modals/` (5 modal stories)
+
+**Next up:**
+Run Storybook with `npm run storybook` (or `npx storybook dev -p 6007`). All stories are visible at http://localhost:6007. Add new stories to `src/stories/screens/` or `src/stories/components/` as new screens/components are built.
+
+---
+
 ### [2026-04-16 10:28] — Onboarding gradient cleanup and enterprise UI sync
 
 **Status:** 🟢 Done
