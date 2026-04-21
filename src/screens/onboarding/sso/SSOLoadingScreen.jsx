@@ -81,8 +81,6 @@ const C = {
   borderSubtle:'#AAAAAA',
   textPrimary: '#FFFFFF',
   textSecond:  '#AAAAAA',
-  accent:      '#4ac397',
-  accentDim:   '#1D8160',
   gradient1:   ONBOARDING_GRADIENT_90,
 }
 
@@ -108,7 +106,7 @@ function Spinner() {
     >
       <circle
         cx={SPINNER.size / 2} cy={SPINNER.size / 2} r={7}
-        stroke={C.accent}
+        stroke="rgba(255, 255, 255, 0.45)"
         strokeWidth={SPINNER.strokeWidth}
         strokeDasharray={SPINNER.dashArray}
         strokeLinecap="round"
@@ -130,12 +128,12 @@ function Checkmark() {
     >
       <circle
         cx={SPINNER.size / 2} cy={SPINNER.size / 2} r={8.5}
-        fill={C.accentDim} fillOpacity="0.25"
-        stroke={C.accent} strokeWidth="1.5"
+        fill="#FFFFFF" fillOpacity={0.22}
+        stroke="rgba(255, 255, 255, 0.85)" strokeWidth="1.5"
       />
       <path
         d="M6 10L8.5 12.5L14 7"
-        stroke={C.accent}
+        stroke="#FFFFFF"
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"

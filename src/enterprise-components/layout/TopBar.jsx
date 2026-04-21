@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useProfile } from '../../context/ProfileContext'
+import defaultEnterpriseAvatarUrl from '../../assets/images/arvind-profile Pic.jpg'
 
 /* ─────────────────────────────────────────────────────────
  * Figma TopBar spec (y:0–63, full width, bg #111111):
@@ -39,6 +40,7 @@ const STATUS_PREVIEW_MAX = 28
 export function TopBar({ aiPanelOpen, onToggleAI, onSetStatusClick = () => {} }) {
   const [aiHover, setAiHover] = useState(false)
   const { profile } = useProfile()
+  const avatarSrc = profile.photoUrl ?? defaultEnterpriseAvatarUrl
   const raw = profile.statusText?.trim()
   const statusLabel = raw
     ? (raw.length > STATUS_PREVIEW_MAX ? `${raw.slice(0, STATUS_PREVIEW_MAX)}…` : raw)
@@ -66,16 +68,17 @@ export function TopBar({ aiPanelOpen, onToggleAI, onSetStatusClick = () => {} })
         <div style={{ position: 'relative', width: 40, height: 40, flexShrink: 0 }}>
           <div style={{
             width: 40, height: 40, borderRadius: '50%',
-            background: profile.photoUrl ? 'transparent' : profile.bannerColor,
+            background: 'transparent',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18, fontWeight: 500, color: '#FFFFFF',
             fontFamily: "'Inter', system-ui, sans-serif",
             overflow: 'hidden',
           }}>
-            {profile.photoUrl
-              ? <img src={profile.photoUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
-              : profile.name.charAt(0).toUpperCase()
-            }
+            <img
+              src={avatarSrc}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
           </div>
           {/* Green status dot */}
           <div style={{

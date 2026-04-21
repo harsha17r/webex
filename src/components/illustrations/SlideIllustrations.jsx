@@ -4,6 +4,8 @@
  * Each component fills position:absolute inset:0 (4:3 slot).
  * ───────────────────────────────────────────────────────── */
 
+import { useId } from 'react'
+
 const F = "'Inter', system-ui, sans-serif"
 
 const C = {
@@ -44,13 +46,21 @@ export function CreateSpaceIllustration() {
     <div style={{
       position: 'absolute', inset: 0,
       background: C.bg, fontFamily: F, overflow: 'hidden',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
+      {/* Centered in slide; scale fills frame (footer row omitted in markup) */}
+      <div style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        width: '70%',
+        maxWidth: 280,
+        transform: 'translate(-50%, -50%) scale(1.12)',
+      }}>
       <div style={{
         background: C.surface,
         border: `1px solid ${C.border}`,
         borderRadius: 12,
-        width: '70%',
+        width: '100%',
         overflow: 'hidden',
       }}>
         {/* Header */}
@@ -99,22 +109,8 @@ export function CreateSpaceIllustration() {
             fontSize: 10.5, color: C.gray3,
           }}>Add by name or email…</div>
         </div>
-
-        {/* Footer */}
-        <div style={{
-          display: 'flex', justifyContent: 'flex-end', gap: 6,
-          padding: '8px 13px 11px',
-          borderTop: `1px solid ${C.border2}`,
-        }}>
-          <div style={{
-            padding: '5px 11px', border: `1px solid ${C.border}`,
-            borderRadius: 6, fontSize: 10, color: C.gray1,
-          }}>Cancel</div>
-          <div style={{
-            padding: '5px 13px', background: C.blueBtn,
-            borderRadius: 6, fontSize: 10, fontWeight: 600, color: C.white,
-          }}>Create</div>
-        </div>
+        {/* No footer (Cancel / Create) — carousel crops at “Add people” flow */}
+      </div>
       </div>
     </div>
   )
@@ -129,31 +125,8 @@ export function ThreadAndReactIllustration() {
       position: 'absolute', inset: 0,
       background: C.bg, fontFamily: F, overflow: 'hidden',
     }}>
-      {/* Space header */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        padding: '9px 13px 8px',
-        borderBottom: `1px solid ${C.border2}`,
-      }}>
-        <div style={{
-          width: 22, height: 22, borderRadius: 6, background: C.blueDk,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-            <path d="M2 2.5C2 2.2 2.2 2 2.5 2H9.5C9.8 2 10 2.2 10 2.5V7.5C10 7.8 9.8 8 9.5 8H5L2 10.5V2.5Z" fill="white" opacity="0.9"/>
-          </svg>
-        </div>
-        <span style={{ fontSize: 11, fontWeight: 600, color: C.white }}>Design Team</span>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 9 }}>
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-            <circle cx="7" cy="7" r="4.5" stroke={C.gray2} strokeWidth="1.3"/>
-            <path d="M10.5 10.5L14 14" stroke={C.gray2} strokeWidth="1.3" strokeLinecap="round"/>
-          </svg>
-        </div>
-      </div>
-
-      {/* Messages — paddingBottom reserves space for the absolute compose bar */}
-      <div style={{ padding: '9px 13px 48px', display: 'flex', flexDirection: 'column', gap: 9 }}>
+      {/* Messages */}
+      <div style={{ padding: '9px 13px 10px', display: 'flex', flexDirection: 'column', gap: 9 }}>
 
         {/* Message 1 — with reactions + thread */}
         <div style={{ display: 'flex', gap: 8 }}>
@@ -249,25 +222,6 @@ export function ThreadAndReactIllustration() {
           </div>
         </div>
       </div>
-
-      {/* Compose bar */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0,
-        padding: '7px 10px',
-        borderTop: `1px solid ${C.border2}`,
-        background: C.bg,
-      }}>
-        <div style={{
-          display: 'flex', alignItems: 'center',
-          background: C.surface, border: `1px solid ${C.border}`,
-          borderRadius: 8, padding: '5px 10px', gap: 6,
-        }}>
-          <span style={{ fontSize: 10.5, color: C.gray3, flex: 1 }}>Message Design Team…</span>
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-            <path d="M3 8h10M9 4l4 4-4 4" stroke={C.gray3} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      </div>
     </div>
   )
 }
@@ -282,22 +236,8 @@ export function ShareFilesIllustration() {
       background: C.bg, fontFamily: F, overflow: 'hidden',
       display: 'flex', flexDirection: 'column',
     }}>
-      {/* Space header */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        padding: '9px 13px 8px', flexShrink: 0,
-        borderBottom: `1px solid ${C.border2}`,
-      }}>
-        <div style={{
-          width: 22, height: 22, borderRadius: 6, background: '#7C3AED',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 8, fontWeight: 700, color: '#fff',
-        }}>LA</div>
-        <span style={{ fontSize: 11, fontWeight: 600, color: C.white }}>Launch Assets</span>
-      </div>
-
-      {/* Messages — flex: 1 fills available space, no overflow into hint */}
-      <div style={{ flex: 1, padding: '9px 13px 0', display: 'flex', flexDirection: 'column', gap: 8, overflow: 'hidden' }}>
+      {/* Messages — flex: 1 fills available space; extra top padding after header removal */}
+      <div style={{ flex: 1, padding: '16px 13px 6px', display: 'flex', flexDirection: 'column', gap: 8, overflow: 'hidden' }}>
 
         {/* Maya's message with files */}
         <div style={{ display: 'flex', gap: 8 }}>
@@ -358,13 +298,14 @@ export function ShareFilesIllustration() {
         </div>
       </div>
 
-      {/* Drag-and-drop hint — natural flow at bottom, never overlaps */}
+      {/* Drag-and-drop hint — balanced margins so it reads like a footer chip */}
       <div style={{
-        margin: '6px 10px 8px', flexShrink: 0,
-        border: '1.5px dashed #3B9EFF55',
-        borderRadius: 8, padding: '6px 12px',
-        display: 'flex', alignItems: 'center', gap: 6,
-        background: '#1E2A3A44',
+        margin: '10px 12px 14px', flexShrink: 0,
+        border: '1.5px dashed rgba(59, 158, 255, 0.45)',
+        borderRadius: 8, padding: '8px 14px',
+        display: 'flex', alignItems: 'center', gap: 8,
+        background: 'rgba(30, 42, 58, 0.55)',
+        boxSizing: 'border-box',
       }}>
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
           <path d="M8 3v7M5 8l3-3 3 3" stroke={C.blue} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
@@ -376,6 +317,36 @@ export function ShareFilesIllustration() {
   )
 }
 
+/** Same mark as `TopBar` `CiscoAISymbol` (viewBox 28×28); gradient ids from `useId` avoid clashes with `#tb-*` and between instances. */
+function CiscoAISymbolSlide({ size = 13 }) {
+  const rid = useId().replace(/:/g, '')
+  const ringId = `${rid}-cai-ring`
+  const lensId = `${rid}-cai-lens`
+  const innerId = `${rid}-cai-inner`
+  return (
+    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden>
+      <defs>
+        <linearGradient id={ringId} x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stopColor="#0051AF" />
+          <stop offset="67%" stopColor="#0087EA" />
+          <stop offset="100%" stopColor="#00BCEB" />
+        </linearGradient>
+        <linearGradient id={lensId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#0087EA" />
+          <stop offset="84%" stopColor="#63FFF7" />
+        </linearGradient>
+        <linearGradient id={innerId} x1="0" y1="0" x2="0.65" y2="1">
+          <stop offset="35%" stopColor="rgba(116,191,75,0)" />
+          <stop offset="96%" stopColor="#74BF4B" />
+        </linearGradient>
+      </defs>
+      <circle cx="14" cy="14" r="11.5" stroke={`url(#${ringId})`} strokeWidth="2" fill="none" />
+      <ellipse cx="20" cy="8" rx="6" ry="6" fill={`url(#${lensId})`} opacity="0.85" />
+      <ellipse cx="20" cy="8" rx="4" ry="5" fill={`url(#${innerId})`} opacity="0.9" />
+    </svg>
+  )
+}
+
 /* ═══════════════════════════════════════════════════════════
  * 4. AI Catches You Up
  * ═══════════════════════════════════════════════════════════ */
@@ -384,77 +355,75 @@ export function AICatchesUpIllustration() {
     <div style={{
       position: 'absolute', inset: 0,
       background: C.bg, fontFamily: F, overflow: 'hidden',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '14px 18px',
+      boxSizing: 'border-box',
     }}>
-      {/* AI Summary card */}
+      {/* AI Summary card — centered; no faded thread strip below */}
       <div style={{
-        margin: '10px 12px 8px',
+        width: '100%',
+        maxWidth: 292,
+        flexShrink: 0,
         background: 'linear-gradient(135deg, #131a2e 0%, #111e28 100%)',
         border: '1px solid #1e3050',
-        borderRadius: 10, overflow: 'hidden',
+        borderRadius: 12,
+        overflow: 'hidden',
+        boxShadow: '0 8px 28px rgba(0, 0, 0, 0.35)',
       }}>
         {/* Card header */}
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '8px 11px 7px',
-          borderBottom: '1px solid #1e305033',
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '10px 14px 10px',
+          borderBottom: '1px solid rgba(30, 48, 80, 0.45)',
         }}>
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-            <path d="M8 1l1.5 4.5L14 7l-4.5 1.5L8 13l-1.5-4.5L2 7l4.5-1.5z" fill="#60A5FA" strokeLinejoin="round"/>
-          </svg>
-          <span style={{ fontSize: 10.5, fontWeight: 600, color: '#93C5FD' }}>Cisco AI · Summary</span>
-          <span style={{ fontSize: 9, color: '#4A6A8A', marginLeft: 'auto' }}>12 messages</span>
+          <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <CiscoAISymbolSlide size={15} />
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 600, color: '#93C5FD', letterSpacing: '-0.01em' }}>Cisco AI · Summary</span>
+          <span style={{ fontSize: 9.5, color: '#5B7AA5', marginLeft: 'auto', flexShrink: 0 }}>12 messages</span>
         </div>
 
         {/* Bullet points */}
-        <div style={{ padding: '8px 11px 9px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+        <div style={{
+          padding: '12px 14px 12px',
+          display: 'flex', flexDirection: 'column', gap: 8,
+        }}>
           {[
             'Q3 design brief shared and approved by the team',
             'Review call scheduled for Thursday at 2 PM',
             'Maya uploaded final launch assets — PDF + banner',
           ].map((text, i) => (
-            <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
-              <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#60A5FA', flexShrink: 0, marginTop: 4.5 }}/>
-              <span style={{ fontSize: 9.5, color: '#CBD5E1', lineHeight: '14px' }}>{text}</span>
+            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <div style={{
+                width: 5, height: 5, borderRadius: '50%', background: '#60A5FA', flexShrink: 0, marginTop: 5,
+              }}/>
+              <span style={{ fontSize: 10, color: '#CBD5E1', lineHeight: '15px' }}>{text}</span>
             </div>
           ))}
         </div>
 
         {/* Action items */}
-        <div style={{ borderTop: '1px solid #1e305044', padding: '6px 11px 9px' }}>
-          <div style={{ fontSize: 8.5, fontWeight: 600, color: '#60A5FA', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+        <div style={{
+          borderTop: '1px solid rgba(30, 48, 80, 0.5)',
+          padding: '10px 14px 14px',
+          display: 'flex', flexDirection: 'column', gap: 7,
+        }}>
+          <div style={{
+            fontSize: 9, fontWeight: 600, color: '#60A5FA',
+            textTransform: 'uppercase', letterSpacing: '0.06em',
+          }}>
             2 Action items
           </div>
           {[
             { ini: 'JD', color: C.blueDk, text: 'Schedule review call' },
             { ini: 'MK', color: C.green,  text: 'Confirm banner dimensions' },
           ].map((a, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: i === 0 ? 4 : 0 }}>
-              <Av color={a.color} initials={a.ini} size={14}/>
-              <span style={{ fontSize: 9.5, color: '#94A3B8' }}>{a.text}</span>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Av color={a.color} initials={a.ini} size={16}/>
+              <span style={{ fontSize: 10, color: '#94A3B8', lineHeight: '14px' }}>{a.text}</span>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Thread below (faded) */}
-      <div style={{ padding: '0 12px', opacity: 0.4 }}>
-        <div style={{ height: 1, background: C.border2, marginBottom: 7 }}/>
-        {[
-          { av: C.blueDk, ini: 'JD', name: 'Jamie D', msg: "Here's the updated Q3 design brief…", time: '10:32' },
-          { av: C.purple, ini: 'SR', name: 'Sarah R', msg: 'Looks great! Schedule a review call?',   time: '10:47' },
-          { av: C.green,  ini: 'MK', name: 'Maya K',  msg: 'Thursday 2 PM works for me!',            time: '10:52' },
-        ].map((m, i) => (
-          <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 6 }}>
-            <Av color={m.av} initials={m.ini} size={18}/>
-            <div>
-              <div style={{ display: 'flex', gap: 5, marginBottom: 1 }}>
-                <span style={{ fontSize: 9.5, fontWeight: 600, color: C.white }}>{m.name}</span>
-                <span style={{ fontSize: 8.5, color: C.gray2 }}>{m.time} AM</span>
-              </div>
-              <div style={{ fontSize: 9.5, color: '#AAAAAA', lineHeight: '13px' }}>{m.msg}</div>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   )
@@ -553,17 +522,19 @@ export function AppsIntegrationsIllustration() {
       display: 'flex', flexDirection: 'column',
       padding: '11px 13px 10px',
     }}>
-      {/* Header */}
+      {/* Header — App Hub mark matches sidebar NavItem (`icons.apphub`) */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 11 }}>
         <div style={{
-          width: 22, height: 22, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #00BFFF, #0D6EFD)',
+          width: 22, height: 22, borderRadius: 9999,
+          background: 'transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0, color: C.white,
         }}>
-          <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
-            <circle cx="10" cy="10" r="7.5" stroke="white" strokeWidth="1.5"/>
-            <path d="M10 2.5a7.5 7.5 0 0 1 0 15M10 2.5a7.5 7.5 0 0 0 0 15" stroke="white" strokeWidth="1" opacity="0.5"/>
-            <line x1="2.5" y1="10" x2="17.5" y2="10" stroke="white" strokeWidth="1" opacity="0.5"/>
+          <svg width={14} height={14} viewBox="0 0 20 20" fill="none" aria-hidden>
+            <rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+            <rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+            <rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+            <rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
           </svg>
         </div>
         <span style={{ fontSize: 11, fontWeight: 600, color: C.white }}>App Hub</span>

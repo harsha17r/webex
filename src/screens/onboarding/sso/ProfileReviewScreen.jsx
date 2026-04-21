@@ -4,7 +4,7 @@ import { motion } from 'motion/react'
 import { COMPANY, EMPLOYEE } from '../../../config/employee'
 import { useProfile } from '../../../context/ProfileContext'
 import { ProfilePhotoCropOverlay } from '../../../components/profile/ProfilePhotoCropOverlay'
-import { ONBOARDING_GRADIENT_135 } from '../onboardingGradients'
+import defaultProfilePhotoUrl from '../../../assets/images/arvind-profile Pic.jpg'
 
 /* ─────────────────────────────────────────────────────────
  * ProfileReviewScreen — Two-column, single-fold layout
@@ -13,7 +13,7 @@ import { ONBOARDING_GRADIENT_135 } from '../onboardingGradients'
  *   Webex vertical logo
  *   "Review your profile" heading + subtitle
  *   Admin info banner
- *   Avatar + bordered Upload photo / Remove photo
+ *   Avatar + bordered Change photo / Remove photo
  *
  * RIGHT PANEL (flex: 1 — min width + row max in LAYOUT)
  *   Display name (editable)
@@ -64,9 +64,8 @@ const LAYOUT = {
  */
 const PROFILE_HEADER = {
   avatarPx:            120,
-  initialsFontPx:      26,
   rowGapPx:            24,
-  /** Bordered “Upload photo” control */
+  /** Bordered “Change photo” control */
   uploadIconPx:        16,
   uploadFontPx:        14,
   uploadPadding:       '12px 20px',
@@ -199,12 +198,6 @@ function LockedField({ label, value, onWiggle }) {
   )
 }
 
-function getInitials(name) {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  if (!parts.length) return '?'
-  return parts.map(n => n[0]).join('').slice(0, 2).toUpperCase()
-}
-
 /* ── Main screen ──────────────────────────────────────── */
 
 export function ProfileReviewScreen() {
@@ -220,6 +213,8 @@ export function ProfileReviewScreen() {
   const [cropRawUrl,  setCropRawUrl]   = useState(null)
   const [nameFocus,   setNameFocus]   = useState(false)
   const [phoneFocus,  setPhoneFocus]  = useState(false)
+
+  const avatarSrc = photo ?? profile.photoUrl ?? defaultProfilePhotoUrl
 
   function pulseBadge() {
     const el = badgeRef.current
@@ -394,18 +389,16 @@ export function ProfileReviewScreen() {
               <div style={{ flexShrink: 0 }}>
                 <div style={{
                   width: PROFILE_HEADER.avatarPx, height: PROFILE_HEADER.avatarPx, borderRadius: '50%',
-                  background: photo ? 'transparent' : ONBOARDING_GRADIENT_135,
+                  background: 'transparent',
                   border: `1px solid ${C.border}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   overflow: 'hidden',
                 }}>
-                  {photo ? (
-                    <img src={photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <span style={{ fontSize: PROFILE_HEADER.initialsFontPx, fontWeight: 700, color: '#fff' }}>
-                      {getInitials(displayName)}
-                    </span>
-                  )}
+                  <img
+                    src={avatarSrc}
+                    alt=""
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
                 </div>
               </div>
 
@@ -439,7 +432,7 @@ export function ProfileReviewScreen() {
                   }}
                 >
                   <UploadPhotoIcon size={PROFILE_HEADER.uploadIconPx} />
-                  {photo ? 'Change photo' : 'Upload photo'}
+                  Change photo
                 </button>
                 {photo && (
                   <button

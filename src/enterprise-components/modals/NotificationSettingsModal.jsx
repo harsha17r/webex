@@ -1343,14 +1343,17 @@ export function NotificationSettingsModal({ onClose, onSave, initialNav = 'gener
             <button
               onClick={handleDone}
               style={{
-                padding: '10px 24px', background: '#1D8160',
+                padding: '10px 32px',
+                minWidth: 104,
+                boxSizing: 'border-box',
+                background: '#FFFFFF',
                 border: 'none', borderRadius: 9999,
-                fontSize: 14, fontWeight: 500, color: '#FFFFFF',
+                fontSize: 14, fontWeight: 600, color: '#111111',
                 cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
                 transition: 'background 0.15s',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = '#166649'}
-              onMouseLeave={e => e.currentTarget.style.background = '#1D8160'}
+              onMouseEnter={e => e.currentTarget.style.background = '#ebebeb'}
+              onMouseLeave={e => e.currentTarget.style.background = '#FFFFFF'}
             >
               Done
             </button>

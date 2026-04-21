@@ -5,6 +5,352 @@
 
 ---
 
+### [2026-04-20 22:45] — AI Summary slide: spacing + hierarchy polish
+
+**Status:** 🟢 Done
+
+**What changed:**
+Refined `AICatchesUpIllustration` so the centered card reads less cramped: outer padding `14px 18px`, card `maxWidth` 292, `borderRadius` 12, light drop shadow. Header uses `10px 14px` vertical rhythm, `gap` 8, slightly larger Cisco mark (15px) and title (11px) with softer “12 messages” color. Bullet block uses `12px 14px` padding, 8px row gap, 5px dots, 10px/15px line-height body copy. Action section uses column `gap` 7, padded `10px 14px 14px`, uppercase label at 9px / 0.06em tracking, and 16px avatars with 8px gap to text.
+
+**Files touched:**
+- `src/components/illustrations/SlideIllustrations.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 22:38] — AI Summary slide: centered card only
+
+**Status:** 🟢 Done
+
+**What changed:**
+`AICatchesUpIllustration` outer frame is now a flex centering host (`alignItems` / `justifyContent` center, horizontal padding). The summary card uses `width: 100%`, `maxWidth: 310`, and `flexShrink: 0` instead of asymmetric margins so it sits in the middle of the 4:3 slot. Removed the faded **thread preview** block below the card entirely.
+
+**Files touched:**
+- `src/components/illustrations/SlideIllustrations.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 22:30] — AI Summary slide: Cisco AI mark from TopBar
+
+**Status:** 🟢 Done
+
+**What changed:**
+`AICatchesUpIllustration` card header replaced the generic sparkle SVG with the same **Cisco AI lens** graphic as `CiscoAISymbol` in `TopBar.jsx` (28×28 viewBox, ring + lens ellipses). Added `CiscoAISymbolSlide` in `SlideIllustrations.jsx` and `import { useId } from 'react'` so gradient `id`s are unique per instance (avoids collisions with TopBar’s `#tb-*` defs and duplicate slides).
+
+**Files touched:**
+- `src/components/illustrations/SlideIllustrations.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 22:24] — Thread carousel slide: remove compose bar mock
+
+**Status:** 🟢 Done
+
+**What changed:**
+`ThreadAndReactIllustration` no longer renders the bottom “Message Design Team…” compose strip (absolute footer). Reduced messages stack bottom padding from `48px` (reserved for that bar) to **`10px`** so layout stays balanced.
+
+**Files touched:**
+- `src/components/illustrations/SlideIllustrations.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 22:18] — App Hub carousel slide: sidebar icon in header
+
+**Status:** 🟢 Done
+
+**What changed:**
+`AppsIntegrationsIllustration` header no longer uses a blue gradient circle with a faux globe. It now uses the same **2×2 outlined tile** SVG as the sidebar `NavItem` App Hub entry (`icons.apphub` in `Sidebar.jsx`): 14×14 `viewBox` in a 22×22 transparent pill, `currentColor` strokes so it matches the slide’s white label treatment.
+
+**Files touched:**
+- `src/components/illustrations/SlideIllustrations.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 22:12] — Share Files slide: padding + drop hint polish
+
+**Status:** 🟢 Done
+
+**What changed:**
+In `ShareFilesIllustration`, bumped the messages stack from `padding: 9px 13px 0` to **`16px 13px 6px`** so the thread block breathes under the removed space header. The “Drop files here…” strip now uses **`margin: 10px 12px 14px`** (heavier bottom inset to match the slide), **`padding: 8px 14px`**, a slightly stronger dashed border (`rgba(59,158,255,0.45)`), richer fill (`rgba(30,42,58,0.55)`), and **`gap: 8`** between icon and label.
+
+**Files touched:**
+- `src/components/illustrations/SlideIllustrations.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 22:05] — Carousel illustrations: center Create Space; drop space headers
+
+**Status:** 🟢 Done
+
+**What changed:**
+`CreateSpaceIllustration` now anchors the scaled dialog with `position: absolute; left/top: 50%; transform: translate(-50%, -50%) scale(1.12)` so the card stays visually centered in the slide (avoids the off-center look from `transformOrigin` alone). Added `maxWidth: 280` so the mock does not over-stretch on wide slots.
+
+`ThreadAndReactIllustration` and `ShareFilesIllustration` no longer render the top **space title** strip (“Design Team” / “Launch Assets” with icon), per carousel framing — content starts at the message column.
+
+**Files touched:**
+- `src/components/illustrations/SlideIllustrations.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+If the thread slide feels tight under the peek gradient, add a few px top padding on the messages stack.
+
+---
+
+### [2026-04-20 21:55] — Messages carousel: Create Space slide crop
+
+**Status:** 🟢 Done
+
+**What changed:**
+`CreateSpaceIllustration` in `SlideIllustrations.jsx` no longer renders the modal footer row (**Cancel** / **Create**), so the carousel only shows the dialog through the **Add people** block (including the “Add by name or email…” field). Wrapped the card in a light `scale(1.12)` with `transformOrigin` biased toward the top so the mock reads larger inside the 4:3 illustration slot while the slide’s `overflow: hidden` clips edges cleanly.
+
+**Files touched:**
+- `src/components/illustrations/SlideIllustrations.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Tweak `transformOrigin` / scale if product wants more or less of the top chrome visible.
+
+---
+
+### [2026-04-20 21:48] — Enterprise TopBar: default headshot avatar
+
+**Status:** 🟢 Done
+
+**What changed:**
+Enterprise-only `TopBar.jsx` no longer falls back to the first initial on `profile.bannerColor` when `photoUrl` is empty. It imports `src/assets/images/arvind-profile Pic.jpg` and uses `profile.photoUrl ?? defaultEnterpriseAvatarUrl` for the 40×40 circle, matching the profile-review placeholder. SMB `components/layout/TopBar.jsx` is unchanged.
+
+**Files touched:**
+- `src/enterprise-components/layout/TopBar.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 21:40] — Demo employee: Arvind / arvind@lumon.com
+
+**Status:** 🟢 Done
+
+**What changed:**
+Updated `EMPLOYEE` in `src/config/employee.js` so the shared demo identity is **Arvind Santhanam** with **arvind@lumon.com**. That drives `ProfileContext` defaults, profile review display name, and locked Full name / Work email fields. No screen-specific overrides were needed.
+
+**Files touched:**
+- `src/config/employee.js`
+- `devlog/LOG.md`
+
+**Next up:**
+If a browser still shows the old name, clear `sessionStorage` for the site (profile is cached under `webex_profile`).
+
+---
+
+### [2026-04-20 21:32] — Profile review: “Change photo” label
+
+**Status:** 🟢 Done
+
+**What changed:**
+With a default headshot always shown, the avatar action button no longer toggles between “Upload photo” and “Change photo”; it always reads **Change photo**. Updated the file header comment and `PROFILE_HEADER` note to match.
+
+**Files touched:**
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 21:28] — Profile review: default avatar image
+
+**Status:** 🟢 Done
+
+**What changed:**
+The review-profile circle no longer shows initials on the onboarding gradient when no photo is set. It imports `src/assets/images/arvind-profile Pic.jpg` via Vite and uses `avatarSrc = photo ?? profile.photoUrl ?? default`, so the placeholder is always a real headshot until the user uploads or a stored `photoUrl` exists. Removed the unused `ONBOARDING_GRADIENT_135` import, `getInitials`, and the unused `initialsFontPx` layout token.
+
+**Files touched:**
+- `src/screens/onboarding/sso/ProfileReviewScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+If the asset filename’s space causes tooling issues elsewhere, rename the file and update the import path.
+
+---
+
+### [2026-04-20 21:20] — SSO loading: white step icons
+
+**Status:** 🟢 Done
+
+**What changed:**
+On `SSOLoadingScreen.jsx`, the animated **spinner** arc and **checkmark** badge used green (`#1D8160` / `#4ac397`). Replaced with neutral white: spinner stroke `rgba(255,255,255,0.45)`; check circle `fill` white at ~22% opacity with a soft white ring; check path stroke `#FFFFFF`. Dropped unused `accent` / `accentDim` entries from the local `C` palette object.
+
+**Files touched:**
+- `src/screens/onboarding/sso/SSOLoadingScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 21:12] — Meeting nudge: white confirm `NudgeBtn`
+
+**Status:** 🟢 Done
+
+**What changed:**
+`NudgeBtn`’s **`confirm`** variant (e.g. **Turn on** next to **Skip** in the meeting AI nudge) used the green fill (`#1D8160` / `#2BAB7E`). Updated both `MeetingScreen.jsx` copies so confirm matches the white pill system: `#FFFFFF` default, `#ebebeb` hover, `#111111` label at `fontWeight: 600`. **`cancel`** (Skip) is unchanged: dark `#222222` / `#2A2A2A` with white text.
+
+**Files touched:**
+- `src/screens/meeting/MeetingScreen.jsx`
+- `src/screens/enterprise-meeting/MeetingScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 21:05] — Notification settings: white “Done” footer CTA
+
+**Status:** 🟢 Done
+
+**What changed:**
+Footer **Done** in both `NotificationSettingsModal.jsx` variants was still on the green primary (`#1D8160` / `#166649` hover). Switched to the shared white pill: `#FFFFFF` / `#ebebeb` hover, `#111111` text, `fontWeight: 600`, wider tap target via `padding: 10px 32px`, `minWidth: 104`, and `boxSizing: border-box`.
+
+**Files touched:**
+- `src/components/modals/NotificationSettingsModal.jsx`
+- `src/enterprise-components/modals/NotificationSettingsModal.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 20:55] — Appearance cards: interior + section bottom strokes
+
+**Status:** 🟢 Done
+
+**What changed:**
+In `PreviewCard` (both `AppearancesModal.jsx` copies), each tile’s **preview** area now ends with a hairline `borderBottom` (`rgba(255,255,255,0.08)`), and the **caption** row has a softer bottom stroke (`0.06`) so System default / Light / Dark and each theme card read as layered panels. Removed the old caption `borderTop` so only one divider sits between preview and label. The **Mode** block wrapper gained `paddingBottom` plus a matching section `borderBottom` before **Theme** so the two groups separate cleanly in the scroll body.
+
+**Files touched:**
+- `src/components/modals/AppearancesModal.jsx`
+- `src/enterprise-components/modals/AppearancesModal.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+If the bottom caption line feels too close to the outer 2px selection border, nudge opacity down or switch to `#2A2A2A` for a flatter look.
+
+---
+
+### [2026-04-20 20:45] — Appearances modal: white “Update Preference” CTA
+
+**Status:** 🟢 Done
+
+**What changed:**
+In both `AppearancesModal.jsx` variants (SMB `src/components/modals/` and enterprise `src/enterprise-components/modals/`), the footer primary action **Update Preference** was switched from the green fill to the shared white pill pattern: `#FFFFFF` default, `#ebebeb` hover, `#111111` text, `fontWeight: 600`, slightly wider horizontal padding (`10px 24px`) so it reads as the primary action next to **Skip for now**.
+
+**Files touched:**
+- `src/components/modals/AppearancesModal.jsx`
+- `src/enterprise-components/modals/AppearancesModal.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None unless design wants a subtle border on white buttons inside `#181818` modals.
+
+---
+
+### [2026-04-20 20:35] — Teams empty state: white “Create a team” CTA
+
+**Status:** 🟢 Done
+
+**What changed:**
+Teams tab empty state primary CTA matched the product’s white pill pattern (`#FFFFFF` / `#ebebeb` hover, `#111111` label; plus icon uses `currentColor`). Widened the control for balance: `minWidth: 220`, horizontal padding `0 40px`, `gap: 10` between icon and label, `boxSizing: border-box` on the 48px-tall pill. Updated both `TeamsTab.jsx` copies (SMB and enterprise-home).
+
+**Files touched:**
+- `src/screens/home/TeamsTab.jsx`
+- `src/screens/enterprise-home/TeamsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None unless design wants a hairline border on white pills over `#1A1A1A`.
+
+---
+
+### [2026-04-20 20:25] — App Hub intro: white primary CTA
+
+**Status:** 🟢 Done
+
+**What changed:**
+On the App Hub intro step, the “Get personalized picks” primary button used the green meeting-style fill (`#1D8160` / `#2BAB7E` hover). Switched it to the same white pill treatment as onboarding’s primary CTA: `#FFFFFF` default, `#ebebeb` on hover, `#111111` label and chevron stroke. Applied in both `AppHubTab.jsx` variants (SMB `src/screens/home/` and enterprise `src/screens/enterprise-home/`).
+
+**Files touched:**
+- `src/screens/home/AppHubTab.jsx`
+- `src/screens/enterprise-home/AppHubTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+If product wants a visible border on the white pill over `#1A1A1A`, add a 1px `rgba(255,255,255,0.12)` ring; otherwise leave as-is.
+
+---
+
+### [2026-04-20 20:10] — Test meeting art from `src/assets`
+
+**Status:** 🟢 Done
+
+**What changed:**
+Pointed the welcome-banner test meeting `<img>` at a bundled asset instead of `public/`. `src/constants/publicIllustrations.js` now re-exports the default URL from `src/assets/illustrations/webex-test-meeting.png`, so Vite resolves the file (content hash on production builds). SMB and enterprise `MeetingsTab.jsx` keep importing `webexTestMeetingIllustrationUrl` unchanged.
+
+**Files touched:**
+- `src/constants/publicIllustrations.js`
+- `devlog/LOG.md`
+
+**Next up:**
+Optional cleanup: remove `public/illustrations/webex-test-meeting.png` if nothing else references it, to avoid two copies drifting.
+
+---
+
+### [2026-04-20 20:02] — Test meeting illustration URL + cache bust
+
+**Status:** 🟢 Done
+
+**What changed:**
+The welcome banner “test meeting” art is served from `public/illustrations/webex-test-meeting.png`. Both SMB and enterprise `MeetingsTab.jsx` already used `/illustrations/webex-test-meeting.png`, but replacing the PNG often leaves the old image in the browser cache. Added `src/constants/publicIllustrations.js` exporting `webexTestMeetingIllustrationUrl`, built from `import.meta.env.BASE_URL` plus a version query (`v=20260420`) to bump whenever the file in `public/` changes. Both meetings tabs import that URL and set a short descriptive `alt` on the `<img>`.
+
+**Files touched:**
+- `src/constants/publicIllustrations.js`
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+When swapping the PNG again, increment `WEBEX_TEST_MEETING_VERSION` in `publicIllustrations.js` so clients fetch the new asset without a hard refresh.
+
+---
+
 ### [2026-04-19] — Carousel polish: Interface Craft critique + layout bug fixes
 
 **Status:** 🟢 Done

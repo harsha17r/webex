@@ -178,20 +178,20 @@ function IntroView({ onGetPicks, onSkip }) {
           onMouseLeave={() => setPrimaryHover(false)}
           onClick={onGetPicks}
           style={{
-            background: primaryHover ? '#2BAB7E' : '#1D8160',
+            background: primaryHover ? '#ebebeb' : '#FFFFFF',
             border: 'none', borderRadius: 9999,
             height: 48, padding: '0 28px',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             cursor: 'pointer',
             transition: 'background 0.15s, transform 0.15s',
             transform: primaryHover ? 'translateY(-1px)' : 'translateY(0)',
-            fontSize: 14, fontWeight: 600, color: '#FFFFFF',
+            fontSize: 14, fontWeight: 600, color: '#111111',
             fontFamily: "'Inter', system-ui, sans-serif",
           }}
         >
           Get personalized picks
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-            <path d="M6 3l5 5-5 5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M6 3l5 5-5 5" stroke="#111111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 

@@ -13,8 +13,8 @@ export const COMPANY = {
 }
 
 export const EMPLOYEE = {
-  name:       'Harsha Ramamurthy',
-  email:      'harsha.ramamurthy@lumon.com',
+  name:       'Arvind Santhanam',
+  email:      'arvind@lumon.com',
   jobTitle:   'Senior Macrodata Refiner',
   department: 'Macrodata Refinement',
   bannerColor: '#004B87',

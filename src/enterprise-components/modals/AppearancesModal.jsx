@@ -175,9 +175,14 @@ function PreviewCard({ label, selected, onSelect, children }) {
         transform: hovered && !selected ? 'translateY(-1px)' : 'translateY(0)',
       }}
     >
-      <div style={{ height: 90 }}>{children}</div>
       <div style={{
-        padding: '7px 8px', background: '#1E1E1E', borderTop: '1px solid #252525',
+        height: 90,
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        boxSizing: 'border-box',
+      }}>{children}</div>
+      <div style={{
+        padding: '7px 8px', background: '#1E1E1E',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
         fontSize: 12, fontWeight: 500, color: '#CCCCCC', textAlign: 'center', lineHeight: '16px',
       }}>
         {label}
@@ -208,7 +213,7 @@ export function AppearanceSettingsPanel({ includeDescription = true }) {
       )}
 
       {/* Mode */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
         <p style={{ fontSize: 12, fontWeight: 600, color: '#AAAAAA', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           Mode
         </p>
@@ -308,14 +313,14 @@ export function AppearancesModal({ onClose, onSave }) {
           <button
             onClick={() => { onSave?.(); onClose() }}
             style={{
-              padding: '10px 20px', background: '#1D8160',
+              padding: '10px 24px', background: '#FFFFFF',
               border: 'none', borderRadius: 9999,
-              fontSize: 14, fontWeight: 500, color: '#FFFFFF',
+              fontSize: 14, fontWeight: 600, color: '#111111',
               cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif",
               transition: 'background 0.15s',
             }}
-            onMouseEnter={e => e.currentTarget.style.background = '#166649'}
-            onMouseLeave={e => e.currentTarget.style.background = '#1D8160'}
+            onMouseEnter={e => e.currentTarget.style.background = '#ebebeb'}
+            onMouseLeave={e => e.currentTarget.style.background = '#FFFFFF'}
           >
             Update Preference
           </button>

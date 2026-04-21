@@ -2460,8 +2460,9 @@ function EndBtn({ onClick }) {
 
 function NudgeBtn({ variant, onClick, children }) {
   const [hovered, setHovered] = useState(false)
-  const base    = variant === 'confirm' ? '#1D8160' : '#222222'
-  const hov     = variant === 'confirm' ? '#2BAB7E' : '#2A2A2A'
+  const isConfirm = variant === 'confirm'
+  const base = isConfirm ? '#FFFFFF' : '#222222'
+  const hov = isConfirm ? '#ebebeb' : '#2A2A2A'
   return (
     <button
       onClick={onClick}
@@ -2470,8 +2471,8 @@ function NudgeBtn({ variant, onClick, children }) {
       style={{
         background: hovered ? hov : base,
         border: 'none', borderRadius: 8,
-        padding: variant === 'confirm' ? '12px 24px' : '12px 16px',
-        fontSize: 14, fontWeight: 500, color: '#FFFFFF',
+        padding: isConfirm ? '12px 24px' : '12px 16px',
+        fontSize: 14, fontWeight: isConfirm ? 600 : 500, color: isConfirm ? '#111111' : '#FFFFFF',
         cursor: 'pointer', transition: 'background 0.15s',
         fontFamily: "'Inter', system-ui, sans-serif",
       }}

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useProfile } from '../../context/ProfileContext'
+import { webexTestMeetingIllustrationUrl } from '../../constants/publicIllustrations'
 import { PreJoinModal } from '../enterprise-meeting/PreJoinModal'
 import { Dropdown } from '../../enterprise-components/Dropdown'
 
@@ -141,7 +142,12 @@ export function MeetingsTab({ calendarConnected, onConnectCalendar, fromMeeting 
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   padding: 24, boxSizing: 'border-box',
                 }}>
-                  <img src="/illustrations/webex-test-meeting.png" alt="" width="260" style={{ display: 'block' }} />
+                  <img
+                    src={webexTestMeetingIllustrationUrl}
+                    alt="Illustration of a test video meeting"
+                    width="260"
+                    style={{ display: 'block' }}
+                  />
                 </div>
 
                 <div style={{

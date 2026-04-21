@@ -228,14 +228,17 @@ export function TeamsTab() {
               onMouseLeave={() => setPrimaryHover(false)}
               onClick={() => {}}
               style={{
-                background: primaryHover ? '#2BAB7E' : '#1D8160',
+                background: primaryHover ? '#ebebeb' : '#FFFFFF',
                 border: 'none', borderRadius: 9999,
-                height: 48, padding: '0 28px',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                height: 48,
+                minWidth: 220,
+                padding: '0 40px',
+                boxSizing: 'border-box',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
                 cursor: 'pointer',
                 transition: 'background 0.15s, transform 0.15s',
                 transform: primaryHover ? 'translateY(-1px)' : 'translateY(0)',
-                fontSize: 14, fontWeight: 600, color: '#FFFFFF',
+                fontSize: 14, fontWeight: 600, color: '#111111',
                 fontFamily: "'Inter', system-ui, sans-serif",
               }}
             >
