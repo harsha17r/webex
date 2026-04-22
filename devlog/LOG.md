@@ -5,6 +5,38 @@
 
 ---
 
+### [2026-04-20 23:35] — App Hub: workflow chips — gray-only selection
+
+**Status:** 🟢 Done
+
+**What changed:**
+Workflow filter pills on `RecommendationsScreen` no longer use a chromatic (amber) accent. Selection is **neutral only**: `1.5px` border `#6B6B6B`, fill `#343434` (slight lift vs idle `#2A2A2A`), label `#F5F5F5` when selected — typical dark-UI “selected filter” without solid white or hue. Idle text `#A3A3A3`, hover fill `#333333` unchanged in behavior.
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
+### [2026-04-20 23:20] — App Hub: workflow chips as outline selection
+
+**Status:** 🟢 Done
+
+**What changed:**
+On `RecommendationsScreen` workflow filter pills (e.g. Work & Productivity), the active state no longer uses a solid white fill (which read like the primary CTA). Selected chips are now **outline-style**: warm amber border `#B89A4D`, light tint `rgba(184,154,77,0.14)`, label `#E8D9B4`. Idle pills stay dark `#2A2A2A` with `#333333` on hover, transparent border to keep 32px height stable. Added `aria-pressed` and hover tracking for non-active rows.
+
+**Files touched:**
+- `src/screens/app-hub/RecommendationsScreen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
 ### [2026-04-20 23:00] — App Hub questions: white Next / Submit CTAs
 
 **Status:** 🟢 Done

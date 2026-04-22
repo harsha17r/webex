@@ -15,6 +15,16 @@ import { AppHubCategoryIcon } from '../../data/appHubCategoryIcons'
 const SPRING = { type: 'spring', stiffness: 420, damping: 36 }
 const FONT = "'Inter', system-ui, sans-serif"
 
+/** Workflow filter pills: selected = gray outline + slight lift (not solid #FFF) — standard dark-UI filter chip. */
+const WORKFLOW_CHIP = {
+  outline: '#6B6B6B',
+  selectedBg: '#343434',
+  labelSelected: '#F5F5F5',
+  idleBg: '#2A2A2A',
+  idleHoverBg: '#333333',
+  labelIdle: '#A3A3A3',
+}
+
 const SURFACE_KEYS = Object.keys(SURFACE_LABELS)
 const APP_TYPES = ['Embedded Apps', 'Integrations', 'Bots']
 
@@ -680,6 +690,7 @@ function WorkflowSection({ q1Answers, q2Answers, browseAllMode = false }) {
 
   const PAGE_SIZE = 15
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [hoverWorkflowKey, setHoverWorkflowKey] = useState(null)
 
   const filtered = getFilteredApps(filterWorkflowKey, surfaceFilter, categoryFilter, discoverFilter)
   const allApps = browseAllMode
@@ -785,15 +796,39 @@ function WorkflowSection({ q1Answers, q2Answers, browseAllMode = false }) {
           }}>
             {showWorkflowChipsRow && workflowChips.map(chip => {
               const active = chip.key === activeKey
+              const hover = !active && hoverWorkflowKey === chip.key
               return (
-                <button key={chip.key} type="button" onClick={() => { setActiveKey(chip.key); setVisibleCount(PAGE_SIZE) }}
+                <button
+                  key={chip.key}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => { setActiveKey(chip.key); setVisibleCount(PAGE_SIZE) }}
+                  onMouseEnter={() => setHoverWorkflowKey(chip.key)}
+                  onMouseLeave={() => setHoverWorkflowKey(null)}
                   style={{
-                    background: active ? '#FFFFFF' : '#2A2A2A',
-                    border: 'none', borderRadius: 9999, height: 32, padding: '0 14px',
-                    cursor: 'pointer', transition: 'background 0.15s, color 0.15s',
-                    fontSize: 13, fontWeight: 500, color: active ? '#111111' : '#AAAAAA',
-                    fontFamily: FONT, display: 'inline-flex', alignItems: 'center', gap: 6,
-                  }}>
+                    boxSizing: 'border-box',
+                    background: active
+                      ? WORKFLOW_CHIP.selectedBg
+                      : hover
+                        ? WORKFLOW_CHIP.idleHoverBg
+                        : WORKFLOW_CHIP.idleBg,
+                    border: active
+                      ? `1.5px solid ${WORKFLOW_CHIP.outline}`
+                      : '1.5px solid transparent',
+                    borderRadius: 9999,
+                    height: 32,
+                    padding: '0 14px',
+                    cursor: 'pointer',
+                    transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: active ? WORKFLOW_CHIP.labelSelected : WORKFLOW_CHIP.labelIdle,
+                    fontFamily: FONT,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
                   {chip.label}
                 </button>
               )
