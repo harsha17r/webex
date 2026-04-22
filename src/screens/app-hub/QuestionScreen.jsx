@@ -210,21 +210,21 @@ export function QuestionScreen({ onNext, onBack }) {
           onClick={() => onNext(selected)}
           style={{
             background: selected.length === 0
-              ? '#2A3A31'
-              : nextHover ? '#2BAB7E' : '#1D8160',
+              ? '#3A3A3A'
+              : nextHover ? '#ebebeb' : '#FFFFFF',
             border: 'none', borderRadius: 9999,
             height: 48, padding: '0 28px',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             cursor: selected.length === 0 ? 'not-allowed' : 'pointer',
-            opacity: selected.length === 0 ? 0.5 : 1,
+            opacity: selected.length === 0 ? 0.55 : 1,
             transition: 'background 0.15s, opacity 0.15s',
-            fontSize: 14, fontWeight: 600, color: '#FFFFFF',
+            fontSize: 14, fontWeight: 600, color: selected.length === 0 ? '#888888' : '#111111',
             fontFamily: "'Inter', system-ui, sans-serif",
           }}
         >
           Next
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-            <path d="M6 3l5 5-5 5" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M6 3l5 5-5 5" stroke={selected.length === 0 ? '#888888' : '#111111'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
 

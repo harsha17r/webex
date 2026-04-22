@@ -356,10 +356,10 @@ export function Question2Screen({ onSubmit, onBack }) {
           style={{
             background:
               selected.length === 0
-                ? '#2A3A31'
+                ? '#3A3A3A'
                 : submitHover
-                  ? '#2BAB7E'
-                  : '#1D8160',
+                  ? '#ebebeb'
+                  : '#FFFFFF',
             border: 'none',
             borderRadius: 9999,
             height: 48,
@@ -368,11 +368,11 @@ export function Question2Screen({ onSubmit, onBack }) {
             alignItems: 'center',
             justifyContent: 'center',
             cursor: selected.length === 0 ? 'not-allowed' : 'pointer',
-            opacity: selected.length === 0 ? 0.5 : 1,
+            opacity: selected.length === 0 ? 0.55 : 1,
             transition: 'background 0.15s, opacity 0.15s',
             fontSize: 14,
             fontWeight: 600,
-            color: '#FFFFFF',
+            color: selected.length === 0 ? '#888888' : '#111111',
             fontFamily: "'Inter', system-ui, sans-serif",
           }}
         >

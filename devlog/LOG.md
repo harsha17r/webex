@@ -5,6 +5,23 @@
 
 ---
 
+### [2026-04-20 23:00] — App Hub questions: white Next / Submit CTAs
+
+**Status:** 🟢 Done
+
+**What changed:**
+`QuestionScreen` (primary **Next**) and `Question2Screen` (**Submit**) used the green fill (`#1D8160` / `#2BAB7E`). Aligned with other white pills: enabled `#FFFFFF` / `#ebebeb` hover, `#111111` label, chevron stroke `#111111` on Next. Disabled state uses `#3A3A3A` fill, `#888888` text, `opacity: 0.55`, `cursor: not-allowed` — same pattern for both screens. SMB and enterprise App Hub both import these files.
+
+**Files touched:**
+- `src/screens/app-hub/QuestionScreen.jsx`
+- `src/screens/app-hub/Question2Screen.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None.
+
+---
+
 ### [2026-04-20 22:45] — AI Summary slide: spacing + hierarchy polish
 
 **Status:** 🟢 Done
