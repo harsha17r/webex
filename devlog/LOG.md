@@ -5,6 +5,23 @@
 
 ---
 
+### [2026-04-22 —] — Mobile-only gate
+
+**Status:** 🟢 Done
+
+**What changed:**
+Added a full-screen mobile gate that intercepts any viewport under 1024px wide. Created `src/components/MobileGate.jsx` — a wrapper component that uses `window.innerWidth` (plus a `resize` listener) to swap between the gate UI and the real app. The gate renders on top of everything (`position: fixed, z-index: 9999`) with the dark `#111111` background matching the rest of the site. Content is: an icon tile (`#1E1E1E` surface, `1px solid #2A2A2A` border, 16px radius, laptop SVG in `#CCCCCC`), a 28px bold heading "Heads up!", a 15px body paragraph, and a white pill "Copy Link" button. The button copies `window.location.href` to clipboard and switches its label to "Copied!" (with a checkmark icon) for 2 seconds before reverting — matching the white primary CTA pattern used across onboarding. Hover and active states mirror the Get Started button (`#ebebeb` on hover, `translateY(-1px)` lift, snap back on mousedown). `MobileGate` is wired into `App.jsx` as the outermost wrapper.
+
+**Files touched:**
+- `src/components/MobileGate.jsx`
+- `src/App.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None — gate is complete. Any future work can continue from the previous Next up items.
+
+---
+
 ### [2026-04-20 23:35] — App Hub: workflow chips — gray-only selection
 
 **Status:** 🟢 Done

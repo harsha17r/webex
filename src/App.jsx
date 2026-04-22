@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'motion/react'
 import { ProfileProvider } from './context/ProfileContext'
+import { MobileGate } from './components/MobileGate'
 import { WelcomeScreen } from './screens/onboarding/WelcomeScreen'
 import { VerifyScreen } from './screens/onboarding/signup/VerifyScreen'
 import { SetPasswordScreen } from './screens/onboarding/signup/SetPasswordScreen'
@@ -38,10 +39,12 @@ function AnimatedRoutes() {
 
 export default function App() {
   return (
-    <ProfileProvider>
-      <BrowserRouter>
-        <AnimatedRoutes />
-      </BrowserRouter>
-    </ProfileProvider>
+    <MobileGate>
+      <ProfileProvider>
+        <BrowserRouter>
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </ProfileProvider>
+    </MobileGate>
   )
 }
