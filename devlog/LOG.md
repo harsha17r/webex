@@ -5,6 +5,23 @@
 
 ---
 
+### [2026-04-27 21:33] — Meeting AI rail controls: neutral status + transcribing state
+
+**Status:** 🟢 Done
+
+**What changed:**
+Updated the meeting summary control visuals in both SMB and enterprise rails to remove conflicting color cues and align with the newer white CTA pattern. In `src/components/meeting/MeetingAIRail.jsx` and `src/enterprise-components/meeting/MeetingAIRail.jsx`, the active-state **Pause** action now renders as a white-outline button (transparent fill, white border/text/icon) instead of a solid white fill, while the paused-state **Resume** action now uses a solid white button with dark text/icon. I also replaced the paused indicator’s yellow palette with neutral grays (`#2C2C2C` container and `#CFCFCF` glyph), and changed subtitle colors to grayscale so “Not listening” no longer appears yellow. For active state copy, the status text now reads **“Transcribing”** (instead of “Recording”) and no longer shows elapsed time; it now appends three animated dots via new `summary-dot-blink` keyframes and a small `TranscribingDots` helper component. Paused state still shows elapsed time, as requested, but in neutral gray.
+
+**Files touched:**
+- `src/components/meeting/MeetingAIRail.jsx`
+- `src/enterprise-components/meeting/MeetingAIRail.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+Quick browser pass to validate the dot animation rhythm and ensure Pause/Resume contrast feels balanced on both meeting variants.
+
+---
+
 ### [2026-04-22 —] — Mobile-only gate
 
 **Status:** 🟢 Done
