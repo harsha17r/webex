@@ -2084,8 +2084,8 @@ function PillButton({ label, children, onClick, active = false }) {
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', alignItems: 'center', gap: 4,
-        background: active ? '#1D4A7A' : hovered ? '#2A2A2A' : '#222222',
-        border: active ? '1px solid #2E96E8' : '1px solid transparent',
+        background: active ? (hovered ? 'rgba(255,255,255,0.24)' : 'rgba(255,255,255,0.16)') : hovered ? '#2A2A2A' : '#222222',
+        border: active ? '1px solid rgba(255,255,255,0.5)' : '1px solid transparent',
         borderRadius: 9999, height: 40, padding: '0 16px',
         cursor: 'pointer', transition: 'background 0.15s, border-color 0.15s',
         fontFamily: "'Inter', system-ui, sans-serif",

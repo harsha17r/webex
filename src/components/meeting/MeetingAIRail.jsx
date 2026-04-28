@@ -281,10 +281,10 @@ function SummaryControlRow({ displayState, elapsed, onStart, onPause, onResume, 
           {/* Pause button (active state) */}
           {displayState === 'active' && (
             <button onClick={onPause} style={{
-              background: 'transparent',
-              border: '1px solid #FFFFFF',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid #686868',
               borderRadius: 6,
-              color: '#FFFFFF',
+              color: '#D8D8D8',
               fontSize: 12, fontWeight: 500,
               padding: '5px 10px',
               cursor: 'pointer',
@@ -293,8 +293,8 @@ function SummaryControlRow({ displayState, elapsed, onStart, onPause, onResume, 
               flexShrink: 0,
             }}>
               <svg width="9" height="11" viewBox="0 0 9 11" fill="none">
-                <rect width="3.2" height="11" rx="1" fill="#FFFFFF"/>
-                <rect x="5.8" width="3.2" height="11" rx="1" fill="#FFFFFF"/>
+                <rect width="3.2" height="11" rx="1" fill="#D8D8D8"/>
+                <rect x="5.8" width="3.2" height="11" rx="1" fill="#D8D8D8"/>
               </svg>
               Pause
             </button>
@@ -633,7 +633,7 @@ export function MeetingAIRail({ onClose, onSummaryChange, autoStart = false }) {
           <button
             onClick={() => setQuery('')}
             style={{
-              background: '#F1F1F1',
+              background: '#0073E6',
               border: 'none', borderRadius: 8,
               width: 34, height: 34, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
