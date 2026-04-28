@@ -427,6 +427,13 @@ export function MeetingAIRail({ onClose, onSummaryChange, autoStart = false }) {
     return () => clearInterval(intervalRef.current)
   }, [summaryState])
 
+  // Keep external "Turn on AI" actions in sync even if the rail is already mounted.
+  useEffect(() => {
+    if (!autoStart || summaryState !== 'idle') return
+    setSummaryState('active')
+    onSummaryChange?.(true)
+  }, [autoStart, summaryState, onSummaryChange])
+
   const handleStart = () => {
     setSummaryState('active')
     onSummaryChange?.(true)

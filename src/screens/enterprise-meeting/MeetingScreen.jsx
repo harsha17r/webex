@@ -66,6 +66,7 @@ export function MeetingScreen() {
   const [permDenied, setPermDenied] = useState(false)
   const [elapsed,    setElapsed]    = useState(0)
   const [nudge,        setNudge]        = useState(false)
+  const [aiRailAutoStart, setAiRailAutoStart] = useState(false)
   const [userSpeaking, setUserSpeaking] = useState(false)
   const [uiVisible,    setUiVisible]    = useState(true)
   const [entered,      setEntered]      = useState(false)  // true after entrance settles
@@ -282,15 +283,6 @@ export function MeetingScreen() {
     toggleRail('ai')
   }
 
-  function toggleSummary() {
-    if (!summaryActive) {
-      setSummaryActive(true)
-      addToast('AI Assistant is now transcribing and taking notes. All participants have been notified.')
-    } else {
-      setSummaryActive(false)
-    }
-  }
-
   /* ── Meeting Info: click-outside to close ── */
   useEffect(() => {
     if (!meetingInfoOpen) return
@@ -420,9 +412,8 @@ export function MeetingScreen() {
 
   function turnOnAI() {
     setNudge(false)
-    setSummaryActive(true)
+    setAiRailAutoStart(true)
     setActiveRail('ai')
-    addToast('AI Assistant is now transcribing and taking notes. All participants have been notified.')
   }
 
   return (
@@ -991,9 +982,12 @@ export function MeetingScreen() {
             }}
           >
             <MeetingAIRail
-              onClose={() => setActiveRail(null)}
-              summaryActive={summaryActive}
-              onSummaryToggle={toggleSummary}
+              onClose={() => { setActiveRail(null); setAiRailAutoStart(false) }}
+              autoStart={aiRailAutoStart}
+              onSummaryChange={(active) => {
+                setSummaryActive(active)
+                if (active) addToast('AI Assistant is now transcribing and taking notes. All participants have been notified.')
+              }}
             />
           </motion.div>
         )}
