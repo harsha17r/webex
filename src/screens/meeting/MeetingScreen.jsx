@@ -80,6 +80,7 @@ export function MeetingScreen() {
   const railOpen             = activeRail !== null
   function toggleRail(name) { setActiveRail(r => r === name ? null : name) }
   const [summaryActive,   setSummaryActive]   = useState(false)
+  const summaryActiveRef = useRef(false)
   const [meetingInfoOpen, setMeetingInfoOpen] = useState(false)
   const [steppedAway,     setSteppedAway]     = useState(false)
   const prevStateRef = useRef({ micOn: true, cameraOn: true })
@@ -272,7 +273,7 @@ export function MeetingScreen() {
   function addToast(message) {
     const id = ++toastIdRef.current
     setToasts(prev => [...prev, { id, message }])
-    toastTimersRef.current[id] = setTimeout(() => removeToast(id), 10000)
+    toastTimersRef.current[id] = setTimeout(() => removeToast(id), 6000)
   }
   function removeToast(id) {
     clearTimeout(toastTimersRef.current[id])
@@ -985,8 +986,11 @@ export function MeetingScreen() {
               onClose={() => { setActiveRail(null); setAiRailAutoStart(false) }}
               autoStart={aiRailAutoStart}
               onSummaryChange={(active) => {
+                if (active && !summaryActiveRef.current) {
+                  addToast('AI Assistant is now transcribing and taking notes. All participants have been notified.')
+                }
+                summaryActiveRef.current = active
                 setSummaryActive(active)
-                if (active) addToast('AI Assistant is now transcribing and taking notes. All participants have been notified.')
               }}
             />
           </motion.div>

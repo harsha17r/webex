@@ -412,7 +412,7 @@ function StopConfirmBanner({ onConfirm }) {
 
 export function MeetingAIRail({ onClose, onSummaryChange, autoStart = false }) {
   const [query, setQuery]                   = useState('')
-  const [summaryState, setSummaryState]     = useState(autoStart ? 'active' : 'idle') // 'idle' | 'active' | 'paused' | 'confirming'
+  const [summaryState, setSummaryState]     = useState('idle') // 'idle' | 'active' | 'paused' | 'confirming'
   const [elapsed, setElapsed]               = useState(0)
   const [preConfirmState, setPreConfirmState] = useState(null)
   const intervalRef                         = useRef(null)
