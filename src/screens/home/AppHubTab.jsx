@@ -16,7 +16,7 @@ import { RecommendationsScreen } from '../app-hub/RecommendationsScreen'
  * ───────────────────────────────────────────────────────── */
 
 const LAYOUT = {
-  columnMax: 600,
+  columnMax: 700,
   gapEyebrowToHeadline: 10,
   gapHeadlineToBody: 14,
   gapBeforeList: 38,
@@ -224,14 +224,15 @@ export function AppHubTab() {
   const [q1Answers, setQ1Answers] = useState([])
   const [q2Answers, setQ2Answers] = useState([])
 
-  const isRecsView = step === 'recs' || step === 'browse'
+  const isRecsView     = step === 'recs' || step === 'browse'
+  const isQuestionView = step === 'q1'   || step === 'q2'
 
   return (
     <div style={{
       margin: 4,
       height: 'calc(100% - 8px)',
-      background: '#1A1A1A',
-      border: '1px solid rgba(255,255,255,0.1)',
+      background: '#111111',
+      border: '1px solid rgba(255,255,255,0.07)',
       borderRadius: 12,
       boxSizing: 'border-box',
       overflow: 'hidden',
@@ -248,12 +249,20 @@ export function AppHubTab() {
           alignItems: 'center',
           justifyContent: isRecsView ? 'flex-start' : 'center',
           minHeight: 0,
-          padding: isRecsView ? '32px 32px 220px' : '48px 44px 56px',
+          padding: isRecsView ? '32px 32px 220px' : '40px 32px',
         }}
       >
         <div style={{
           width: isRecsView ? 'clamp(560px, 85%, 960px)' : '100%',
           maxWidth: isRecsView ? undefined : LAYOUT.columnMax,
+          ...(isRecsView ? {} : {
+            background: '#1A1A1A',
+            border: '1px solid #2A2A2A',
+            borderRadius: 16,
+            padding: '40px 48px 44px',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
+            ...(isQuestionView ? { minHeight: 560 } : {}),
+          }),
           display: 'flex', flexDirection: 'column', alignItems: 'stretch',
           textAlign: 'left',
         }}>

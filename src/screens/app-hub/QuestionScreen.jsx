@@ -71,7 +71,7 @@ export function QuestionScreen({ onNext, onBack }) {
       exit={{ opacity: 0, x: -30 }}
       transition={SPRING}
       style={{
-        width: '100%', display: 'flex', flexDirection: 'column',
+        width: '100%', flex: 1, display: 'flex', flexDirection: 'column',
         alignItems: 'stretch', textAlign: 'left',
       }}
     >
@@ -197,10 +197,13 @@ export function QuestionScreen({ onNext, onBack }) {
         })}
       </div>
 
+      {/* Push buttons to bottom */}
+      <div style={{ flex: 1, minHeight: 32 }} />
+
       {/* Actions */}
       <div style={{
         display: 'flex', flexDirection: 'row', alignItems: 'center',
-        gap: 12, marginTop: 40,
+        gap: 12,
       }}>
         <button
           type="button"

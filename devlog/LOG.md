@@ -5,6 +5,35 @@
 
 ---
 
+### [2026-04-27 22:45] — AppHub/Teams card framing, transcript copy, Q1/Q2 height fix, enterprise parity
+
+**Status:** 🟢 Done
+
+**What changed:**
+Several UI improvements across the app hub and meeting flows, applied to both SMB and enterprise variants.
+
+**AppHub & Teams card framing:** `AppHubTab` and `TeamsTab` (both `src/screens/home/` and `src/screens/enterprise-home/`) now wrap their content in a visible card on a dark stage (`#111111` outer + `#1A1A1A` card with `1px solid #2A2A2A` border, `0 8px 40px rgba(0,0,0,0.45)` shadow) instead of floating on a blank surface. Card `maxWidth` widened 600→700px so Q2's 2-col option grid no longer looks squished. Added `isQuestionView` flag to apply a `minHeight: 560` only during Q1/Q2 steps so the card stays the same height while transitioning between those two steps.
+
+**Q1/Q2 whitespace fix:** `QuestionScreen.jsx` and `Question2Screen.jsx` (shared by both flows) both gained `flex: 1` on their root motion.div and a flex spacer (`flex: 1, minHeight: 32`) before the action buttons row. This pushes the buttons to the bottom of the available space instead of leaving a large gap below them.
+
+**Transcript copy button:** `MeetingsTab.jsx` (both SMB and enterprise) gained a copy-to-clipboard button next to the transcript search bar. Uses `ic:baseline-content-copy` SVG; toggles to a checkmark for 1.5s after copy. Copies all transcript entries as `[time] speaker: text` lines via `navigator.clipboard`.
+
+**Files touched:**
+- `src/screens/home/AppHubTab.jsx`
+- `src/screens/enterprise-home/AppHubTab.jsx`
+- `src/screens/home/TeamsTab.jsx`
+- `src/screens/enterprise-home/TeamsTab.jsx`
+- `src/screens/app-hub/QuestionScreen.jsx`
+- `src/screens/app-hub/Question2Screen.jsx`
+- `src/screens/home/MeetingsTab.jsx`
+- `src/screens/enterprise-home/MeetingsTab.jsx`
+- `devlog/LOG.md`
+
+**Next up:**
+None outstanding. All four enterprise parity items confirmed complete.
+
+---
+
 ### [2026-04-27 21:33] — Meeting AI rail controls: neutral status + transcribing state
 
 **Status:** 🟢 Done

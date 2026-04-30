@@ -5,27 +5,6 @@ import { motion } from 'motion/react'
 
 const SPRING = { type: 'spring', stiffness: 420, damping: 36 }
 
-const FEATURES = [
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden>
-        <path fill="currentColor" d="M9 2a7 7 0 1 0 4.196 12.603l2.6 2.601a.75.75 0 1 0 1.061-1.061l-2.6-2.6A7 7 0 0 0 9 2M3.5 9a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0"/>
-      </svg>
-    ),
-    label: 'Browse and join freely',
-    desc: 'Members can see every space in the team and join the ones they need, no invite required',
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden>
-        <path fill="currentColor" d="M9 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8M6.5 6a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0M3.25 14A3.25 3.25 0 0 1 6.5 10.75h5A3.25 3.25 0 0 1 14.75 14v.25a.75.75 0 0 1-1.5 0V14a1.75 1.75 0 0 0-1.75-1.75h-5A1.75 1.75 0 0 0 4.75 14v.25a.75.75 0 0 1-1.5 0zm13 .25a.75.75 0 0 1-.75.75h-1.75v1.75a.75.75 0 0 1-1.5 0V15H10.5a.75.75 0 0 1 0-1.5h1.75v-1.75a.75.75 0 0 1 1.5 0V13.5H15.5a.75.75 0 0 1 .75.75"/>
-      </svg>
-    ),
-    label: 'One team, one invite',
-    desc: 'Add someone to the team once and they get access to all the spaces inside',
-  },
-]
-
 const SPACES = [
   { name: 'General',   sub: 'auto-created' },
   { name: 'Campaigns', sub: 'space'        },
@@ -104,8 +83,8 @@ export function TeamsTab() {
     <div style={{
       margin: 4,
       height: 'calc(100% - 8px)',
-      background: '#1A1A1A',
-      border: '1px solid rgba(255,255,255,0.1)',
+      background: '#111111',
+      border: '1px solid rgba(255,255,255,0.07)',
       borderRadius: 12,
       boxSizing: 'border-box',
       overflow: 'hidden',
@@ -123,12 +102,17 @@ export function TeamsTab() {
           alignItems: 'center',
           justifyContent: 'center',
           minHeight: 0,
-          padding: '48px 44px 56px',
+          padding: '40px 32px',
         }}
       >
         <div style={{
           width: '100%',
-          maxWidth: 600,
+          maxWidth: 700,
+          background: '#1A1A1A',
+          border: '1px solid #2A2A2A',
+          borderRadius: 16,
+          padding: '40px 48px 44px',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.45)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'stretch',
@@ -167,50 +151,6 @@ export function TeamsTab() {
             <TeamIllustration />
           </div>
 
-          {/* Feature list */}
-          <div style={{ marginTop: 0 }}>
-            <div
-              role="list"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                columnGap: 28,
-                rowGap: 26,
-                width: '100%',
-              }}
-            >
-              {FEATURES.map((item, i) => (
-                <motion.div
-                  key={item.label}
-                  role="listitem"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ ...SPRING, delay: 0.1 + i * 0.055 }}
-                  style={{
-                    display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 14,
-                    minWidth: 0,
-                  }}
-                >
-                  <div aria-hidden style={{
-                    width: 32, height: 32, flexShrink: 0, marginTop: 2,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#FFFFFF',
-                  }}>
-                    {item.icon}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: '#FFFFFF', lineHeight: '20px' }}>
-                      {item.label}
-                    </span>
-                    <span style={{ fontSize: 13, fontWeight: 400, color: '#AAAAAA', lineHeight: '20px' }}>
-                      {item.desc}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
           {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -219,7 +159,7 @@ export function TeamsTab() {
             style={{
               display: 'flex', flexDirection: 'column',
               alignItems: 'flex-start',
-              gap: 22, marginTop: 64,
+              gap: 22, marginTop: 32,
             }}
           >
             <button

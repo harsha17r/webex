@@ -410,9 +410,9 @@ function StopConfirmBanner({ onConfirm }) {
 
 /* ── Root component ── */
 
-export function MeetingAIRail({ onClose, onSummaryChange, autoStart = false }) {
+export function MeetingAIRail({ onClose, onSummaryChange, onSummaryStateChange, autoStart = false }) {
   const [query, setQuery]                   = useState('')
-  const [summaryState, setSummaryState]     = useState('idle') // 'idle' | 'active' | 'paused' | 'confirming'
+  const [summaryState, setSummaryState]     = useState(autoStart ? 'active' : 'idle') // 'idle' | 'active' | 'paused' | 'confirming'
   const [elapsed, setElapsed]               = useState(0)
   const [preConfirmState, setPreConfirmState] = useState(null)
   const intervalRef                         = useRef(null)
@@ -427,21 +427,22 @@ export function MeetingAIRail({ onClose, onSummaryChange, autoStart = false }) {
     return () => clearInterval(intervalRef.current)
   }, [summaryState])
 
-  // Keep external "Turn on AI" actions in sync even if the rail is already mounted.
-  useEffect(() => {
-    if (!autoStart || summaryState !== 'idle') return
-    setSummaryState('active')
-    onSummaryChange?.(true)
-  }, [autoStart, summaryState, onSummaryChange])
-
   const handleStart = () => {
     setSummaryState('active')
     onSummaryChange?.(true)
+    onSummaryStateChange?.('active')
   }
 
-  const handlePause = () => setSummaryState('paused')
+  const handlePause = () => {
+    setSummaryState('paused')
+    onSummaryStateChange?.('paused')
+  }
 
-  const handleResume = () => setSummaryState('active')
+  const handleResume = () => {
+    setSummaryState('active')
+    onSummaryChange?.(true)
+    onSummaryStateChange?.('active')
+  }
 
   const handleStopRequest = () => {
     if (summaryState === 'confirming') {
@@ -459,6 +460,7 @@ export function MeetingAIRail({ onClose, onSummaryChange, autoStart = false }) {
     setElapsed(0)
     setPreConfirmState(null)
     onSummaryChange?.(false)
+    onSummaryStateChange?.('idle')
   }
 
   /* While confirming, keep showing the pre-confirm state's visuals */

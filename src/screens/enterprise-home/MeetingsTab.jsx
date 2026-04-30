@@ -1108,6 +1108,7 @@ const CHAT_MESSAGES = [
 function TranscriptContent({ profile }) {
   const [search, setSearch] = useState('')
   const [focused, setFocused] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const initials = profile.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
 
@@ -1117,46 +1118,87 @@ function TranscriptContent({ profile }) {
       )
     : TRANSCRIPT_ENTRIES
 
+  function copyTranscript() {
+    const text = TRANSCRIPT_ENTRIES.map(e => {
+      const name = e.speaker === 'ai' ? 'Cisco AI' : profile.name
+      return `[${e.time}] ${name}: ${e.text}`
+    }).join('\n\n')
+    navigator.clipboard.writeText(text).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0, fontFamily: "'Inter', system-ui, sans-serif" }}>
 
-      {/* Search bar */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        background: '#1C1C1C',
-        border: `1px solid ${focused ? '#494949' : '#2A2A2A'}`,
-        borderRadius: 8,
-        padding: '9px 14px',
-        marginBottom: 20,
-        transition: 'border-color 0.15s',
-      }}>
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
-          <circle cx="5.8" cy="5.8" r="4" stroke="#494949" strokeWidth="1.3"/>
-          <path d="M9 9L12 12" stroke="#494949" strokeWidth="1.3" strokeLinecap="round"/>
-        </svg>
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          placeholder="Search transcript"
+      {/* Search bar + Copy button */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, alignItems: 'stretch' }}>
+
+        {/* Search bar */}
+        <div style={{
+          flex: 1, display: 'flex', alignItems: 'center', gap: 8,
+          background: '#1C1C1C',
+          border: `1px solid ${focused ? '#494949' : '#2A2A2A'}`,
+          borderRadius: 8,
+          padding: '9px 14px',
+          transition: 'border-color 0.15s',
+        }}>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
+            <circle cx="5.8" cy="5.8" r="4" stroke="#494949" strokeWidth="1.3"/>
+            <path d="M9 9L12 12" stroke="#494949" strokeWidth="1.3" strokeLinecap="round"/>
+          </svg>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            placeholder="Search transcript"
+            style={{
+              flex: 1, background: 'transparent', border: 'none', outline: 'none',
+              fontSize: 14, color: '#FFFFFF', caretColor: '#FFFFFF',
+              fontFamily: "'Inter', system-ui, sans-serif",
+            }}
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                display: 'flex', alignItems: 'center', color: '#666666' }}
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {/* Copy transcript button */}
+        <button
+          onClick={copyTranscript}
+          title="Copy transcript"
           style={{
-            flex: 1, background: 'transparent', border: 'none', outline: 'none',
-            fontSize: 14, color: '#FFFFFF', caretColor: '#FFFFFF',
-            fontFamily: "'Inter', system-ui, sans-serif",
+            background: '#1C1C1C',
+            border: `1px solid ${copied ? '#3A3A3A' : '#2A2A2A'}`,
+            borderRadius: 8,
+            padding: '0 11px',
+            cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: copied ? '#5BA4F5' : '#888888',
+            flexShrink: 0,
+            transition: 'color 0.15s, border-color 0.15s',
           }}
-        />
-        {search && (
-          <button
-            onClick={() => setSearch('')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-              display: 'flex', alignItems: 'center', color: '#666666' }}
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+        >
+          {copied ? (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8l4 4 6-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-          </button>
-        )}
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2m0 16H8V7h11z"/>
+            </svg>
+          )}
+        </button>
+
       </div>
 
       {/* Entries */}

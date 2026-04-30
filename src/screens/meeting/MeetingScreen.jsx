@@ -80,6 +80,7 @@ export function MeetingScreen() {
   const railOpen             = activeRail !== null
   function toggleRail(name) { setActiveRail(r => r === name ? null : name) }
   const [summaryActive,   setSummaryActive]   = useState(false)
+  const [summaryMode, setSummaryMode] = useState('idle') // 'idle' | 'active' | 'paused'
   const summaryActiveRef = useRef(false)
   const [meetingInfoOpen, setMeetingInfoOpen] = useState(false)
   const [steppedAway,     setSteppedAway]     = useState(false)
@@ -464,7 +465,7 @@ export function MeetingScreen() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span style={{ fontSize: 14, fontWeight: 400, color: '#FFFFFF', fontVariantNumeric: 'tabular-nums', display: 'inline-block', minWidth: 44 }}>{fmt(elapsed)}</span>
             <NetworkStatusIcon />
-            {summaryActive && <AIStatusIcon toastVisible={toasts.length > 0} />}
+            {summaryActive && <AIStatusIcon toastVisible={toasts.length > 0} paused={summaryMode === 'paused'} />}
           </div>
         </div>
 
@@ -990,7 +991,12 @@ export function MeetingScreen() {
                   addToast('AI Assistant is now transcribing and taking notes. All participants have been notified.')
                 }
                 summaryActiveRef.current = active
-                setSummaryActive(active)
+              }}
+              onSummaryStateChange={(mode) => {
+                setSummaryMode(mode)
+                const isOn = mode !== 'idle'
+                setSummaryActive(isOn)
+                if (!isOn) summaryActiveRef.current = false
               }}
             />
           </motion.div>
@@ -2673,7 +2679,7 @@ function NetworkStatusIcon() {
  * 2000ms   opacity eases up to 1.0   (easeInOut)
  * 4000ms   opacity eases back to 0.55 (easeInOut, repeat)
  * ───────────────────────────────────────────────────────── */
-function AIStatusIcon({ toastVisible = false }) {
+function AIStatusIcon({ toastVisible = false, paused = false }) {
   const [hovered, setHovered] = useState(false)
 
   return (
@@ -2685,11 +2691,20 @@ function AIStatusIcon({ toastVisible = false }) {
       <motion.svg
         width="20" height="20" viewBox="0 0 24 24" fill="none"
         stroke="#FFFFFF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" strokeMiterlimit="10"
-        animate={{ opacity: [0.15, 1, 0.15] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        animate={paused ? { opacity: 0.9 } : { opacity: [0.15, 1, 0.15] }}
+        transition={paused ? { duration: 0 } : { duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         style={{ cursor: 'default' }}
       >
-        <path d="M16 3h2.6A2.4 2.4 0 0 1 21 5.4v15.2a2.4 2.4 0 0 1-2.4 2.4H5.4A2.4 2.4 0 0 1 3 20.6V5.4A2.4 2.4 0 0 1 5.4 3H8M7 13h4m-4-3h10M7 16h2M8.8 1h6.4a.8.8 0 0 1 .8.8v2.4a.8.8 0 0 1-.8.8H8.8a.8.8 0 0 1-.8-.8V1.8a.8.8 0 0 1 .8-.8m5.506 12.776l-.377 1.508a.2.2 0 0 1-.145.145l-1.508.377c-.202.05-.202.338 0 .388l1.508.377a.2.2 0 0 1 .145.145l.377 1.508c.05.202.338.202.388 0l.377-1.508a.2.2 0 0 1 .145-.145l1.508-.377c.202-.05.202-.337 0-.388l-1.508-.377a.2.2 0 0 1-.145-.145l-.377-1.508c-.05-.202-.338-.202-.388 0"/>
+        <path d="M16 3h2.6A2.4 2.4 0 0 1 21 5.4v15.2a2.4 2.4 0 0 1-2.4 2.4H5.4A2.4 2.4 0 0 1 3 20.6V5.4A2.4 2.4 0 0 1 5.4 3H8M8.8 1h6.4a.8.8 0 0 1 .8.8v2.4a.8.8 0 0 1-.8.8H8.8a.8.8 0 0 1-.8-.8V1.8a.8.8 0 0 1 .8-.8" />
+        {!paused && (
+          <path d="M7 13h4m-4-3h10M7 16h2m7.506-.224l-.377 1.508a.2.2 0 0 1-.145.145l-1.508.377c-.202.05-.202.338 0 .388l1.508.377a.2.2 0 0 1 .145.145l.377 1.508c.05.202.338.202.388 0l.377-1.508a.2.2 0 0 1 .145-.145l1.508-.377c.202-.05.202-.337 0-.388l-1.508-.377a.2.2 0 0 1-.145-.145l-.377-1.508c-.05-.202-.338-.202-.388 0" />
+        )}
+        {paused && (
+          <g>
+            <rect x="10.1" y="11.4" width="1.8" height="5.8" rx="0.6" fill="#FFFFFF" stroke="none" />
+            <rect x="12.9" y="11.4" width="1.8" height="5.8" rx="0.6" fill="#FFFFFF" stroke="none" />
+          </g>
+        )}
       </motion.svg>
 
       {/* Tooltip — suppressed while toast is visible */}
@@ -2720,7 +2735,9 @@ function AIStatusIcon({ toastVisible = false }) {
               zIndex: 100,
             }}
           >
-            AI Assistant is now transcribing and taking notes. All participants have been notified.
+            {paused
+              ? 'AI Assistant is now paused. All participants have been alerted.'
+              : 'AI Assistant is now transcribing and taking notes. All participants have been notified.'}
           </motion.div>
         )}
       </AnimatePresence>

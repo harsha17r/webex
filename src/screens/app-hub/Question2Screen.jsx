@@ -136,6 +136,7 @@ export function Question2Screen({ onSubmit, onBack }) {
       transition={SPRING}
       style={{
         width: '100%',
+        flex: 1,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'stretch',
@@ -338,13 +339,15 @@ export function Question2Screen({ onSubmit, onBack }) {
         })}
       </div>
 
+      {/* Push buttons to bottom */}
+      <div style={{ flex: 1, minHeight: 32 }} />
+
       <div
         style={{
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
           gap: 12,
-          marginTop: 36,
         }}
       >
         <button

@@ -159,7 +159,7 @@ export function MobileGate({ children }) {
           fontSize: 'clamp(20px, 6vw, 32px)', lineHeight: 1.2,
           fontWeight: 600, color: '#FFFFFF', margin: '0 0 10px',
         }}>
-          This prototype is built for Desktop
+          This prototype is built for desktop
         </h1>
 
         {/* Sub copy */}
