@@ -417,6 +417,14 @@ export function MeetingAIRail({ onClose, onSummaryChange, onSummaryStateChange, 
   const [preConfirmState, setPreConfirmState] = useState(null)
   const intervalRef                         = useRef(null)
 
+  /* Notify parent of initial active state when auto-started */
+  useEffect(() => {
+    if (autoStart) {
+      onSummaryChange?.(true)
+      onSummaryStateChange?.('active')
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   /* Timer — ticks only while active */
   useEffect(() => {
     if (summaryState === 'active') {
